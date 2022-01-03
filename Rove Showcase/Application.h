@@ -11,7 +11,7 @@ namespace Rove
 		Application() = default;
 		virtual ~Application() = default;
 
-		int Run(HINSTANCE hInstance, int nCmdShow);
+		int Run();
 
 	private:
 		std::unique_ptr<Window> m_Window = nullptr;

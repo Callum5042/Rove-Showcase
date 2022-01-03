@@ -4,7 +4,7 @@
 
 namespace
 {
-	std::wstring&& ConvertToWideString(std::string str) 
+	std::wstring ConvertToWideString(std::string str) 
 	{
 		int wchars_num = MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, NULL, 0);
 
@@ -14,7 +14,7 @@ namespace
 		std::wstring wide_str(wstr);
 		delete[] wstr;
 
-		return std::move(wide_str);
+		return wide_str;
 	}
 }
 
@@ -23,7 +23,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	try
 	{
 		auto application = std::make_unique<Rove::Application>();
-		return application->Run(hInstance, nCmdShow);
+		return application->Run();
 	}
 	catch (const std::exception& ex)
 	{

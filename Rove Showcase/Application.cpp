@@ -1,10 +1,10 @@
 #include "Pch.h"
 #include "Application.h"
 
-int Rove::Application::Run(HINSTANCE hInstance, int nCmdShow)
+int Rove::Application::Run()
 {
 	// Create window
-	m_Window = std::make_unique<Rove::Window>(hInstance, nCmdShow);
+	m_Window = std::make_unique<Rove::Window>();
 	m_Window->Create(L"Rove Showcase");
 
 	// Main loop

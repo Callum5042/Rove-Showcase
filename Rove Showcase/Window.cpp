@@ -20,17 +20,15 @@ static LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM l
 	}
 }
 
-Rove::Window::Window(HINSTANCE hInstance, int nCmdShow) : m_hInstance(hInstance), m_CmdShow(nCmdShow)
-{
-}
-
 void Rove::Window::Create(std::wstring&& title)
 {
+	HINSTANCE hInstance = GetModuleHandle(NULL);
+
 	// Register class
 	WNDCLASSEX wndClass = {};
 	wndClass.cbSize = sizeof(WNDCLASSEX);
 	wndClass.lpfnWndProc = WindowProc;
-	wndClass.hInstance = m_hInstance;
+	wndClass.hInstance = hInstance;
 	wndClass.lpszClassName = L"RoveShowcase";
 	wndClass.hCursor = LoadCursor(NULL, IDC_ARROW);
 
@@ -40,12 +38,12 @@ void Rove::Window::Create(std::wstring&& title)
 	}
 
 	// Create window
-	HWND hwnd = CreateWindowEx(0, L"RoveShowcase", title.c_str(), WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, NULL, NULL, m_hInstance, NULL);
+	HWND hwnd = CreateWindowEx(0, L"RoveShowcase", title.c_str(), WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, NULL, NULL, hInstance, NULL);
 
 	if (hwnd == NULL) 
 	{
 		throw std::exception("CreateWindowEx failed");
 	}
 
-	ShowWindow(hwnd, m_CmdShow);
+	ShowWindow(hwnd, SW_NORMAL);
 }

@@ -7,13 +7,9 @@ namespace Rove
 	class Window
 	{
 	public:
-		Window(HINSTANCE hInstance, int nCmdShow);
+		Window() = default;
 		virtual ~Window() = default;
 
 		void Create(std::wstring&& title);
-
-	private:
-		HINSTANCE m_hInstance = NULL;
-		int m_CmdShow = 0;
 	};
 }
