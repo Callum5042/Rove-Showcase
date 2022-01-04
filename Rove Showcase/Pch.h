@@ -13,6 +13,12 @@
 #include <wrl\client.h>
 using Microsoft::WRL::ComPtr;
 
+// Dear ImGui
+#include "ImGui\imgui.h"
+#include "ImGui\imgui_impl_win32.h"
+#include "ImGui\imgui_impl_dx11.h"
+#include "ImGui\imgui_stdlib.h"
+
 // C++
 #include <string>
 #include <memory>

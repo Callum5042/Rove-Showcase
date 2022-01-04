@@ -2,6 +2,9 @@
 #include "Window.h"
 #include "Application.h"
 
+// Forward declare message handler from imgui_impl_win32.cpp
+extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+
 namespace
 {
 	static Rove::Window* GetWindow(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
@@ -36,6 +39,9 @@ namespace
 
 	static LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	{
+		if (ImGui_ImplWin32_WndProcHandler(hwnd, uMsg, wParam, lParam))
+			return true;
+
 		// Get pointer
 		Rove::Window* window = GetWindow(hwnd, uMsg, wParam, lParam);
 

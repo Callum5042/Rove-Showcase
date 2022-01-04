@@ -41,7 +41,10 @@ namespace Rove
 		void Resize(int width, int height);
 
 		// Get Direct3D11 Device
-		const ID3D11Device* GetDevice() { return m_Device.Get(); }
+		ID3D11Device* GetDevice() { return m_Device.Get(); }
+
+		// Get Direct3D11 Device Context
+		ID3D11DeviceContext* GetDeviceContext() { return m_DeviceContext.Get(); }
 
 	private:
 		Window* m_Window = nullptr;

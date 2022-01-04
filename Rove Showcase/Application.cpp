@@ -13,6 +13,18 @@ int Rove::Application::Run()
 	// Create renderer
 	m_DxRenderer->Create();
 
+	// Dear ImGui
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+	ImGuiIO& io = ImGui::GetIO();
+
+	io.Fonts->AddFontFromFileTTF("ImGui\\fonts\\DroidSans.ttf", 13);
+	//(void)io;
+
+	ImGui::StyleColorsDark();
+	ImGui_ImplWin32_Init(m_Window->GetHwnd());
+	ImGui_ImplDX11_Init(m_DxRenderer->GetDevice(), m_DxRenderer->GetDeviceContext());
+
 	// Main loop
 	MSG msg = {};
 	while (msg.message != WM_QUIT) 
@@ -26,9 +38,28 @@ int Rove::Application::Run()
 		{
 			m_DxRenderer->Clear();
 
+
+
+			// Dear ImGui
+			ImGui_ImplDX11_NewFrame();
+			ImGui_ImplWin32_NewFrame();
+			ImGui::NewFrame();
+
+			bool show_demo_window = true;
+			ImGui::ShowDemoWindow(&show_demo_window);
+
+			ImGui::Render();
+			ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+
+
 			m_DxRenderer->Present();
 		}
 	}
+
+	// Clean up ImGui
+	ImGui_ImplDX11_Shutdown();
+	ImGui_ImplWin32_Shutdown();
+	ImGui::DestroyContext();
 
 	return 0;
 }
