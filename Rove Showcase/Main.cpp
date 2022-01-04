@@ -1,10 +1,9 @@
-
 #include "Pch.h"
 #include "Application.h"
 
 namespace
 {
-	std::wstring ConvertToWideString(std::string str) 
+	static std::wstring ConvertToWideString(std::string str) 
 	{
 		int wchars_num = MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, NULL, 0);
 
@@ -32,11 +31,11 @@ int main(int argc, char** argv)
 	{
 		std::wstring error = ConvertToWideString(ex.what());
 		MessageBox(NULL, error.c_str(), L"Error", MB_OK | MB_ICONERROR);
-		return 0;
+		return -1;
 	}
 	catch (...) 
 	{
-		MessageBox(NULL, L"Exception has occurred", L"Error", MB_OK | MB_ICONERROR);
-		return 0;
+		MessageBox(NULL, L"Unknown error has occurred", L"Error", MB_OK | MB_ICONERROR);
+		return -1;
 	}
 }
