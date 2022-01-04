@@ -1,22 +1,50 @@
 #include "Pch.h"
 #include "Window.h"
 
-static LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+namespace
 {
-	switch (uMsg)
+	Rove::Window* GetWindow(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	{
-	case WM_CREATE:
-		return 0;
+		Rove::Window* window = nullptr;
+		if (uMsg == WM_NCCREATE)
+		{
+			CREATESTRUCT* pCreate = reinterpret_cast<CREATESTRUCT*>(lParam);
+			window = reinterpret_cast<Rove::Window*>(pCreate->lpCreateParams);
+			SetWindowLongPtr(hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(window));
+		}
+		else
+		{
+			window = reinterpret_cast<Rove::Window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
+		}
 
-	case WM_DESTROY:
-		PostQuitMessage(0);
-		return 0;
+		return window;
+	}
 
-	case WM_SIZE:
-		return 0;
+	static LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+	{
+		// Get pointer
+		Rove::Window* window = GetWindow(hwnd, uMsg, wParam, lParam);
 
-	default:
-		return DefWindowProc(hwnd, uMsg, wParam, lParam);
+		// Message handling
+		switch (uMsg)
+		{
+		case WM_CREATE:
+			return 0;
+
+		/*case WM_CLOSE:
+			DestroyWindow(hwnd);
+			return 0;*/
+
+		case WM_DESTROY:
+			PostQuitMessage(0);
+			return 0;
+
+		case WM_SIZE:
+			return 0;
+
+		default:
+			return DefWindowProc(hwnd, uMsg, wParam, lParam);
+		}
 	}
 }
 
