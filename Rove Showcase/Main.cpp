@@ -8,12 +8,10 @@ namespace
 	{
 		int wchars_num = MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, NULL, 0);
 
-		wchar_t* wstr = new wchar_t[wchars_num];
-		MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, wstr, wchars_num);
+		std::wstring wide_str;
+		wide_str.resize(wchars_num);
 
-		std::wstring wide_str(wstr);
-		delete[] wstr;
-
+		MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, wide_str.data(), wchars_num);
 		return wide_str;
 	}
 }

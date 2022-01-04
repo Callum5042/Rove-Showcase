@@ -38,7 +38,7 @@ void Rove::Window::Create(std::wstring&& title)
 	}
 
 	// Create window
-	m_Hwnd = CreateWindowEx(0, L"RoveShowcase", title.c_str(), WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, NULL, NULL, hInstance, NULL);
+	m_Hwnd = CreateWindowEx(0, L"RoveShowcase", title.c_str(), WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, NULL, NULL, hInstance, this);
 
 	if (m_Hwnd == NULL)
 	{
@@ -55,4 +55,15 @@ void Rove::Window::GetSize(int* width, int* height)
 
 	*width = rect.right - rect.left;
 	*height = rect.bottom - rect.top;
+}
+
+std::wstring Rove::Window::GetTitle()
+{
+	int length = GetWindowTextLength(m_Hwnd);
+
+	std::wstring title;
+	title.resize(length);
+
+	GetWindowText(m_Hwnd, title.data(), length + 1);
+	return title;
 }

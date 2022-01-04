@@ -18,6 +18,9 @@ namespace Rove
 		// Get window size
 		void GetSize(int* width, int* height);
 
+		// Get window title
+		std::wstring GetTitle();
+
 	private:
 		HWND m_Hwnd = NULL;
 	};

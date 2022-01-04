@@ -37,6 +37,9 @@ namespace Rove
 		// Display the rendered scene
 		void Present();
 
+		// Resizing
+		void Resize(int width, int height);
+
 		// Get Direct3D11 Device
 		const ID3D11Device* GetDevice() { return m_Device.Get(); }
 
