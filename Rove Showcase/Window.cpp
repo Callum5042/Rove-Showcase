@@ -38,12 +38,21 @@ void Rove::Window::Create(std::wstring&& title)
 	}
 
 	// Create window
-	HWND hwnd = CreateWindowEx(0, L"RoveShowcase", title.c_str(), WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, NULL, NULL, hInstance, NULL);
+	m_Hwnd = CreateWindowEx(0, L"RoveShowcase", title.c_str(), WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, NULL, NULL, hInstance, NULL);
 
-	if (hwnd == NULL) 
+	if (m_Hwnd == NULL)
 	{
 		throw std::exception("CreateWindowEx failed");
 	}
 
-	ShowWindow(hwnd, SW_NORMAL);
+	ShowWindow(m_Hwnd, SW_NORMAL);
+}
+
+void Rove::Window::GetSize(int* width, int* height)
+{
+	RECT rect;
+	GetClientRect(m_Hwnd, &rect);
+
+	*width = rect.right - rect.left;
+	*height = rect.bottom - rect.top;
 }

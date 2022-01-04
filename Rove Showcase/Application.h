@@ -2,6 +2,7 @@
 
 #include "Pch.h"
 #include "Window.h"
+#include "DxRenderer.h"
 
 namespace Rove
 {
@@ -15,5 +16,6 @@ namespace Rove
 
 	private:
 		std::unique_ptr<Window> m_Window = nullptr;
+		std::unique_ptr<DxRenderer> m_DxRenderer = nullptr;
 	};
 }

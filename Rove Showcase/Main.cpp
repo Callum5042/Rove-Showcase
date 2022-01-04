@@ -20,6 +20,11 @@ namespace
 
 int main(int argc, char** argv)
 {
+	// Detect memory leaks during debugging
+#ifdef _DEBUG
+	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+#endif
+
 	try
 	{
 		auto application = std::make_unique<Rove::Application>();
