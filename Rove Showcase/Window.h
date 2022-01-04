@@ -6,6 +6,13 @@ namespace Rove
 {
 	class Application;
 
+	// Window minimum width when resizing
+	constexpr int WINDOW_MIN_WIDTH = 200;
+
+	// Window minimum height when resizing
+	constexpr int WINDOW_MIN_HEIGHT = 200;
+
+	// Window
 	class Window
 	{
 	public:
@@ -29,6 +36,7 @@ namespace Rove
 	private:
 		Application* m_Application = nullptr;
 
+		// Win32 HWND
 		HWND m_Hwnd = NULL;
 	};
 }

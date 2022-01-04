@@ -4,7 +4,7 @@
 
 namespace
 {
-	Rove::Window* GetWindow(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+	static Rove::Window* GetWindow(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	{
 		Rove::Window* window = nullptr;
 		if (uMsg == WM_NCCREATE)
@@ -19,6 +19,19 @@ namespace
 		}
 
 		return window;
+	}
+
+	static void WindowResizing(Rove::Window* window, HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+	{
+		// Get window size
+		int window_width = LOWORD(lParam);
+		int window_height = HIWORD(lParam);
+
+		// Don't resize on minimized
+		if (wParam != SIZE_MINIMIZED)
+		{
+			window->GetApplication()->OnResize(window_width, window_height);
+		}
 	}
 
 	static LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
@@ -38,11 +51,15 @@ namespace
 
 		case WM_DESTROY:
 			PostQuitMessage(0);
+			return 0;
 
+		case WM_GETMINMAXINFO:
+			reinterpret_cast<MINMAXINFO*>(lParam)->ptMinTrackSize.x = Rove::WINDOW_MIN_WIDTH;
+			reinterpret_cast<MINMAXINFO*>(lParam)->ptMinTrackSize.y = Rove::WINDOW_MIN_HEIGHT;
 			return 0;
 
 		case WM_SIZE:
-			window->GetApplication()->OnResize(LOWORD(lParam), HIWORD(lParam));
+			WindowResizing(window, hwnd, uMsg, wParam, lParam);
 			return 0;
 
 		default:
