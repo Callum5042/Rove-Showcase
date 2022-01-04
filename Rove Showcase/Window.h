@@ -4,10 +4,12 @@
 
 namespace Rove
 {
+	class Application;
+
 	class Window
 	{
 	public:
-		Window() = default;
+		Window(Application* application);
 		virtual ~Window() = default;
 
 		void Create(std::wstring&& title);
@@ -21,7 +23,12 @@ namespace Rove
 		// Get window title
 		std::wstring GetTitle();
 
+		// Get application
+		constexpr Application* GetApplication() { return m_Application; }
+
 	private:
+		Application* m_Application = nullptr;
+
 		HWND m_Hwnd = NULL;
 	};
 }

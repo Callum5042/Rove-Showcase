@@ -14,6 +14,11 @@ namespace Rove
 
 		int Run();
 
+		///////////
+		// Events
+
+		void OnResize(int width, int height);
+
 	private:
 		std::unique_ptr<Window> m_Window = nullptr;
 		std::unique_ptr<DxRenderer> m_DxRenderer = nullptr;

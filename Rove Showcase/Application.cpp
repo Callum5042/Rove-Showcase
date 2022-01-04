@@ -4,7 +4,7 @@
 int Rove::Application::Run()
 {
 	// Initialise data
-	m_Window = std::make_unique<Rove::Window>();
+	m_Window = std::make_unique<Rove::Window>(this);
 	m_DxRenderer = std::make_unique<Rove::DxRenderer>(m_Window.get());
 
 	// Create window
@@ -31,4 +31,9 @@ int Rove::Application::Run()
 	}
 
 	return 0;
+}
+
+void Rove::Application::OnResize(int width, int height)
+{
+	m_DxRenderer->Resize(width, height);
 }

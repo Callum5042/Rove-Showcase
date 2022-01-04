@@ -37,6 +37,10 @@ void Rove::DxRenderer::Present()
 
 void Rove::DxRenderer::Resize(int width, int height)
 {
+	// Resize is called when window is first created, so exit early if we are not ready to handle resizing
+	if (m_Device == nullptr)
+		return;
+
 	// Releases the current render target and depth stencil view
 	m_DepthStencilView.ReleaseAndGetAddressOf();
 	m_RenderTargetView.ReleaseAndGetAddressOf();

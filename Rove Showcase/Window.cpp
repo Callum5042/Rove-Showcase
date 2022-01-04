@@ -1,5 +1,6 @@
 #include "Pch.h"
 #include "Window.h"
+#include "Application.h"
 
 namespace
 {
@@ -37,15 +38,21 @@ namespace
 
 		case WM_DESTROY:
 			PostQuitMessage(0);
+
 			return 0;
 
 		case WM_SIZE:
+			window->GetApplication()->OnResize(LOWORD(lParam), HIWORD(lParam));
 			return 0;
 
 		default:
 			return DefWindowProc(hwnd, uMsg, wParam, lParam);
 		}
 	}
+}
+
+Rove::Window::Window(Application* application) : m_Application(application)
+{
 }
 
 void Rove::Window::Create(std::wstring&& title)
