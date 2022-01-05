@@ -2,7 +2,7 @@
 
 #include "Pch.h"
 #include "Window.h"
-#include "DxRenderer.h"
+#include "Rendering/DxRenderer.h"
 
 namespace Rove
 {

@@ -49,12 +49,29 @@ int Rove::Application::Run()
 			ImGui::ShowDemoWindow(&show_demo_window);
 
 			// Info window
-			ImGui::SetNextWindowPos(ImVec2(20, 20), ImGuiCond_Once);
-			ImGui::SetNextWindowSize(ImVec2(200, 60), ImGuiCond_Once);
-			ImGui::Begin("InfoWindow", nullptr, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar);
-			ImGui::Text("Rove Showroom - FPS: %d", 10);
-			ImGui::End();
+			{
+				ImGui::SetNextWindowPos(ImVec2(20, 20), ImGuiCond_Once);
+				ImGui::SetNextWindowSize(ImVec2(200, 60), ImGuiCond_Once);
+				ImGui::Begin("InfoWindow", nullptr, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar);
+				ImGui::Text("Rove Showroom - FPS: %d", 10);
+				ImGui::End();
+			}
 
+			// Viewport
+			{
+				ImGui::SetNextWindowSize(ImVec2(640, 480), ImGuiCond_Once);
+				ImGui::Begin("Viewport", nullptr);
+
+				ImVec2 pos = ImGui::GetCursorScreenPos();
+				ImVec2 size = ImGui::GetContentRegionAvail();
+				int width = (int)size.x;
+				int height = (int)size.y;
+
+				ID3D11ShaderResourceView* view = nullptr;
+				ImGui::GetWindowDrawList()->AddImage(reinterpret_cast<void*>(view), pos, ImVec2(pos.x + width, pos.y + height));
+
+				ImGui::End();
+			}
 
 			ImGui::Render();
 			ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());

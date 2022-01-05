@@ -5,7 +5,7 @@
     <ClCompile Include="Pch.cpp" />
     <ClCompile Include="Window.cpp" />
     <ClCompile Include="Application.cpp" />
-    <ClCompile Include="DxRenderer.cpp" />
+    <ClCompile Include="Rendering\DxRenderer.cpp" />
     <ClCompile Include="ImGui\imgui.cpp" />
     <ClCompile Include="ImGui\imgui_demo.cpp" />
     <ClCompile Include="ImGui\imgui_draw.cpp" />
@@ -19,7 +19,7 @@
     <ClInclude Include="Pch.h" />
     <ClInclude Include="Window.h" />
     <ClInclude Include="Application.h" />
-    <ClInclude Include="DxRenderer.h" />
+    <ClInclude Include="Rendering\DxRenderer.h" />
     <ClInclude Include="ImGui\imgui.h" />
     <ClInclude Include="ImGui\imgui_internal.h" />
     <ClInclude Include="ImGui\imconfig.h" />
