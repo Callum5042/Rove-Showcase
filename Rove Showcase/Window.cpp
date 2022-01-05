@@ -24,19 +24,6 @@ namespace
 		return window;
 	}
 
-	static void WindowResizing(Rove::Window* window, HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
-	{
-		// Get window size
-		int window_width = LOWORD(lParam);
-		int window_height = HIWORD(lParam);
-
-		// Don't resize on minimized
-		if (wParam != SIZE_MINIMIZED)
-		{
-			window->GetApplication()->OnResize(window_width, window_height);
-		}
-	}
-
 	static LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	{
 		if (ImGui_ImplWin32_WndProcHandler(hwnd, uMsg, wParam, lParam))
@@ -44,31 +31,12 @@ namespace
 
 		// Get pointer
 		Rove::Window* window = GetWindow(hwnd, uMsg, wParam, lParam);
-
-		// Message handling
-		switch (uMsg)
+		if (window != nullptr)
 		{
-		case WM_CREATE:
-			return 0;
-
-		/*case WM_CLOSE:
-			DestroyWindow(hwnd);
-			return 0;*/
-
-		case WM_DESTROY:
-			PostQuitMessage(0);
-			return 0;
-
-		case WM_GETMINMAXINFO:
-			reinterpret_cast<MINMAXINFO*>(lParam)->ptMinTrackSize.x = Rove::WINDOW_MIN_WIDTH;
-			reinterpret_cast<MINMAXINFO*>(lParam)->ptMinTrackSize.y = Rove::WINDOW_MIN_HEIGHT;
-			return 0;
-
-		case WM_SIZE:
-			WindowResizing(window, hwnd, uMsg, wParam, lParam);
-			return 0;
-
-		default:
+			return window->HandleMessage(hwnd, uMsg, wParam, lParam);
+		}
+		else
+		{
 			return DefWindowProc(hwnd, uMsg, wParam, lParam);
 		}
 	}
@@ -106,6 +74,35 @@ void Rove::Window::Create(std::wstring&& title)
 	ShowWindow(m_Hwnd, SW_NORMAL);
 }
 
+LRESULT Rove::Window::HandleMessage(HWND hwnd, INT uMsg, WPARAM wParam, LPARAM lParam)
+{
+	switch (uMsg)
+	{
+	case WM_CREATE:
+		return 0;
+
+	/*case WM_CLOSE:
+		DestroyWindow(hwnd);
+		return 0;*/
+
+	case WM_DESTROY:
+		PostQuitMessage(0);
+		return 0;
+
+	case WM_GETMINMAXINFO:
+		reinterpret_cast<MINMAXINFO*>(lParam)->ptMinTrackSize.x = Rove::WINDOW_MIN_WIDTH;
+		reinterpret_cast<MINMAXINFO*>(lParam)->ptMinTrackSize.y = Rove::WINDOW_MIN_HEIGHT;
+		return 0;
+
+	case WM_SIZE:
+		WindowResizing(hwnd, uMsg, wParam, lParam);
+		return 0;
+
+	default:
+		return DefWindowProc(hwnd, uMsg, wParam, lParam);
+	}
+}
+
 void Rove::Window::GetSize(int* width, int* height)
 {
 	RECT rect;
@@ -124,4 +121,17 @@ std::wstring Rove::Window::GetTitle()
 
 	GetWindowText(m_Hwnd, title.data(), length + 1);
 	return title;
+}
+
+void Rove::Window::WindowResizing(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+	// Get window size
+	int window_width = LOWORD(lParam);
+	int window_height = HIWORD(lParam);
+
+	// Don't resize on minimized
+	if (wParam != SIZE_MINIMIZED)
+	{
+		GetApplication()->OnResize(window_width, window_height);
+	}
 }

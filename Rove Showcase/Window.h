@@ -21,6 +21,9 @@ namespace Rove
 
 		void Create(std::wstring&& title);
 
+		// Handle Win32 message queue
+		LRESULT HandleMessage(HWND hwnd, INT uMsg, WPARAM wParam, LPARAM lParam);
+
 		// Get Win32 HWND
 		constexpr HWND GetHwnd() { return m_Hwnd; }
 
@@ -38,5 +41,7 @@ namespace Rove
 
 		// Win32 HWND
 		HWND m_Hwnd = NULL;
+
+		void WindowResizing(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 	};
 }
