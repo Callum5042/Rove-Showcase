@@ -19,7 +19,6 @@ int Rove::Application::Run()
 	ImGuiIO& io = ImGui::GetIO();
 
 	io.Fonts->AddFontFromFileTTF("ImGui\\fonts\\DroidSans.ttf", 13);
-	//(void)io;
 
 	ImGui::StyleColorsDark();
 	ImGui_ImplWin32_Init(m_Window->GetHwnd());
@@ -36,6 +35,7 @@ int Rove::Application::Run()
 		}
 		else
 		{
+			// Clear backbuffer
 			m_DxRenderer->Clear();
 
 
@@ -48,10 +48,18 @@ int Rove::Application::Run()
 			bool show_demo_window = true;
 			ImGui::ShowDemoWindow(&show_demo_window);
 
+			// Info window
+			ImGui::SetNextWindowPos(ImVec2(20, 20), ImGuiCond_Once);
+			ImGui::SetNextWindowSize(ImVec2(200, 60), ImGuiCond_Once);
+			ImGui::Begin("InfoWindow", nullptr, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar);
+			ImGui::Text("Rove Showroom - FPS: %d", 10);
+			ImGui::End();
+
+
 			ImGui::Render();
 			ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 
-
+			// Present backbuffer to screen
 			m_DxRenderer->Present();
 		}
 	}
