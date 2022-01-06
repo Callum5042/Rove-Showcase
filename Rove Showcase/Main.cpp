@@ -30,12 +30,12 @@ int main(int argc, char** argv)
 	catch (const std::exception& ex)
 	{
 		std::wstring error = ConvertToWideString(ex.what());
-		MessageBox(NULL, error.c_str(), L"Error", MB_OK | MB_ICONERROR);
+		MessageBox(NULL, error.c_str(), L"Error", MB_DEFAULT_DESKTOP_ONLY | MB_ICONERROR);
 		return -1;
 	}
 	catch (...) 
 	{
-		MessageBox(NULL, L"Unknown error has occurred", L"Error", MB_OK | MB_ICONERROR);
+		MessageBox(NULL, L"Unknown error has occurred", L"Error", MB_DEFAULT_DESKTOP_ONLY | MB_ICONERROR);
 		return -1;
 	}
 }
