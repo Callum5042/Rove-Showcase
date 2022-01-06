@@ -22,6 +22,10 @@ using Microsoft::WRL::ComPtr;
 // C++
 #include <string>
 #include <memory>
+#include <vector>
+#include <fstream>
+#include <filesystem>
+#include <exception>
 
 #include <locale>
 #include <codecvt>

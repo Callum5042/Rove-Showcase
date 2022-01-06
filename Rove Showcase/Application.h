@@ -3,6 +3,7 @@
 #include "Pch.h"
 #include "Windows\Window.h"
 #include "Rendering\DxRenderer.h"
+#include "Rendering\DxShader.h"
 
 // Components
 #include "Components\ViewportComponent.h"
@@ -29,6 +30,7 @@ namespace Rove
 	private:
 		std::unique_ptr<Window> m_Window = nullptr;
 		std::unique_ptr<DxRenderer> m_DxRenderer = nullptr;
+		std::unique_ptr<DxShader> m_DxShader = nullptr;
 
 		void SetupDearImGui();
 

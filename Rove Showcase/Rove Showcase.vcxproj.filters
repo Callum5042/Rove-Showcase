@@ -16,6 +16,7 @@
     <ClCompile Include="ImGui\imgui_tables.cpp" />
     <ClCompile Include="Components\ViewportComponent.cpp" />
     <ClCompile Include="Components\InfoComponent.cpp" />
+    <ClCompile Include="Rendering\DxShader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Pch.h" />
@@ -33,8 +34,14 @@
     <ClInclude Include="ImGui\imgui_stdlib.h" />
     <ClInclude Include="Components\ViewportComponent.h" />
     <ClInclude Include="Components\InfoComponent.h" />
+    <ClInclude Include="Rendering\DxShader.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="imgui.ini" />
+    <None Include="Rendering\Shaders\ShaderData.hlsli" />
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="Rendering\Shaders\PixelShader.hlsl" />
+    <FxCompile Include="Rendering\Shaders\VertexShader.hlsl" />
   </ItemGroup>
 </Project>

@@ -6,13 +6,14 @@ int Rove::Application::Run()
 	// Initialise data
 	m_Window = std::make_unique<Rove::Window>(this);
 	m_DxRenderer = std::make_unique<Rove::DxRenderer>(m_Window.get());
-
+	m_DxShader = std::make_unique<Rove::DxShader>(m_DxRenderer.get());
 
 	// Create window
 	m_Window->Create(L"Rove Showcase");
 
 	// Create renderer
 	m_DxRenderer->Create();
+	m_DxShader->Load();
 
 	// Viewport
 	m_ViewportComponent = std::make_unique<Rove::ViewportComponent>(this);
@@ -39,7 +40,11 @@ int Rove::Application::Run()
 
 			// Apply viewport
 			m_ViewportComponent->Set();
-			
+
+			// Render model
+			m_DxShader->Apply();
+
+
 			// Render components
 			m_ViewportComponent->OnRender();
 			m_InfoComponent->OnRender();
