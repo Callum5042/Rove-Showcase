@@ -5,17 +5,16 @@ namespace Rove
 	class Application;
 
 	// Viewport
-	class Viewport
+	class ViewportComponent
 	{
 	public:
-		Viewport(Application* application);
-		virtual ~Viewport() = default;
+		ViewportComponent(Application* application);
+		virtual ~ViewportComponent() = default;
 
 		void OnCreate();
+		void OnRender();
 
 		void Set();
-
-		ID3D11ShaderResourceView* GetViewportTexture() { return m_RenderedTexture.Get(); }
 
 	private:
 		Application* m_Application = nullptr;

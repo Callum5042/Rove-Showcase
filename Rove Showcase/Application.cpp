@@ -15,8 +15,8 @@ int Rove::Application::Run()
 	m_DxRenderer->Create();
 
 	// Viewport
-	m_Viewport = std::make_unique<Rove::Viewport>(this);
-	m_Viewport->OnCreate();
+	m_ViewportComponent = std::make_unique<Rove::ViewportComponent>(this);
+	m_ViewportComponent->OnCreate();
 
 	// Dear ImGui
 	IMGUI_CHECKVERSION();
@@ -42,47 +42,25 @@ int Rove::Application::Run()
 		}
 		else
 		{
-			m_Viewport->Set();
-
-
-
-			// Clear backbuffer
-			m_DxRenderer->Clear();
-
-
-
 			// Dear ImGui
 			ImGui_ImplDX11_NewFrame();
 			ImGui_ImplWin32_NewFrame();
 			ImGui::NewFrame();
 
+			// Apply viewport
+			m_ViewportComponent->Set();
+			
+			// Render components
+			m_ViewportComponent->OnRender();
+			m_InfoComponent->OnRender();
+
+
 			/*bool show_demo_window = true;
 			ImGui::ShowDemoWindow(&show_demo_window);*/
 
-			// Info window
-			{
-				ImGui::SetNextWindowPos(ImVec2(20, 20), ImGuiCond_Once);
-				ImGui::SetNextWindowSize(ImVec2(200, 60), ImGuiCond_Once);
-				ImGui::Begin("InfoWindow", nullptr, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar);
-				ImGui::Text("Rove Showroom - FPS: %d", 10);
-				ImGui::End();
-			}
 
-			// Viewport
-			{
-				ImGui::SetNextWindowSize(ImVec2(640, 480), ImGuiCond_Once);
-				ImGui::Begin("Viewport", nullptr);
-
-				ImVec2 pos = ImGui::GetCursorScreenPos();
-				ImVec2 size = ImGui::GetContentRegionAvail();
-				int width = (int)size.x;
-				int height = (int)size.y;
-
-				auto viewport_texture = m_Viewport->GetViewportTexture();
-				ImGui::GetWindowDrawList()->AddImage(reinterpret_cast<void*>(viewport_texture), pos, ImVec2(pos.x + width, pos.y + height));
-
-				ImGui::End();
-			}
+			// Clear backbuffer
+			m_DxRenderer->Clear();
 
 			ImGui::Render();
 			ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());

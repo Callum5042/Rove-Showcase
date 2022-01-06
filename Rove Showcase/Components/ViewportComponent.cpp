@@ -1,12 +1,12 @@
 #include "Pch.h"
-#include "Viewport.h"
+#include "ViewportComponent.h"
 #include "Application.h"
 
-Rove::Viewport::Viewport(Application* application) : m_Application(application)
+Rove::ViewportComponent::ViewportComponent(Application* application) : m_Application(application)
 {
 }
 
-void Rove::Viewport::OnCreate()
+void Rove::ViewportComponent::OnCreate()
 {
 	// Texture
 	auto device =  m_Application->GetRenderer()->GetDevice();
@@ -70,7 +70,22 @@ void Rove::Viewport::OnCreate()
 	DX::Check(device->CreateShaderResourceView(m_Texture.Get(), &view_desc, m_RenderedTexture.ReleaseAndGetAddressOf()));
 }
 
-void Rove::Viewport::Set()
+void Rove::ViewportComponent::OnRender()
+{
+	ImGui::SetNextWindowSize(ImVec2(640, 480), ImGuiCond_Once);
+	ImGui::Begin("Viewport", nullptr);
+
+	ImVec2 pos = ImGui::GetCursorScreenPos();
+	ImVec2 size = ImGui::GetContentRegionAvail();
+	int width = (int)size.x;
+	int height = (int)size.y;
+
+	ImGui::GetWindowDrawList()->AddImage(reinterpret_cast<void*>(m_RenderedTexture.Get()), pos, ImVec2(pos.x + width, pos.y + height));
+
+	ImGui::End();
+}
+
+void Rove::ViewportComponent::Set()
 {
 	auto context = m_Application->GetRenderer()->GetDeviceContext();
 

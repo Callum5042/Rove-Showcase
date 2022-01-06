@@ -1,11 +1,12 @@
 #pragma once
 
 #include "Pch.h"
-#include "Windows/Window.h"
-#include "Rendering/DxRenderer.h"
+#include "Windows\Window.h"
+#include "Rendering\DxRenderer.h"
 
 // Components
-#include "Components/Viewport.h"
+#include "Components\ViewportComponent.h"
+#include "Components\InfoComponent.h"
 
 namespace Rove
 {
@@ -31,6 +32,7 @@ namespace Rove
 
 
 		// Components
-		std::unique_ptr<Viewport> m_Viewport = nullptr;
+		std::unique_ptr<ViewportComponent> m_ViewportComponent = nullptr;
+		std::unique_ptr<InfoComponent> m_InfoComponent = nullptr;
 	};
 }
