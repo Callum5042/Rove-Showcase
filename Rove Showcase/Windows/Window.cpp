@@ -46,6 +46,11 @@ Rove::Window::Window(Application* application) : m_Application(application)
 {
 }
 
+Rove::Window::~Window() 
+{
+	DestroyWindow(m_Hwnd);
+}
+
 void Rove::Window::Create(std::wstring&& title)
 {
 	HINSTANCE hInstance = GetModuleHandle(NULL);
