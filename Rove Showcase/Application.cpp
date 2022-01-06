@@ -19,17 +19,7 @@ int Rove::Application::Run()
 	m_ViewportComponent->OnCreate();
 
 	// Dear ImGui
-	IMGUI_CHECKVERSION();
-	ImGui::CreateContext();
-	ImGuiIO& io = ImGui::GetIO();
-
-	io.Fonts->AddFontFromFileTTF("ImGui\\fonts\\DroidSans.ttf", 13);
-
-	ImGui::StyleColorsDark();
-	ImGui_ImplWin32_Init(m_Window->GetHwnd());
-	ImGui_ImplDX11_Init(m_DxRenderer->GetDevice(), m_DxRenderer->GetDeviceContext());
-
-	
+	SetupDearImGui();
 
 	// Main loop
 	MSG msg = {};
@@ -42,7 +32,7 @@ int Rove::Application::Run()
 		}
 		else
 		{
-			// Dear ImGui
+			// Start rendering into Dear ImGui
 			ImGui_ImplDX11_NewFrame();
 			ImGui_ImplWin32_NewFrame();
 			ImGui::NewFrame();
@@ -62,6 +52,7 @@ int Rove::Application::Run()
 			// Clear backbuffer
 			m_DxRenderer->Clear();
 
+			// Render Dear ImGui
 			ImGui::Render();
 			ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 
@@ -81,4 +72,17 @@ int Rove::Application::Run()
 void Rove::Application::OnResize(int width, int height)
 {
 	m_DxRenderer->Resize(width, height);
+}
+
+void Rove::Application::SetupDearImGui()
+{
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+	ImGuiIO& io = ImGui::GetIO();
+
+	io.Fonts->AddFontFromFileTTF("ImGui\\fonts\\DroidSans.ttf", 13);
+
+	ImGui::StyleColorsDark();
+	ImGui_ImplWin32_Init(m_Window->GetHwnd());
+	ImGui_ImplDX11_Init(m_DxRenderer->GetDevice(), m_DxRenderer->GetDeviceContext());
 }

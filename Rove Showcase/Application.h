@@ -30,6 +30,7 @@ namespace Rove
 		std::unique_ptr<Window> m_Window = nullptr;
 		std::unique_ptr<DxRenderer> m_DxRenderer = nullptr;
 
+		void SetupDearImGui();
 
 		// Components
 		std::unique_ptr<ViewportComponent> m_ViewportComponent = nullptr;
