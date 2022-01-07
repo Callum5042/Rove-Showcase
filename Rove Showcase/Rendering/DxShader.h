@@ -4,6 +4,13 @@
 
 namespace Rove
 {
+	struct WorldBuffer
+	{
+		DirectX::XMMATRIX world;
+		DirectX::XMMATRIX view;
+		DirectX::XMMATRIX projection;
+	};
+
 	class DxRenderer;
 
 	class DxShader
@@ -14,6 +21,9 @@ namespace Rove
 
 		void Load();
 		void Apply();
+
+		// Set world constant buffer from camera
+		void UpdateWorldConstantBuffer(const WorldBuffer& worldBuffer);
 		
 	private:
 		DxRenderer* m_DxRenderer = nullptr;

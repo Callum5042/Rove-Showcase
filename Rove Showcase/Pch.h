@@ -8,6 +8,7 @@
 // DirectX
 #include <d3d11_1.h>
 #include <DirectXColors.h>
+#include <DirectXMath.h>
 
 // This include is requires for using DirectX smart pointers (ComPtr)
 #include <wrl\client.h>

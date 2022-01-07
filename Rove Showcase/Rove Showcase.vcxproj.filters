@@ -17,6 +17,8 @@
     <ClCompile Include="Components\ViewportComponent.cpp" />
     <ClCompile Include="Components\InfoComponent.cpp" />
     <ClCompile Include="Rendering\DxShader.cpp" />
+    <ClCompile Include="Rendering\DxCamera.cpp" />
+    <ClCompile Include="Rendering\DxModel.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Pch.h" />
@@ -35,6 +37,8 @@
     <ClInclude Include="Components\ViewportComponent.h" />
     <ClInclude Include="Components\InfoComponent.h" />
     <ClInclude Include="Rendering\DxShader.h" />
+    <ClInclude Include="Rendering\DxCamera.h" />
+    <ClInclude Include="Rendering\DxModel.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="imgui.ini" />

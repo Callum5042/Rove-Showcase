@@ -15,9 +15,26 @@ int Rove::Application::Run()
 	m_DxRenderer->Create();
 	m_DxShader->Load();
 
+	// Camera
+	int width, height;
+	m_Window->GetSize(&width, &height);
+	m_Camera = std::make_unique<Rove::Camera>(width, height);
+
 	// Viewport
 	m_ViewportComponent = std::make_unique<Rove::ViewportComponent>(this);
 	m_ViewportComponent->OnCreate();
+
+	// Model
+	m_Model = std::make_unique<Rove::Model>(m_DxRenderer.get());
+	m_Model->Create();
+
+	// Set world constant buffer from camera
+	Rove::WorldBuffer world_buffer = {};
+	world_buffer.world = DirectX::XMMatrixTranspose(m_Model->World);
+	world_buffer.view = DirectX::XMMatrixTranspose(m_Camera->GetView());
+	world_buffer.projection = DirectX::XMMatrixTranspose(m_Camera->GetProjection());
+
+	m_DxShader->UpdateWorldConstantBuffer(world_buffer);
 
 	// Dear ImGui
 	SetupDearImGui();
@@ -44,6 +61,8 @@ int Rove::Application::Run()
 			// Render model
 			m_DxShader->Apply();
 
+			// Render model into viewport
+			m_Model->Render();
 
 			// Render components
 			m_ViewportComponent->OnRender();
@@ -52,7 +71,6 @@ int Rove::Application::Run()
 
 			/*bool show_demo_window = true;
 			ImGui::ShowDemoWindow(&show_demo_window);*/
-
 
 			// Clear backbuffer
 			m_DxRenderer->Clear();

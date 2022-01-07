@@ -2,16 +2,6 @@
 #include "DxShader.h"
 #include "DxRenderer.h"
 
-namespace
-{
-	struct WorldBuffer
-	{
-		DirectX::XMMATRIX world;
-		DirectX::XMMATRIX view;
-		DirectX::XMMATRIX projection;
-	};
-}
-
 Rove::DxShader::DxShader(DxRenderer* renderer) : m_DxRenderer(renderer)
 {
 }
@@ -38,6 +28,12 @@ void Rove::DxShader::Apply()
 
 	// Bind the world constant buffer to the vertex shader
 	deviceContext->VSSetConstantBuffers(0, 1, m_WorldConstantBuffer.GetAddressOf());
+}
+
+void Rove::DxShader::UpdateWorldConstantBuffer(const WorldBuffer& worldBuffer)
+{
+	auto d3dDeviceContext = m_DxRenderer->GetDeviceContext();
+	d3dDeviceContext->UpdateSubresource(m_WorldConstantBuffer.Get(), 0, nullptr, &worldBuffer, 0, 0);
 }
 
 void Rove::DxShader::LoadVertexShader(std::string&& vertex_shader_path)

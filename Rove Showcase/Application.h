@@ -4,6 +4,8 @@
 #include "Windows\Window.h"
 #include "Rendering\DxRenderer.h"
 #include "Rendering\DxShader.h"
+#include "Rendering\DxCamera.h"
+#include "Rendering\DxModel.h"
 
 // Components
 #include "Components\ViewportComponent.h"
@@ -31,6 +33,8 @@ namespace Rove
 		std::unique_ptr<Window> m_Window = nullptr;
 		std::unique_ptr<DxRenderer> m_DxRenderer = nullptr;
 		std::unique_ptr<DxShader> m_DxShader = nullptr;
+		std::unique_ptr<Camera> m_Camera = nullptr;
+		std::unique_ptr<Model> m_Model = nullptr;
 
 		void SetupDearImGui();
 
