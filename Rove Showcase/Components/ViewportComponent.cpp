@@ -11,22 +11,40 @@ void Rove::ViewportComponent::OnCreate()
 	int width, height;
 	m_Application->GetWindow()->GetSize(&width, &height);
 
+	m_WindowWidth = width;
+	m_WindowHeight = height;
+
 	CreateSharedTexture(width, height);
 	CreateRenderTargetView();
 	CreateDepthStencilView(width, height);
 	CreateShaderResourceView();
+	SetViewport(width, height);
 }
 
 void Rove::ViewportComponent::OnRender()
 {
-	ImGui::SetNextWindowSize(ImVec2(640, 480), ImGuiCond_Once);
+	ImGui::SetNextWindowSize(ImVec2(800, 600), ImGuiCond_Once);
 	ImGui::Begin("Viewport", nullptr);
 
+	// Get window details
 	ImVec2 pos = ImGui::GetCursorScreenPos();
 	ImVec2 size = ImGui::GetContentRegionAvail();
 	int width = static_cast<int>(size.x);
 	int height = static_cast<int>(size.y);
 
+	// Detect ImGui window is resizing
+	if (m_WindowWidth != width && m_WindowHeight != height)
+	{
+		if (ImGui::IsMouseReleased(ImGuiMouseButton_Left))
+		{
+			m_WindowWidth = width;
+			m_WindowHeight = height;
+
+			Resize(width, height);
+		}
+	}
+
+	// Render Direct3D11 texture to ImGui viewport
 	ImGui::GetWindowDrawList()->AddImage(reinterpret_cast<void*>(m_RenderedTexture.Get()), pos, ImVec2(pos.x + width, pos.y + height));
 
 	ImGui::End();
@@ -42,6 +60,9 @@ void Rove::ViewportComponent::Set()
 
 	// Bind the render target view to the pipeline's output merger stage
 	context->OMSetRenderTargets(1, m_TextureRenderTargetView.GetAddressOf(), m_TextureDepthStencilView.Get());
+
+	// Set viewport
+	SetViewport(m_WindowWidth, m_WindowHeight);
 }
 
 void Rove::ViewportComponent::CreateSharedTexture(int width, int height)
@@ -112,4 +133,28 @@ void Rove::ViewportComponent::CreateDepthStencilView(int width, int height)
 	ComPtr<ID3D11Texture2D> texture = nullptr;
 	DX::Check(device->CreateTexture2D(&texture_desc, nullptr, texture.ReleaseAndGetAddressOf()));
 	DX::Check(device->CreateDepthStencilView(texture.Get(), nullptr, m_TextureDepthStencilView.ReleaseAndGetAddressOf()));
+}
+
+void Rove::ViewportComponent::Resize(int width, int height)
+{
+	CreateSharedTexture(width, height);
+	CreateRenderTargetView();
+	CreateDepthStencilView(width, height);
+	CreateShaderResourceView();
+	SetViewport(width, height);
+}
+
+void Rove::ViewportComponent::SetViewport(int width, int height)
+{
+	auto context = m_Application->GetRenderer()->GetDeviceContext();
+
+	D3D11_VIEWPORT vp = {};
+	vp.Width = static_cast<FLOAT>(width);
+	vp.Height = static_cast<FLOAT>(height);
+	vp.MinDepth = 0.0f;
+	vp.MaxDepth = 1.0f;
+	vp.TopLeftX = 0;
+	vp.TopLeftY = 0;
+
+	context->RSSetViewports(1, &vp);
 }

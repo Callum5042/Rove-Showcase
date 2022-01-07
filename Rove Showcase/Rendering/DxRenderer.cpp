@@ -27,6 +27,11 @@ void Rove::DxRenderer::Clear()
 
 	// Bind the render target view to the pipeline's output merger stage
 	m_DeviceContext->OMSetRenderTargets(1, m_RenderTargetView.GetAddressOf(), m_DepthStencilView.Get());
+
+	int window_width = 0;
+	int window_height = 0;
+	m_Window->GetSize(&window_width, &window_height);
+	SetViewport(window_width, window_height);
 }
 
 void Rove::DxRenderer::Present()

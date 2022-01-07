@@ -29,12 +29,17 @@ int Rove::Application::Run()
 	m_Model->Create();
 
 	// Set world constant buffer from camera
-	Rove::WorldBuffer world_buffer = {};
-	world_buffer.world = DirectX::XMMatrixTranspose(m_Model->World);
-	world_buffer.view = DirectX::XMMatrixTranspose(m_Camera->GetView());
-	world_buffer.projection = DirectX::XMMatrixTranspose(m_Camera->GetProjection());
+	{
+		Rove::WorldBuffer world_buffer = {};
+		auto world = m_Model->World;
+		world += DirectX::XMMatrixTranslation(0.0f, 0.0f, 0.0f);
 
-	m_DxShader->UpdateWorldConstantBuffer(world_buffer);
+		world_buffer.world = DirectX::XMMatrixTranspose(world);
+		world_buffer.view = DirectX::XMMatrixTranspose(m_Camera->GetView());
+		world_buffer.projection = DirectX::XMMatrixTranspose(m_Camera->GetProjection());
+
+		m_DxShader->UpdateWorldConstantBuffer(world_buffer);
+	}
 
 	// Dear ImGui
 	SetupDearImGui();
@@ -55,13 +60,32 @@ int Rove::Application::Run()
 			ImGui_ImplWin32_NewFrame();
 			ImGui::NewFrame();
 
+
+
 			// Apply viewport
 			m_ViewportComponent->Set();
 
+
+
 			// Render model
-			m_DxShader->Apply();
+			//if (ImGui::IsMouseClicked(ImGuiMouseButton_Right))
+			{
+				m_Camera->UpdateAspectRatio(m_ViewportComponent->GetWidth(), m_ViewportComponent->GetHeight());
+
+				Rove::WorldBuffer world_buffer1 = {};
+				auto world = m_Model->World;
+				world += DirectX::XMMatrixTranslation(0.0f, 0.0f, 0.0f);
+
+				world_buffer1.world = DirectX::XMMatrixTranspose(world);
+				world_buffer1.view = DirectX::XMMatrixTranspose(m_Camera->GetView());
+				world_buffer1.projection = DirectX::XMMatrixTranspose(m_Camera->GetProjection());
+
+				m_DxShader->UpdateWorldConstantBuffer(world_buffer1);
+			}
+			
 
 			// Render model into viewport
+			m_DxShader->Apply();
 			m_Model->Render();
 
 			// Render components
@@ -69,8 +93,7 @@ int Rove::Application::Run()
 			m_InfoComponent->OnRender();
 
 
-			/*bool show_demo_window = true;
-			ImGui::ShowDemoWindow(&show_demo_window);*/
+			//ImGui::ShowDemoWindow(nullptr);
 
 			// Clear backbuffer
 			m_DxRenderer->Clear();

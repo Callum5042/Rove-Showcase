@@ -16,6 +16,9 @@ namespace Rove
 
 		void Set();
 
+		const int GetWidth() { return m_WindowWidth; }
+		const int GetHeight() { return m_WindowHeight; }
+
 	private:
 		Application* m_Application = nullptr;
 
@@ -34,5 +37,15 @@ namespace Rove
 		// Depth stencil view
 		ComPtr<ID3D11DepthStencilView> m_TextureDepthStencilView = nullptr;
 		void CreateDepthStencilView(int width, int height);
+
+		// Window size
+		int m_WindowWidth = 0;
+		int m_WindowHeight = 0;
+
+		// Resize
+		void Resize(int width, int height);
+
+		// Set viewport
+		void SetViewport(int width, int height);
 	};
 }
