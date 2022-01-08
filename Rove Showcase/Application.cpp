@@ -27,19 +27,7 @@ int Rove::Application::Run()
 	// Model
 	m_Model = std::make_unique<Rove::Model>(m_DxRenderer.get());
 	m_Model->Create();
-
-	// Set world constant buffer from camera
-	{
-		Rove::WorldBuffer world_buffer = {};
-		auto world = m_Model->World;
-		world += DirectX::XMMatrixTranslation(0.0f, 0.0f, 0.0f);
-
-		world_buffer.world = DirectX::XMMatrixTranspose(world);
-		world_buffer.view = DirectX::XMMatrixTranspose(m_Camera->GetView());
-		world_buffer.projection = DirectX::XMMatrixTranspose(m_Camera->GetProjection());
-
-		m_DxShader->UpdateWorldConstantBuffer(world_buffer);
-	}
+	UpdateCamera();
 
 	// Dear ImGui
 	SetupDearImGui();
@@ -60,43 +48,25 @@ int Rove::Application::Run()
 			ImGui_ImplWin32_NewFrame();
 			ImGui::NewFrame();
 
-
+			// Clear backbuffer
+			m_DxRenderer->Clear();
 
 			// Apply viewport
-			m_ViewportComponent->Set();
+			//m_ViewportComponent->Set();
 
-
-
-			// Render model
-			//if (ImGui::IsMouseClicked(ImGuiMouseButton_Right))
-			{
-				m_Camera->UpdateAspectRatio(m_ViewportComponent->GetWidth(), m_ViewportComponent->GetHeight());
-
-				Rove::WorldBuffer world_buffer1 = {};
-				auto world = m_Model->World;
-				world += DirectX::XMMatrixTranslation(0.0f, 0.0f, 0.0f);
-
-				world_buffer1.world = DirectX::XMMatrixTranspose(world);
-				world_buffer1.view = DirectX::XMMatrixTranspose(m_Camera->GetView());
-				world_buffer1.projection = DirectX::XMMatrixTranspose(m_Camera->GetProjection());
-
-				m_DxShader->UpdateWorldConstantBuffer(world_buffer1);
-			}
-			
+			// Update camera
+			//UpdateCamera();
 
 			// Render model into viewport
 			m_DxShader->Apply();
 			m_Model->Render();
 
 			// Render components
-			m_ViewportComponent->OnRender();
+			//m_ViewportComponent->OnRender();
 			m_InfoComponent->OnRender();
 
 
 			//ImGui::ShowDemoWindow(nullptr);
-
-			// Clear backbuffer
-			m_DxRenderer->Clear();
 
 			// Render Dear ImGui
 			ImGui::Render();
@@ -118,6 +88,7 @@ int Rove::Application::Run()
 void Rove::Application::OnResize(int width, int height)
 {
 	m_DxRenderer->Resize(width, height);
+	UpdateCamera();
 }
 
 void Rove::Application::SetupDearImGui()
@@ -131,4 +102,22 @@ void Rove::Application::SetupDearImGui()
 	ImGui::StyleColorsDark();
 	ImGui_ImplWin32_Init(m_Window->GetHwnd());
 	ImGui_ImplDX11_Init(m_DxRenderer->GetDevice(), m_DxRenderer->GetDeviceContext());
+}
+
+void Rove::Application::UpdateCamera()
+{
+	if (m_Camera == nullptr)
+		return;
+
+	int width, height;
+	m_Window->GetSize(&width, &height);
+
+	m_Camera->UpdateAspectRatio(width, height);
+
+	Rove::WorldBuffer world_buffer = {};
+	world_buffer.world = DirectX::XMMatrixTranspose(m_Model->World);
+	world_buffer.view = DirectX::XMMatrixTranspose(m_Camera->GetView());
+	world_buffer.projection = DirectX::XMMatrixTranspose(m_Camera->GetProjection());
+
+	m_DxShader->UpdateWorldConstantBuffer(world_buffer);
 }

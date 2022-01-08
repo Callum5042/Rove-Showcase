@@ -37,6 +37,7 @@ namespace Rove
 		std::unique_ptr<Model> m_Model = nullptr;
 
 		void SetupDearImGui();
+		void UpdateCamera();
 
 		// Components
 		std::unique_ptr<ViewportComponent> m_ViewportComponent = nullptr;
