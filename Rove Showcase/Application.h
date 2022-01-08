@@ -16,7 +16,7 @@ namespace Rove
 	class Application
 	{
 	public:
-		Application() = default;
+		Application();
 		virtual ~Application() = default;
 
 		int Run();
@@ -42,5 +42,7 @@ namespace Rove
 		// Components
 		std::unique_ptr<ViewportComponent> m_ViewportComponent = nullptr;
 		std::unique_ptr<InfoComponent> m_InfoComponent = nullptr;
+
+		void Create();
 	};
 }

@@ -1,36 +1,17 @@
 #include "Pch.h"
 #include "Application.h"
 
-int Rove::Application::Run()
+Rove::Application::Application()
 {
 	// Initialise data
 	m_Window = std::make_unique<Rove::Window>(this);
 	m_DxRenderer = std::make_unique<Rove::DxRenderer>(m_Window.get());
 	m_DxShader = std::make_unique<Rove::DxShader>(m_DxRenderer.get());
+}
 
-	// Create window
-	m_Window->Create(L"Rove Showcase");
-
-	// Create renderer
-	m_DxRenderer->Create();
-	m_DxShader->Load();
-
-	// Camera
-	int width, height;
-	m_Window->GetSize(&width, &height);
-	m_Camera = std::make_unique<Rove::Camera>(width, height);
-
-	// Viewport
-	m_ViewportComponent = std::make_unique<Rove::ViewportComponent>(this);
-	m_ViewportComponent->OnCreate();
-
-	// Model
-	m_Model = std::make_unique<Rove::Model>(m_DxRenderer.get());
-	m_Model->Create();
-	UpdateCamera();
-
-	// Dear ImGui
-	SetupDearImGui();
+int Rove::Application::Run()
+{
+	Create();
 
 	// Main loop
 	MSG msg = {};
@@ -51,21 +32,12 @@ int Rove::Application::Run()
 			// Clear backbuffer
 			m_DxRenderer->Clear();
 
-			// Apply viewport
-			//m_ViewportComponent->Set();
-
-			// Update camera
-			//UpdateCamera();
-
 			// Render model into viewport
 			m_DxShader->Apply();
 			m_Model->Render();
 
 			// Render components
-			//m_ViewportComponent->OnRender();
 			m_InfoComponent->OnRender();
-
-
 			//ImGui::ShowDemoWindow(nullptr);
 
 			// Render Dear ImGui
@@ -120,4 +92,31 @@ void Rove::Application::UpdateCamera()
 	world_buffer.projection = DirectX::XMMatrixTranspose(m_Camera->GetProjection());
 
 	m_DxShader->UpdateWorldConstantBuffer(world_buffer);
+}
+
+void Rove::Application::Create()
+{
+	// Create window
+	m_Window->Create(L"Rove Showcase");
+
+	// Create renderer
+	m_DxRenderer->Create();
+	m_DxShader->Load();
+
+	// Camera
+	int width, height;
+	m_Window->GetSize(&width, &height);
+	m_Camera = std::make_unique<Rove::Camera>(width, height);
+
+	// Viewport
+	m_ViewportComponent = std::make_unique<Rove::ViewportComponent>(this);
+	m_ViewportComponent->OnCreate();
+
+	// Model
+	m_Model = std::make_unique<Rove::Model>(m_DxRenderer.get());
+	m_Model->Create();
+	UpdateCamera();
+
+	// Dear ImGui
+	SetupDearImGui();
 }
