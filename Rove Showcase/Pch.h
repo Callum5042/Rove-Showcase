@@ -5,9 +5,13 @@
 #include <Windows.h>
 #include <crtdbg.h>
 
+// Used for Win32 file dialog
+#include <shobjidl.h>
+
 // DirectX
 #include <d3d11_1.h>
 #include <DirectXColors.h>
+#include <DirectXMath.h>
 
 // This include is requires for using DirectX smart pointers (ComPtr)
 #include <wrl\client.h>
@@ -22,6 +26,11 @@ using Microsoft::WRL::ComPtr;
 // C++
 #include <string>
 #include <memory>
+#include <vector>
+#include <fstream>
+#include <filesystem>
+#include <exception>
+#include <thread>
 
 #include <locale>
 #include <codecvt>

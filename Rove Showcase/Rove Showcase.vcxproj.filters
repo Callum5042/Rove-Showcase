@@ -3,9 +3,9 @@
   <ItemGroup>
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Pch.cpp" />
-    <ClCompile Include="Window.cpp" />
+    <ClCompile Include="Windows\Window.cpp" />
     <ClCompile Include="Application.cpp" />
-    <ClCompile Include="DxRenderer.cpp" />
+    <ClCompile Include="Rendering\DxRenderer.cpp" />
     <ClCompile Include="ImGui\imgui.cpp" />
     <ClCompile Include="ImGui\imgui_demo.cpp" />
     <ClCompile Include="ImGui\imgui_draw.cpp" />
@@ -14,12 +14,17 @@
     <ClCompile Include="ImGui\imgui_impl_win32.cpp" />
     <ClCompile Include="ImGui\imgui_stdlib.cpp" />
     <ClCompile Include="ImGui\imgui_tables.cpp" />
+    <ClCompile Include="Components\ViewportComponent.cpp" />
+    <ClCompile Include="Components\InfoComponent.cpp" />
+    <ClCompile Include="Rendering\DxShader.cpp" />
+    <ClCompile Include="Rendering\DxCamera.cpp" />
+    <ClCompile Include="Rendering\DxModel.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Pch.h" />
-    <ClInclude Include="Window.h" />
+    <ClInclude Include="Windows\Window.h" />
     <ClInclude Include="Application.h" />
-    <ClInclude Include="DxRenderer.h" />
+    <ClInclude Include="Rendering\DxRenderer.h" />
     <ClInclude Include="ImGui\imgui.h" />
     <ClInclude Include="ImGui\imgui_internal.h" />
     <ClInclude Include="ImGui\imconfig.h" />
@@ -29,8 +34,18 @@
     <ClInclude Include="ImGui\imgui_impl_dx11.h" />
     <ClInclude Include="ImGui\imgui_impl_win32.h" />
     <ClInclude Include="ImGui\imgui_stdlib.h" />
+    <ClInclude Include="Components\ViewportComponent.h" />
+    <ClInclude Include="Components\InfoComponent.h" />
+    <ClInclude Include="Rendering\DxShader.h" />
+    <ClInclude Include="Rendering\DxCamera.h" />
+    <ClInclude Include="Rendering\DxModel.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="imgui.ini" />
+    <None Include="Rendering\Shaders\ShaderData.hlsli" />
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="Rendering\Shaders\PixelShader.hlsl" />
+    <FxCompile Include="Rendering\Shaders\VertexShader.hlsl" />
   </ItemGroup>
 </Project>

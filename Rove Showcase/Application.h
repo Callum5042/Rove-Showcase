@@ -1,18 +1,28 @@
 #pragma once
 
 #include "Pch.h"
-#include "Window.h"
-#include "DxRenderer.h"
+#include "Windows\Window.h"
+#include "Rendering\DxRenderer.h"
+#include "Rendering\DxShader.h"
+#include "Rendering\DxCamera.h"
+#include "Rendering\DxModel.h"
+
+// Components
+#include "Components\ViewportComponent.h"
+#include "Components\InfoComponent.h"
 
 namespace Rove
 {
 	class Application
 	{
 	public:
-		Application() = default;
+		Application();
 		virtual ~Application() = default;
 
 		int Run();
+
+		Window* GetWindow() { return m_Window.get(); }
+		DxRenderer* GetRenderer() { return m_DxRenderer.get(); }
 
 		///////////
 		// Events
@@ -22,5 +32,18 @@ namespace Rove
 	private:
 		std::unique_ptr<Window> m_Window = nullptr;
 		std::unique_ptr<DxRenderer> m_DxRenderer = nullptr;
+		std::unique_ptr<DxShader> m_DxShader = nullptr;
+		std::unique_ptr<Camera> m_Camera = nullptr;
+		std::unique_ptr<Model> m_Model = nullptr;
+
+		void SetupDearImGui();
+		void UpdateCamera();
+
+		// Components
+		std::unique_ptr<ViewportComponent> m_ViewportComponent = nullptr;
+		std::unique_ptr<InfoComponent> m_InfoComponent = nullptr;
+
+		void Create();
+		void MenuItem_Load();
 	};
 }

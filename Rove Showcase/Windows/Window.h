@@ -17,7 +17,7 @@ namespace Rove
 	{
 	public:
 		Window(Application* application);
-		virtual ~Window() = default;
+		virtual ~Window();
 
 		void Create(std::wstring&& title);
 

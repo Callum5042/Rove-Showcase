@@ -46,6 +46,11 @@ Rove::Window::Window(Application* application) : m_Application(application)
 {
 }
 
+Rove::Window::~Window() 
+{
+	DestroyWindow(m_Hwnd);
+}
+
 void Rove::Window::Create(std::wstring&& title)
 {
 	HINSTANCE hInstance = GetModuleHandle(NULL);
@@ -125,6 +130,10 @@ std::wstring Rove::Window::GetTitle()
 
 void Rove::Window::WindowResizing(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
+	// Don't call onresize if the window has not yet been created
+	if (m_Hwnd == NULL)
+		return;
+
 	// Get window size
 	int window_width = LOWORD(lParam);
 	int window_height = HIWORD(lParam);
