@@ -44,5 +44,6 @@ namespace Rove
 		std::unique_ptr<InfoComponent> m_InfoComponent = nullptr;
 
 		void Create();
+		void MenuItem_Load();
 	};
 }

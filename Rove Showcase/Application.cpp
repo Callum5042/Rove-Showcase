@@ -7,6 +7,8 @@ Rove::Application::Application()
 	m_Window = std::make_unique<Rove::Window>(this);
 	m_DxRenderer = std::make_unique<Rove::DxRenderer>(m_Window.get());
 	m_DxShader = std::make_unique<Rove::DxShader>(m_DxRenderer.get());
+
+	HRESULT hr = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
 }
 
 int Rove::Application::Run()
@@ -15,9 +17,9 @@ int Rove::Application::Run()
 
 	// Main loop
 	MSG msg = {};
-	while (msg.message != WM_QUIT) 
+	while (msg.message != WM_QUIT)
 	{
-		if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) 
+		if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
 		{
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
@@ -38,7 +40,25 @@ int Rove::Application::Run()
 
 			// Render components
 			m_InfoComponent->OnRender();
-			//ImGui::ShowDemoWindow(nullptr);
+			ImGui::ShowDemoWindow(nullptr);
+
+
+			// Menu
+			ImGui::BeginMainMenuBar();
+
+			if (ImGui::BeginMenu("File"))
+			{
+				if (ImGui::MenuItem("Open"))
+				{
+					MenuItem_Load();
+				}
+
+				ImGui::EndMenu();
+			}
+
+			ImGui::EndMainMenuBar();
+
+
 
 			// Render Dear ImGui
 			ImGui::Render();
@@ -119,4 +139,13 @@ void Rove::Application::Create()
 
 	// Dear ImGui
 	SetupDearImGui();
+}
+
+void Rove::Application::MenuItem_Load()
+{
+	// https://docs.microsoft.com/en-us/windows/win32/learnwin32/example--the-open-dialog-box
+	IFileOpenDialog* fileOpen = nullptr;
+	HRESULT hr = CoCreateInstance(CLSID_FileOpenDialog, NULL, CLSCTX_ALL, IID_IFileOpenDialog, reinterpret_cast<void**>(&fileOpen));
+
+	hr = fileOpen->Show(NULL);
 }

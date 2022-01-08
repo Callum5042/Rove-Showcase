@@ -5,6 +5,9 @@
 #include <Windows.h>
 #include <crtdbg.h>
 
+// Used for Win32 file dialog
+#include <shobjidl.h>
+
 // DirectX
 #include <d3d11_1.h>
 #include <DirectXColors.h>
@@ -27,6 +30,7 @@ using Microsoft::WRL::ComPtr;
 #include <fstream>
 #include <filesystem>
 #include <exception>
+#include <thread>
 
 #include <locale>
 #include <codecvt>
