@@ -43,6 +43,12 @@ void Rove::Camera::UpdateFov(float fov)
 	CalculateProjection();
 }
 
+void Rove::Camera::SetFov(float fov_degrees)
+{
+	m_FieldOfViewDegrees = std::clamp(fov_degrees, 0.1f, 179.9f);
+	CalculateProjection();
+}
+
 void Rove::Camera::CalculateProjection()
 {
 	// Convert degrees to radians

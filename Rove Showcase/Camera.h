@@ -17,14 +17,20 @@ namespace Rove
 		// Update aspect ratio
 		void UpdateAspectRatio(int width, int height);
 
-		// Set field of view
+		// Updates field of view relative
 		void UpdateFov(float fov);
+
+		// Sets field of view
+		void SetFov(float fov_degrees);
 
 		// Get projection matrix
 		constexpr DirectX::XMMATRIX GetProjection() { return m_Projection; }
 
 		// Get view matrix
 		constexpr DirectX::XMMATRIX GetView() { return m_View; }
+
+		// Get field of view in degrees
+		constexpr float GetFieldOfView() { return m_FieldOfViewDegrees; }
 
 	private:
 		// Projection matrix

@@ -46,5 +46,8 @@ namespace Rove
 
 		void Create();
 		void MenuItem_Load();
+
+		// Show camera GUI
+		bool m_ShowCameraProperties = true;
 	};
 }

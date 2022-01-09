@@ -51,12 +51,21 @@ int Rove::Application::Run()
 			//
 			// Render ImGui windows
 			// 
-			//ImGui::ShowDemoWindow(nullptr);
+			ImGui::ShowDemoWindow(nullptr);
 
 			// Camera details
+			if (m_ShowCameraProperties)
 			{
-				ImGui::Begin("Camera");
-				ImGui::Text("Camera");
+				if (ImGui::Begin("Camera", &m_ShowCameraProperties, ImGuiWindowFlags_AlwaysAutoResize))
+				{
+					float fov_degrees = m_Camera->GetFieldOfView();
+					if (ImGui::SliderFloat("Field of view", &fov_degrees, 0.1f, 179.9f))
+					{
+						m_Camera->SetFov(fov_degrees);
+						UpdateCamera();
+					}
+				}
+
 				ImGui::End();
 			}
 
@@ -71,6 +80,12 @@ int Rove::Application::Run()
 						MenuItem_Load();
 					}
 
+					ImGui::EndMenu();
+				}
+
+				if (ImGui::BeginMenu("View"))
+				{
+					ImGui::MenuItem("Camera", nullptr, &m_ShowCameraProperties);
 					ImGui::EndMenu();
 				}
 
