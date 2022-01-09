@@ -29,6 +29,7 @@ namespace Rove
 		// Events
 
 		void OnResize(int width, int height);
+		void OnMouseWheel(int scroll);
 
 	private:
 		std::unique_ptr<Window> m_Window = nullptr;

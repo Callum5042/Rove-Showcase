@@ -103,6 +103,10 @@ LRESULT Rove::Window::HandleMessage(HWND hwnd, INT uMsg, WPARAM wParam, LPARAM l
 		WindowResizing(hwnd, uMsg, wParam, lParam);
 		return 0;
 
+	case WM_MOUSEWHEEL:
+		MouseWheel(hwnd, uMsg, wParam, lParam);
+		break;
+
 	default:
 		return DefWindowProc(hwnd, uMsg, wParam, lParam);
 	}
@@ -143,4 +147,16 @@ void Rove::Window::WindowResizing(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lP
 	{
 		GetApplication()->OnResize(window_width, window_height);
 	}
+}
+
+void Rove::Window::MouseWheel(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+	// https://docs.microsoft.com/en-us/windows/win32/inputdev/wm-mousewheel
+	int scroll_delta = GET_WHEEL_DELTA_WPARAM(wParam) / WHEEL_DELTA;
+	//int key_modifier = GET_KEYSTATE_WPARAM(wParam);
+
+	//int mouse_x = GET_X_LPARAM(lParam);
+	//int mouse_y = GET_Y_LPARAM(lParam);
+
+	m_Application->OnMouseWheel(scroll_delta);
 }

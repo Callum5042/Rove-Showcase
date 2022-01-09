@@ -3,6 +3,7 @@
 // Windows
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
+#include <windowsx.h>
 #include <crtdbg.h>
 
 // Used for Win32 file dialog

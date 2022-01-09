@@ -110,6 +110,12 @@ void Rove::Application::OnResize(int width, int height)
 	UpdateCamera();
 }
 
+void Rove::Application::OnMouseWheel(int scroll)
+{
+	m_Camera->UpdateFov(static_cast<float>(scroll * -1.0f));
+	UpdateCamera();
+}
+
 void Rove::Application::SetupDearImGui()
 {
 	IMGUI_CHECKVERSION();
