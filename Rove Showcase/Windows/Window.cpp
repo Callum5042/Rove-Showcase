@@ -75,7 +75,10 @@ void Rove::Window::Create(std::wstring&& title)
 	{
 		throw std::exception("CreateWindowEx failed");
 	}
+}
 
+void Rove::Window::Show()
+{
 	ShowWindow(m_Hwnd, SW_NORMAL);
 }
 

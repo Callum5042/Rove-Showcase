@@ -19,7 +19,11 @@ namespace Rove
 		Window(Application* application);
 		virtual ~Window();
 
+		// Create the window
 		void Create(std::wstring&& title);
+
+		// Show the window
+		void Show();
 
 		// Handle Win32 message queue
 		LRESULT HandleMessage(HWND hwnd, INT uMsg, WPARAM wParam, LPARAM lParam);

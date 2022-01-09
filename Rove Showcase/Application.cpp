@@ -22,6 +22,7 @@ Rove::Application::~Application()
 int Rove::Application::Run()
 {
 	Create();
+	m_Window->Show();
 
 	// Main loop
 	MSG msg = {};
@@ -51,7 +52,7 @@ int Rove::Application::Run()
 			//
 			// Render ImGui windows
 			// 
-			ImGui::ShowDemoWindow(nullptr);
+			//ImGui::ShowDemoWindow(nullptr);
 
 			// Camera details
 			if (m_ShowCameraProperties)
