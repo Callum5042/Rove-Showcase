@@ -79,7 +79,7 @@ void Rove::Window::Create(std::wstring&& title)
 
 void Rove::Window::Show()
 {
-	ShowWindow(m_Hwnd, SW_NORMAL);
+	ShowWindow(m_Hwnd, SW_SHOWMAXIMIZED);
 }
 
 LRESULT Rove::Window::HandleMessage(HWND hwnd, INT uMsg, WPARAM wParam, LPARAM lParam)
