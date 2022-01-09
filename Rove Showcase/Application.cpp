@@ -1,14 +1,56 @@
 #include "Pch.h"
 #include "Application.h"
 
+namespace
+{
+	static bool OpenFileDialog(std::wstring& title, HWND owner)
+	{
+		// https://docs.microsoft.com/en-us/windows/win32/learnwin32/example--the-open-dialog-box
+
+		HRESULT hr = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
+		if (hr != S_OK)
+		{
+			throw std::exception("CoInitializeEx failed");
+		}
+
+		// Show dialog box
+		IFileOpenDialog* fileOpen = nullptr;
+		hr = CoCreateInstance(CLSID_FileOpenDialog, NULL, CLSCTX_ALL, IID_IFileOpenDialog, reinterpret_cast<void**>(&fileOpen));
+		if (hr != S_OK)
+		{
+			throw std::exception("CoCreateInstance failed");
+		}
+
+		hr = fileOpen->Show(owner);
+
+		// Get the file name from the dialog box.
+		if (hr == S_OK)
+		{
+			IShellItem* pItem = nullptr;
+			hr = fileOpen->GetResult(&pItem);
+
+			PWSTR pszFilePath;
+			hr = pItem->GetDisplayName(SIGDN_FILESYSPATH, &pszFilePath);
+			title = pszFilePath;
+
+			CoTaskMemFree(pszFilePath);
+			pItem->Release();
+
+			CoUninitialize();
+			return true;
+		}
+
+		CoUninitialize();
+		return false;
+	}
+}
+
 Rove::Application::Application()
 {
 	// Initialise data
 	m_Window = std::make_unique<Rove::Window>(this);
 	m_DxRenderer = std::make_unique<Rove::DxRenderer>(m_Window.get());
 	m_DxShader = std::make_unique<Rove::DxShader>(m_DxRenderer.get());
-
-	HRESULT hr = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
 
 	// Set colour
 	auto colour = DirectX::Colors::SteelBlue;
@@ -266,11 +308,12 @@ void Rove::Application::Create()
 	SetupDearImGui();
 }
 
+
 void Rove::Application::MenuItem_Load()
 {
-	// https://docs.microsoft.com/en-us/windows/win32/learnwin32/example--the-open-dialog-box
-	IFileOpenDialog* fileOpen = nullptr;
-	HRESULT hr = CoCreateInstance(CLSID_FileOpenDialog, NULL, CLSCTX_ALL, IID_IFileOpenDialog, reinterpret_cast<void**>(&fileOpen));
-
-	hr = fileOpen->Show(NULL);
+	std::wstring filepath;
+	if (OpenFileDialog(filepath, m_Window->GetHwnd()))
+	{
+		ShowMessage(filepath);
+	}
 }

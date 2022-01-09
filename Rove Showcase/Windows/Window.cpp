@@ -209,7 +209,7 @@ void Rove::Window::MouseUp(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	m_Application->OnMouseReleased(mouse_x, mouse_y, static_cast<int>(wParam));
 }
 
-void Rove::ShowMessage(std::wstring&& text)
+void Rove::ShowMessage(const std::wstring& text)
 {
 	MessageBox(NULL, text.c_str(), L"Info", MB_OK | MB_ICONINFORMATION);
 }
