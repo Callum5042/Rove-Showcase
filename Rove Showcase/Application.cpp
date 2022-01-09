@@ -40,7 +40,7 @@ int Rove::Application::Run()
 
 			// Render components
 			m_InfoComponent->OnRender();
-			ImGui::ShowDemoWindow(nullptr);
+			//ImGui::ShowDemoWindow(nullptr);
 
 
 			// Menu

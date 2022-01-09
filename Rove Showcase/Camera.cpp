@@ -1,5 +1,5 @@
 #include "Pch.h"
-#include "DxCamera.h"
+#include "Camera.h"
 
 Rove::Camera::Camera(int width, int height)
 {

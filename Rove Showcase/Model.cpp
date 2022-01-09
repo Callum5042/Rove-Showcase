@@ -1,6 +1,6 @@
 #include "Pch.h"
-#include "DxModel.h"
-#include "DxRenderer.h"
+#include "Model.h"
+#include "Rendering/DxRenderer.h"
 
 Rove::Model::Model(DxRenderer* renderer) : m_DxRenderer(renderer)
 {
