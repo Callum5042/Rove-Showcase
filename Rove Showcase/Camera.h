@@ -11,9 +11,6 @@ namespace Rove
 		Camera(int width, int height);
 		virtual ~Camera() = default;
 
-		// Recalculates the view based on the pitch and yaw
-		void Rotate(float pitch_radians, float yaw_radians);
-
 		// Update aspect ratio
 		void UpdateAspectRatio(int width, int height);
 

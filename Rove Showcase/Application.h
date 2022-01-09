@@ -18,7 +18,7 @@ namespace Rove
 	{
 	public:
 		Application();
-		virtual ~Application() = default;
+		virtual ~Application();
 
 		int Run();
 

@@ -11,6 +11,14 @@ Rove::Application::Application()
 	HRESULT hr = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
 }
 
+Rove::Application::~Application()
+{
+	// Clean up ImGui
+	ImGui_ImplDX11_Shutdown();
+	ImGui_ImplWin32_Shutdown();
+	ImGui::DestroyContext();
+}
+
 int Rove::Application::Run()
 {
 	Create();
@@ -36,29 +44,38 @@ int Rove::Application::Run()
 
 			// Render model into viewport
 			m_DxShader->Apply();
+
+			// Render model
 			m_Model->Render();
 
-			// Render components
-			m_InfoComponent->OnRender();
+			//
+			// Render ImGui windows
+			// 
 			//ImGui::ShowDemoWindow(nullptr);
 
-
-			// Menu
-			ImGui::BeginMainMenuBar();
-
-			if (ImGui::BeginMenu("File"))
+			// Camera details
 			{
-				if (ImGui::MenuItem("Open"))
-				{
-					MenuItem_Load();
-				}
-
-				ImGui::EndMenu();
+				ImGui::Begin("Camera");
+				ImGui::Text("Camera");
+				ImGui::End();
 			}
 
-			ImGui::EndMainMenuBar();
+			// Menu
+			{
+				ImGui::BeginMainMenuBar();
 
+				if (ImGui::BeginMenu("File"))
+				{
+					if (ImGui::MenuItem("Open"))
+					{
+						MenuItem_Load();
+					}
 
+					ImGui::EndMenu();
+				}
+
+				ImGui::EndMainMenuBar();
+			}
 
 			// Render Dear ImGui
 			ImGui::Render();
@@ -68,11 +85,6 @@ int Rove::Application::Run()
 			m_DxRenderer->Present();
 		}
 	}
-
-	// Clean up ImGui
-	ImGui_ImplDX11_Shutdown();
-	ImGui_ImplWin32_Shutdown();
-	ImGui::DestroyContext();
 
 	return 0;
 }
