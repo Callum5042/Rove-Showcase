@@ -62,6 +62,7 @@ int Rove::Application::Run()
 					// Position
 					POINT mouse_position;
 					GetCursorPos(&mouse_position);
+					ScreenToClient(m_Window->GetHwnd(), &mouse_position);
 
 					ImGui::Text("Mouse (%i, %i)", mouse_position.x, mouse_position.y);
 				}
@@ -143,6 +144,20 @@ void Rove::Application::OnMouseMove(int mouse_x, int mouse_y, int key_modifier)
 	if (key_modifier & MK_MBUTTON)
 	{
 
+
+		/*static int previous_mouse_x = mouse_x;
+		static int previous_mouse_y = mouse_y;
+
+		float yaw = static_cast<float>(mouse_x - previous_mouse_x) * 0.005f;
+		float pitch = static_cast<float>(mouse_y - previous_mouse_y) * 0.005f;
+
+		pitch = std::clamp<float>(pitch, -89, 89);
+
+		m_Camera->Rotate(pitch, yaw);
+		UpdateCamera();
+
+		previous_mouse_x = mouse_x;
+		previous_mouse_y = mouse_y;*/
 	}
 }
 
