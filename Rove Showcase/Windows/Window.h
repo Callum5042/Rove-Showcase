@@ -12,6 +12,9 @@ namespace Rove
 	// Window minimum height when resizing
 	constexpr int WINDOW_MIN_HEIGHT = 200;
 
+	// Show info message box
+	void ShowMessage(std::wstring&& text);
+
 	// Window
 	class Window
 	{
@@ -49,5 +52,7 @@ namespace Rove
 		void WindowResizing(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 		void MouseWheel(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 		void MouseMove(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+		void MouseDown(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+		void MouseUp(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 	};
 }

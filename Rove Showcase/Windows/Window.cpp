@@ -114,6 +114,20 @@ LRESULT Rove::Window::HandleMessage(HWND hwnd, INT uMsg, WPARAM wParam, LPARAM l
 		MouseMove(hwnd, uMsg, wParam, lParam);
 		return 0;
 
+	case WM_LBUTTONDOWN:
+	case WM_RBUTTONDOWN:
+	case WM_MBUTTONDOWN:
+	case WM_XBUTTONDOWN:
+		MouseDown(hwnd, uMsg, wParam, lParam);
+		return 0;
+
+	case WM_LBUTTONUP:
+	case WM_RBUTTONUP:
+	case WM_MBUTTONUP:
+	case WM_XBUTTONUP:
+		MouseUp(hwnd, uMsg, wParam, lParam);
+		return 0;
+
 	default:
 		return DefWindowProc(hwnd, uMsg, wParam, lParam);
 	}
@@ -175,4 +189,27 @@ void Rove::Window::MouseMove(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	int mouse_y = GET_Y_LPARAM(lParam);
 
 	m_Application->OnMouseMove(mouse_x, mouse_y, static_cast<int>(wParam));
+}
+
+void Rove::Window::MouseDown(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+	// https://docs.microsoft.com/en-us/windows/win32/inputdev/wm-lbuttondown
+	int mouse_x = GET_X_LPARAM(lParam);
+	int mouse_y = GET_Y_LPARAM(lParam);
+
+	m_Application->OnMousePressed(mouse_x, mouse_y, static_cast<int>(wParam));
+}
+
+void Rove::Window::MouseUp(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+	// https://docs.microsoft.com/en-us/windows/win32/inputdev/wm-lbuttondown
+	int mouse_x = GET_X_LPARAM(lParam);
+	int mouse_y = GET_Y_LPARAM(lParam);
+
+	m_Application->OnMouseReleased(mouse_x, mouse_y, static_cast<int>(wParam));
+}
+
+void Rove::ShowMessage(std::wstring&& text)
+{
+	MessageBox(NULL, text.c_str(), L"Info", MB_OK | MB_ICONINFORMATION);
 }

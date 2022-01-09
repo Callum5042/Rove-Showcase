@@ -143,22 +143,31 @@ void Rove::Application::OnMouseMove(int mouse_x, int mouse_y, int key_modifier)
 {
 	if (key_modifier & MK_MBUTTON)
 	{
-
-
-		/*static int previous_mouse_x = mouse_x;
-		static int previous_mouse_y = mouse_y;
-
-		float yaw = static_cast<float>(mouse_x - previous_mouse_x) * 0.005f;
-		float pitch = static_cast<float>(mouse_y - previous_mouse_y) * 0.005f;
+		float yaw = static_cast<float>(mouse_x - m_MousePressedX) * 0.005f;
+		float pitch = static_cast<float>(mouse_y - m_MousePressedY) * 0.005f;
 
 		pitch = std::clamp<float>(pitch, -89, 89);
 
 		m_Camera->Rotate(pitch, yaw);
 		UpdateCamera();
 
-		previous_mouse_x = mouse_x;
-		previous_mouse_y = mouse_y;*/
+		m_MousePressedX = mouse_x;
+		m_MousePressedY = mouse_y;
 	}
+}
+
+void Rove::Application::OnMousePressed(int mouse_x, int mouse_y, int key_modifier)
+{
+	if (key_modifier & MK_MBUTTON)
+	{
+		m_MousePressedX = mouse_x;
+		m_MousePressedY = mouse_y;
+	}
+}
+
+void Rove::Application::OnMouseReleased(int mouse_x, int mouse_y, int key_modifier)
+{
+
 }
 
 void Rove::Application::SetupDearImGui()
