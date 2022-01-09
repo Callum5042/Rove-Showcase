@@ -109,9 +109,9 @@ int Rove::Application::Run()
 			// Model details
 			if (m_ShowModelDetails) 
 			{
-				if (ImGui::Begin("Model", &m_ShowModelDetails))
+				if (ImGui::Begin("Model", &m_ShowModelDetails, ImGuiWindowFlags_AlwaysAutoResize))
 				{
-					ImGui::Checkbox("Wireframe", &m_RenderWireframe);
+					ImGui::Checkbox("Enable Wireframe", &m_RenderWireframe);
 				}
 
 				ImGui::End();
