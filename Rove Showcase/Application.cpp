@@ -21,6 +21,13 @@ namespace
 			throw std::exception("CoCreateInstance failed");
 		}
 
+		// File type filters
+		COMDLG_FILTERSPEC file_filters[] =
+		{
+			{ L"glTF binary", L"*.glb"},
+		};
+
+		fileOpen->SetFileTypes(1, file_filters);
 		hr = fileOpen->Show(owner);
 
 		// Get the file name from the dialog box.
@@ -43,6 +50,28 @@ namespace
 		CoUninitialize();
 		return false;
 	}
+}
+
+std::wstring Rove::ConvertToWideString(std::string str)
+{
+	int wchars_num = MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, NULL, 0);
+
+	std::wstring wide_str;
+	wide_str.resize(wchars_num);
+
+	MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, wide_str.data(), wchars_num);
+	return wide_str;
+}
+
+std::string Rove::ConvertToString(std::wstring wide_str)
+{
+	int char_num = WideCharToMultiByte(CP_UTF8, 0, wide_str.c_str(), -1, NULL, 0, NULL, NULL);
+
+	std::string str;
+	str.resize(char_num);
+	WideCharToMultiByte(CP_UTF8, 0, wide_str.c_str(), -1, str.data(), char_num, NULL, NULL);
+
+	return str;
 }
 
 Rove::Application::Application()
@@ -308,12 +337,19 @@ void Rove::Application::Create()
 	SetupDearImGui();
 }
 
-
 void Rove::Application::MenuItem_Load()
 {
 	std::wstring filepath;
 	if (OpenFileDialog(filepath, m_Window->GetHwnd()))
 	{
-		ShowMessage(filepath);
+		try
+		{
+			m_Model->LoadFromFile(filepath);
+		}
+		catch (std::exception& e)
+		{
+			std::wstring error = Rove::ConvertToWideString(e.what());
+			MessageBox(NULL, error.c_str(), L"Error", MB_OK | MB_ICONERROR);
+		}
 	}
 }

@@ -1,6 +1,13 @@
 #include "Pch.h"
 #include "Model.h"
 #include "Rendering/DxRenderer.h"
+#include "Application.h"
+
+// TinyGltf
+#define TINYGLTF_IMPLEMENTATION
+#define STB_IMAGE_IMPLEMENTATION
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include "TinyGltf\tiny_gltf.h"
 
 Rove::Model::Model(DxRenderer* renderer) : m_DxRenderer(renderer)
 {
@@ -112,4 +119,67 @@ void Rove::Model::Render()
 
 	// Render geometry
 	d3dDeviceContext->DrawIndexed(m_IndexCount, 0, 0);
+}
+
+void Rove::Model::LoadFromFile(const std::wstring& filepath)
+{
+	tinygltf::Model model;
+	tinygltf::TinyGLTF loader;
+	std::string err;
+	std::string warn;
+
+	// Convert wstring to string
+	std::string path = Rove::ConvertToString(filepath);
+
+	// Load file
+	if (!loader.LoadBinaryFromFile(&model, &err, &warn, path))
+	{
+		throw std::exception(err.c_str());
+	}
+
+	// Parse file
+	std::string name;
+	std::vector<Vertex> vertices;
+	std::vector<UINT> indices;
+
+	for (auto& mesh : model.meshes)
+	{
+		for (auto& primitive : mesh.primitives)
+		{
+			{
+				const tinygltf::Accessor& accessor = model.accessors[primitive.attributes["POSITION"]];
+				const tinygltf::BufferView& bufferView = model.bufferViews[accessor.bufferView];
+				const tinygltf::Buffer& buffer = model.buffers[bufferView.buffer];
+
+				// Position
+				const float* positions = reinterpret_cast<const float*>(&buffer.data[bufferView.byteOffset + accessor.byteOffset]);
+				for (size_t i = 0; i < accessor.count; ++i)
+				{
+					float x = positions[i * 3 + 0];
+					float y = positions[i * 3 + 1];
+					float z = positions[i * 3 + 2];
+
+					Vertex vertex;
+					vertex.x = x;
+					vertex.y = y;
+					vertex.z = z;
+
+					vertices.push_back(vertex);
+				}
+
+				// Indices
+				const auto& indices_accessor = model.accessors[primitive.indices];
+				const auto& indices_buffer_view = model.bufferViews[indices_accessor.bufferView];
+				const auto& indices_buffer = model.buffers[indices_buffer_view.buffer];
+
+				const short* _indices = reinterpret_cast<const short*>(&indices_buffer.data[indices_buffer_view.byteOffset + indices_accessor.byteOffset]);
+
+				for (int i = 0; i < indices_accessor.count; ++i) {
+					indices.push_back(_indices[i]);
+				}
+			}
+		}
+	}
+
+	int boom = 10;
 }

@@ -14,6 +14,13 @@
 
 namespace Rove
 {
+	// Convert std::string to std::wstring
+	std::wstring ConvertToWideString(std::string str);
+
+	// Convert std::wstring to std::string
+	std::string ConvertToString(std::wstring str);
+
+	// Main application
 	class Application
 	{
 	public:

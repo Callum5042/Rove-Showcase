@@ -40,6 +40,9 @@ namespace Rove
 		// World 
 		DirectX::XMMATRIX World = DirectX::XMMatrixIdentity();
 
+		// Load model
+		void LoadFromFile(const std::wstring& filepath);
+
 	private:
 		DxRenderer* m_DxRenderer = nullptr;
 
