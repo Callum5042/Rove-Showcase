@@ -19,10 +19,10 @@ void Rove::DxRenderer::Create()
 	SetViewport(window_width, window_height);
 }
 
-void Rove::DxRenderer::Clear()
+void Rove::DxRenderer::Clear(const float* colour)
 {
 	// Clear the render target view to the chosen colour
-	m_DeviceContext->ClearRenderTargetView(m_RenderTargetView.Get(), reinterpret_cast<const float*>(&DirectX::Colors::SteelBlue));
+	m_DeviceContext->ClearRenderTargetView(m_RenderTargetView.Get(), colour);
 	m_DeviceContext->ClearDepthStencilView(m_DepthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
 	// Bind the render target view to the pipeline's output merger stage

@@ -9,6 +9,12 @@ Rove::Application::Application()
 	m_DxShader = std::make_unique<Rove::DxShader>(m_DxRenderer.get());
 
 	HRESULT hr = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
+
+	// Set colour
+	auto colour = DirectX::Colors::SteelBlue;
+	m_BackgroundColour[0] = colour[0];
+	m_BackgroundColour[1] = colour[1];
+	m_BackgroundColour[2] = colour[2];
 }
 
 Rove::Application::~Application()
@@ -41,7 +47,7 @@ int Rove::Application::Run()
 			ImGui::NewFrame();
 
 			// Clear backbuffer
-			m_DxRenderer->Clear();
+			m_DxRenderer->Clear(m_BackgroundColour);
 
 			// Render model into viewport
 			m_DxShader->Apply();
@@ -52,7 +58,7 @@ int Rove::Application::Run()
 			//
 			// Render ImGui windows
 			// 
-			//ImGui::ShowDemoWindow(nullptr);
+			ImGui::ShowDemoWindow(nullptr);
 
 			// Debug details
 			if (m_ShowDebugDetails) 
@@ -107,7 +113,7 @@ int Rove::Application::Run()
 			{
 				if (ImGui::Begin("Environment", &m_ShowEnvironmentDetails))
 				{
-					ImGui::Text("Environment");
+					ImGui::ColorEdit3("Background Colour", m_BackgroundColour, ImGuiColorEditFlags_NoOptions);
 				}
 
 				ImGui::End();

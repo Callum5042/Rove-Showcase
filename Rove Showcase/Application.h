@@ -59,5 +59,8 @@ namespace Rove
 
 		int m_MousePressedX = 0;
 		int m_MousePressedY = 0;
+
+		// Background colour
+		float m_BackgroundColour[3];
 	};
 }

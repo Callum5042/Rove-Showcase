@@ -32,7 +32,7 @@ namespace Rove
 		void Create();
 
 		// Clear the buffers
-		void Clear();
+		void Clear(const float* colour);
 
 		// Display the rendered scene
 		void Present();
