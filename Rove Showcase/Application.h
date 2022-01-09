@@ -62,5 +62,8 @@ namespace Rove
 
 		// Background colour
 		float m_BackgroundColour[3];
+
+		// Model wireframe
+		bool m_RenderWireframe = false;
 	};
 }

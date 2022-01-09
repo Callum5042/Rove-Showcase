@@ -17,6 +17,9 @@ void Rove::DxRenderer::Create()
 	CreateSwapChain(window_width, window_height);
 	CreateRenderTargetAndDepthStencilView(window_width, window_height);
 	SetViewport(window_width, window_height);
+
+	CreateWireframeRasterState();
+	CreateSolidRasterState();
 }
 
 void Rove::DxRenderer::Clear(const float* colour)
@@ -58,6 +61,16 @@ void Rove::DxRenderer::Resize(int width, int height)
 
 	// Sets a new viewport with the new window size
 	SetViewport(width, height);
+}
+
+void Rove::DxRenderer::SetWireframeRasterState()
+{
+	m_DeviceContext->RSSetState(m_RasterStateWireframe.Get());
+}
+
+void Rove::DxRenderer::SetSolidRasterState()
+{
+	m_DeviceContext->RSSetState(m_RasterStateSolid.Get());
 }
 
 void Rove::DxRenderer::CreateDeviceAndContext()
@@ -161,4 +174,38 @@ void Rove::DxRenderer::SetViewport(int width, int height)
 
 	// Bind viewport to the pipline's rasterization stage
 	m_DeviceContext->RSSetViewports(1, &viewport);
+}
+
+void Rove::DxRenderer::CreateSolidRasterState()
+{
+	D3D11_RASTERIZER_DESC rasterizerState = {};
+	rasterizerState.AntialiasedLineEnable = true;
+	rasterizerState.CullMode = D3D11_CULL_BACK;
+	rasterizerState.FillMode = D3D11_FILL_SOLID;
+	rasterizerState.DepthClipEnable = true;
+	rasterizerState.FrontCounterClockwise = true;
+	rasterizerState.MultisampleEnable = true;
+
+	rasterizerState.DepthBias = 0;
+	rasterizerState.DepthBiasClamp = 1.0f;
+	rasterizerState.SlopeScaledDepthBias = 1.0f;
+
+	DX::Check(m_Device->CreateRasterizerState(&rasterizerState, m_RasterStateSolid.ReleaseAndGetAddressOf()));
+}
+
+void Rove::DxRenderer::CreateWireframeRasterState()
+{
+	D3D11_RASTERIZER_DESC rasterizerState = {};
+	rasterizerState.AntialiasedLineEnable = true;
+	rasterizerState.CullMode = D3D11_CULL_NONE;
+	rasterizerState.FillMode = D3D11_FILL_WIREFRAME;
+	rasterizerState.DepthClipEnable = true;
+	rasterizerState.FrontCounterClockwise = true;
+	rasterizerState.MultisampleEnable = true;
+
+	rasterizerState.DepthBias = 0;
+	rasterizerState.DepthBiasClamp = 1.0f;
+	rasterizerState.SlopeScaledDepthBias = 1.0f;
+
+	DX::Check(m_Device->CreateRasterizerState(&rasterizerState, m_RasterStateWireframe.ReleaseAndGetAddressOf()));
 }

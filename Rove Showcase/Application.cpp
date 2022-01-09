@@ -52,13 +52,22 @@ int Rove::Application::Run()
 			// Render model into viewport
 			m_DxShader->Apply();
 
+			// Enable wireframe rendering
+			if (m_RenderWireframe)
+			{
+				m_DxRenderer->SetWireframeRasterState();
+			}
+
 			// Render model
 			m_Model->Render();
+
+			// Enable solid rendering
+			m_DxRenderer->SetSolidRasterState();
 
 			//
 			// Render ImGui windows
 			// 
-			ImGui::ShowDemoWindow(nullptr);
+			// ImGui::ShowDemoWindow(nullptr);
 
 			// Debug details
 			if (m_ShowDebugDetails) 
@@ -102,7 +111,7 @@ int Rove::Application::Run()
 			{
 				if (ImGui::Begin("Model", &m_ShowModelDetails))
 				{
-					ImGui::Text("Model");
+					ImGui::Checkbox("Wireframe", &m_RenderWireframe);
 				}
 
 				ImGui::End();
@@ -111,7 +120,7 @@ int Rove::Application::Run()
 			// Environment details
 			if (m_ShowEnvironmentDetails) 
 			{
-				if (ImGui::Begin("Environment", &m_ShowEnvironmentDetails))
+				if (ImGui::Begin("Environment", &m_ShowEnvironmentDetails, ImGuiWindowFlags_AlwaysAutoResize))
 				{
 					ImGui::ColorEdit3("Background Colour", m_BackgroundColour, ImGuiColorEditFlags_NoOptions);
 				}

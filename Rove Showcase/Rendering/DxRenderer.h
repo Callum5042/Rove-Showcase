@@ -46,6 +46,12 @@ namespace Rove
 		// Get Direct3D11 Device Context
 		ID3D11DeviceContext* GetDeviceContext() { return m_DeviceContext.Get(); }
 
+		// Set raster state as wireframe
+		void SetWireframeRasterState();
+
+		// Set raster state as solid
+		void SetSolidRasterState();
+
 	private:
 		Window* m_Window = nullptr;
 
@@ -65,5 +71,13 @@ namespace Rove
 
 		// Viewport
 		void SetViewport(int width, int height);
+
+		// Wireframe raster state
+		ComPtr<ID3D11RasterizerState> m_RasterStateWireframe = nullptr;
+		void CreateWireframeRasterState();
+
+		// Solid raster state
+		ComPtr<ID3D11RasterizerState> m_RasterStateSolid = nullptr;
+		void CreateSolidRasterState();
 	};
 }
