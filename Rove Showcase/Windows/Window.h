@@ -48,5 +48,6 @@ namespace Rove
 
 		void WindowResizing(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 		void MouseWheel(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+		void MouseMove(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 	};
 }

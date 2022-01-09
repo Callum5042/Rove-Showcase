@@ -108,7 +108,11 @@ LRESULT Rove::Window::HandleMessage(HWND hwnd, INT uMsg, WPARAM wParam, LPARAM l
 
 	case WM_MOUSEWHEEL:
 		MouseWheel(hwnd, uMsg, wParam, lParam);
-		break;
+		return 0;
+
+	case WM_MOUSEMOVE:
+		MouseMove(hwnd, uMsg, wParam, lParam);
+		return 0;
 
 	default:
 		return DefWindowProc(hwnd, uMsg, wParam, lParam);
@@ -162,4 +166,13 @@ void Rove::Window::MouseWheel(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam
 	//int mouse_y = GET_Y_LPARAM(lParam);
 
 	m_Application->OnMouseWheel(scroll_delta);
+}
+
+void Rove::Window::MouseMove(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+	// https://docs.microsoft.com/en-us/windows/win32/inputdev/wm-mousemove
+	int mouse_x = GET_X_LPARAM(lParam);
+	int mouse_y = GET_Y_LPARAM(lParam);
+
+	m_Application->OnMouseMove(mouse_x, mouse_y, static_cast<int>(wParam));
 }

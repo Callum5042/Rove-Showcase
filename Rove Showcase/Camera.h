@@ -32,7 +32,13 @@ namespace Rove
 		// Get field of view in degrees
 		constexpr float GetFieldOfView() { return m_FieldOfViewDegrees; }
 
+		// Get camera position
+		constexpr DirectX::XMFLOAT3 GetPosition() { return m_Position; }
+
 	private:
+		// Camera position
+		DirectX::XMFLOAT3 m_Position;
+
 		// Projection matrix
 		DirectX::XMMATRIX m_Projection;
 

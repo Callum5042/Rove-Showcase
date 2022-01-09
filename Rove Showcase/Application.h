@@ -30,6 +30,7 @@ namespace Rove
 
 		void OnResize(int width, int height);
 		void OnMouseWheel(int scroll);
+		void OnMouseMove(int mouse_x, int mouse_y, int key_modifier);
 
 	private:
 		std::unique_ptr<Window> m_Window = nullptr;
@@ -50,5 +51,6 @@ namespace Rove
 
 		// Show camera GUI
 		bool m_ShowCameraProperties = true;
+		bool m_ShowDebugDetails = true;
 	};
 }

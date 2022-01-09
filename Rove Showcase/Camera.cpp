@@ -27,6 +27,9 @@ void Rove::Camera::Rotate(float pitch_radians, float yaw_radians)
 	auto at = DirectX::XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
 	auto up = DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
 	m_View = DirectX::XMMatrixLookAtLH(eye, at, up);
+
+	// Set position
+	DirectX::XMStoreFloat3(&m_Position, position);
 }
 
 void Rove::Camera::UpdateAspectRatio(int width, int height)

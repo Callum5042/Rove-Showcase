@@ -54,11 +54,31 @@ int Rove::Application::Run()
 			// 
 			//ImGui::ShowDemoWindow(nullptr);
 
+			// Debug details
+			if (m_ShowDebugDetails) 
+			{
+				if (ImGui::Begin("Debug", &m_ShowDebugDetails, ImGuiWindowFlags_AlwaysAutoResize))
+				{
+					// Position
+					POINT mouse_position;
+					GetCursorPos(&mouse_position);
+
+					ImGui::Text("Mouse (%i, %i)", mouse_position.x, mouse_position.y);
+				}
+
+				ImGui::End();
+			}
+
 			// Camera details
 			if (m_ShowCameraProperties)
 			{
 				if (ImGui::Begin("Camera", &m_ShowCameraProperties, ImGuiWindowFlags_AlwaysAutoResize))
 				{
+					// Position
+					DirectX::XMFLOAT3 position = m_Camera->GetPosition();
+					ImGui::Text("X: %f - Y: %f - Z: %f", position.x, position.y, position.z);
+
+					// Field of view
 					float fov_degrees = m_Camera->GetFieldOfView();
 					if (ImGui::SliderFloat("Field of view", &fov_degrees, 0.1f, 179.9f))
 					{
@@ -86,6 +106,7 @@ int Rove::Application::Run()
 
 				if (ImGui::BeginMenu("View"))
 				{
+					ImGui::MenuItem("Debug", nullptr, &m_ShowDebugDetails);
 					ImGui::MenuItem("Camera", nullptr, &m_ShowCameraProperties);
 					ImGui::EndMenu();
 				}
@@ -115,6 +136,14 @@ void Rove::Application::OnMouseWheel(int scroll)
 {
 	m_Camera->UpdateFov(static_cast<float>(scroll * -1.0f));
 	UpdateCamera();
+}
+
+void Rove::Application::OnMouseMove(int mouse_x, int mouse_y, int key_modifier)
+{
+	if (key_modifier & MK_MBUTTON)
+	{
+
+	}
 }
 
 void Rove::Application::SetupDearImGui()
