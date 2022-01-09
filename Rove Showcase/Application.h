@@ -52,8 +52,10 @@ namespace Rove
 		void MenuItem_Load();
 
 		// Show camera GUI
-		bool m_ShowCameraProperties = true;
+		bool m_ShowCameraDetails = true;
 		bool m_ShowDebugDetails = true;
+		bool m_ShowModelDetails = true;
+		bool m_ShowEnvironmentDetails = true;
 
 		int m_MousePressedX = 0;
 		int m_MousePressedY = 0;

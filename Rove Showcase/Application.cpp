@@ -71,9 +71,9 @@ int Rove::Application::Run()
 			}
 
 			// Camera details
-			if (m_ShowCameraProperties)
+			if (m_ShowCameraDetails)
 			{
-				if (ImGui::Begin("Camera", &m_ShowCameraProperties, ImGuiWindowFlags_AlwaysAutoResize))
+				if (ImGui::Begin("Camera", &m_ShowCameraDetails, ImGuiWindowFlags_AlwaysAutoResize))
 				{
 					// Position
 					DirectX::XMFLOAT3 position = m_Camera->GetPosition();
@@ -86,6 +86,28 @@ int Rove::Application::Run()
 						m_Camera->SetFov(fov_degrees);
 						UpdateCamera();
 					}
+				}
+
+				ImGui::End();
+			}
+
+			// Model details
+			if (m_ShowModelDetails) 
+			{
+				if (ImGui::Begin("Model", &m_ShowModelDetails))
+				{
+					ImGui::Text("Model");
+				}
+
+				ImGui::End();
+			}
+
+			// Environment details
+			if (m_ShowEnvironmentDetails) 
+			{
+				if (ImGui::Begin("Environment", &m_ShowEnvironmentDetails))
+				{
+					ImGui::Text("Environment");
 				}
 
 				ImGui::End();
@@ -108,7 +130,9 @@ int Rove::Application::Run()
 				if (ImGui::BeginMenu("View"))
 				{
 					ImGui::MenuItem("Debug", nullptr, &m_ShowDebugDetails);
-					ImGui::MenuItem("Camera", nullptr, &m_ShowCameraProperties);
+					ImGui::MenuItem("Camera", nullptr, &m_ShowCameraDetails);
+					ImGui::MenuItem("Model", nullptr, &m_ShowModelDetails);
+					ImGui::MenuItem("Environment", nullptr, &m_ShowEnvironmentDetails);
 					ImGui::EndMenu();
 				}
 
@@ -167,7 +191,6 @@ void Rove::Application::OnMousePressed(int mouse_x, int mouse_y, int key_modifie
 
 void Rove::Application::OnMouseReleased(int mouse_x, int mouse_y, int key_modifier)
 {
-
 }
 
 void Rove::Application::SetupDearImGui()
