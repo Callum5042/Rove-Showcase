@@ -171,8 +171,8 @@
     <ClCompile Include="Application.cpp" />
     <ClCompile Include="Components\InfoComponent.cpp" />
     <ClCompile Include="Components\ViewportComponent.cpp" />
-    <ClCompile Include="Rendering\DxCamera.cpp" />
-    <ClCompile Include="Rendering\DxModel.cpp" />
+    <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="Model.cpp" />
     <ClCompile Include="Rendering\DxRenderer.cpp" />
     <ClCompile Include="ImGui\imgui.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
@@ -227,8 +227,8 @@
     <ClInclude Include="ImGui\imstb_textedit.h" />
     <ClInclude Include="ImGui\imstb_truetype.h" />
     <ClInclude Include="Pch.h" />
-    <ClInclude Include="Rendering\DxCamera.h" />
-    <ClInclude Include="Rendering\DxModel.h" />
+    <ClInclude Include="Camera.h" />
+    <ClInclude Include="Model.h" />
     <ClInclude Include="Rendering\DxRenderer.h" />
     <ClInclude Include="Rendering\DxShader.h" />
     <ClInclude Include="Windows\Window.h" />

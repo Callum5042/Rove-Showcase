@@ -4,8 +4,9 @@
 #include "Windows\Window.h"
 #include "Rendering\DxRenderer.h"
 #include "Rendering\DxShader.h"
-#include "Rendering\DxCamera.h"
-#include "Rendering\DxModel.h"
+
+#include "Model.h"
+#include "Camera.h"
 
 // Components
 #include "Components\ViewportComponent.h"
