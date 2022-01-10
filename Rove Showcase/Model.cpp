@@ -176,7 +176,8 @@ void Rove::Model::LoadFromFile(const std::wstring& filepath)
 
 				const short* _indices = reinterpret_cast<const short*>(&indices_buffer.data[indices_buffer_view.byteOffset + indices_accessor.byteOffset]);
 
-				for (int i = 0; i < indices_accessor.count; ++i) {
+				for (int i = 0; i < indices_accessor.count; ++i) 
+				{
 					indices.push_back(_indices[i]);
 				}
 			}
@@ -192,6 +193,8 @@ void Rove::Model::LoadFromFile(const std::wstring& filepath)
 	// Vertices
 
 	// Create vertex buffer
+	m_VertexCount = static_cast<UINT>(vertices.size());
+
 	D3D11_BUFFER_DESC vertex_buffer_desc = {};
 	vertex_buffer_desc.Usage = D3D11_USAGE_DEFAULT;
 	vertex_buffer_desc.ByteWidth = static_cast<UINT>(sizeof(Vertex) * vertices.size());

@@ -40,11 +40,20 @@ namespace Rove
 		// Load model
 		void LoadFromFile(const std::wstring& filepath);
 
+		// Get vertices
+		constexpr UINT GetVertices() { return m_VertexCount; }
+
+		// Get indices
+		constexpr UINT GetIndices() { return m_IndexCount; }
+
 	private:
 		DxRenderer* m_DxRenderer = nullptr;
 
 		// Number of indices to draw
 		UINT m_IndexCount = 0;
+
+		// Number of vertices
+		UINT m_VertexCount = 0;
 
 		// Vertex buffer
 		ComPtr<ID3D11Buffer> m_d3dVertexBuffer = nullptr;

@@ -182,6 +182,8 @@ int Rove::Application::Run()
 			{
 				if (ImGui::Begin("Model", &m_ShowModelDetails, ImGuiWindowFlags_AlwaysAutoResize))
 				{
+					ImGui::Text("Vertices: %i", m_Model->GetVertices());
+					ImGui::Text("Indices: %i", m_Model->GetIndices());
 					ImGui::Checkbox("Enable Wireframe", &m_RenderWireframe);
 				}
 
