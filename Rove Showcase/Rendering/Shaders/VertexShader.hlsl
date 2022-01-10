@@ -10,5 +10,8 @@ VertexOutput main(VertexInput input)
 	output.position = mul(output.position, cView);
 	output.position = mul(output.position, cProjection);
 
+	// Normals
+	output.normal = input.normal;
+
 	return output;
 }

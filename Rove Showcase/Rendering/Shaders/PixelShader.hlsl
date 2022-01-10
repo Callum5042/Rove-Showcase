@@ -4,5 +4,5 @@
 float4 main(VertexOutput vertex_output) : SV_TARGET
 {
 	//return vertex_output.colour;
-	return float4(1.0f, 0.0f, 0.0f, 1.0f);
+	return float4(1.0f, 1.0f, 0.0f, 1.0f);
 }

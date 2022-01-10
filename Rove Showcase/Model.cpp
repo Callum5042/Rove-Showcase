@@ -105,8 +105,20 @@ void Rove::Model::LoadFromFile(const std::wstring& filepath)
 					const tinygltf::BufferView& bufferView = model.bufferViews[accessor.bufferView];
 					const tinygltf::Buffer& buffer = model.buffers[bufferView.buffer];
 
-					const Vertex* positions = reinterpret_cast<const Vertex*>(&buffer.data[bufferView.byteOffset + accessor.byteOffset]);
-					vertices.assign(positions, positions + accessor.count);
+					const float* positions = reinterpret_cast<const float*>(&buffer.data[bufferView.byteOffset + accessor.byteOffset]);
+					for (size_t i = 0; i < accessor.count; ++i)
+					{
+						float x = positions[i * 3 + 0];
+						float y = positions[i * 3 + 1];
+						float z = positions[i * 3 + 2];
+
+						Vertex vertex;
+						vertex.x = x;
+						vertex.y = y;
+						vertex.z = z;
+
+						vertices.push_back(vertex);
+					}
 				}
 
 				// Indices
