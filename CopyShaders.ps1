@@ -1,0 +1,1 @@
+Copy-Item "bin\\Debug-x64\\Rove Showcase\\*.cso" -Destination "Rove Showcase" -Force

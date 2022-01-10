@@ -6,7 +6,7 @@ struct VertexInput
 };
 
 // Vertex output / pixel input structure
-struct VertexOutput
+struct PixelInput
 {
 	float4 position : SV_POSITION;
 	float3 normal : NORMAL;
