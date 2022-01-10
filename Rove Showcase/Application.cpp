@@ -7,7 +7,7 @@ namespace
 	{
 		// https://docs.microsoft.com/en-us/windows/win32/learnwin32/example--the-open-dialog-box
 
-		HRESULT hr = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
+		HRESULT hr = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE); 
 		if (hr != S_OK)
 		{
 			throw std::exception("CoInitializeEx failed");
