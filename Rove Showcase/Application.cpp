@@ -306,6 +306,7 @@ void Rove::Application::UpdateCamera()
 
 	Rove::WorldBuffer world_buffer = {};
 	world_buffer.world = DirectX::XMMatrixTranspose(m_Model->World);
+	world_buffer.worldInverse = DirectX::XMMatrixInverse(nullptr, m_Model->World);
 	world_buffer.view = DirectX::XMMatrixTranspose(m_Camera->GetView());
 	world_buffer.projection = DirectX::XMMatrixTranspose(m_Camera->GetProjection());
 

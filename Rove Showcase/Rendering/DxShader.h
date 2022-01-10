@@ -7,6 +7,7 @@ namespace Rove
 	struct WorldBuffer
 	{
 		DirectX::XMMATRIX world;
+		DirectX::XMMATRIX worldInverse;
 		DirectX::XMMATRIX view;
 		DirectX::XMMATRIX projection;
 	};
