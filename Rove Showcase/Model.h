@@ -18,9 +18,6 @@ namespace Rove
 		float x = 0;
 		float y = 0;
 		float z = 0;
-
-		// Vertex colour
-		Colour colour = {};
 	};
 
 	class DxRenderer;

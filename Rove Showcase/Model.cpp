@@ -27,33 +27,33 @@ void Rove::Model::CreateVertexBuffer()
 	// Set vertex data
 	std::vector<Vertex> vertices =
 	{
-		{ -1.0f, -1.0f, -1.0f, 1.0f, 0.0f, 0.0f, 1.0f },
-		{ -1.0f, +1.0f, -1.0f, 1.0f, 0.0f, 0.0f, 1.0f },
-		{ +1.0f, +1.0f, -1.0f, 1.0f, 0.0f, 0.0f, 1.0f },
-		{ +1.0f, -1.0f, -1.0f, 1.0f, 0.0f, 0.0f, 1.0f },
-		{ -1.0f, -1.0f, +1.0f, 1.0f, 0.0f, 0.0f, 1.0f },
-		{ +1.0f, -1.0f, +1.0f, 1.0f, 0.0f, 0.0f, 1.0f },
-		{ +1.0f, +1.0f, +1.0f, 1.0f, 0.0f, 0.0f, 1.0f },
-		{ -1.0f, +1.0f, +1.0f, 1.0f, 0.0f, 0.0f, 1.0f },
-		{ -1.0f, +1.0f, -1.0f, 1.0f, 0.0f, 0.0f, 1.0f },
-		{ -1.0f, +1.0f, +1.0f, 1.0f, 0.0f, 0.0f, 1.0f },
-		{ +1.0f, +1.0f, +1.0f, 1.0f, 0.0f, 0.0f, 1.0f },
-		{ +1.0f, +1.0f, -1.0f, 1.0f, 0.0f, 0.0f, 1.0f },
-		{ -1.0f, -1.0f, -1.0f, 1.0f, 0.0f, 0.0f, 1.0f },
-		{ +1.0f, -1.0f, -1.0f, 1.0f, 0.0f, 0.0f, 1.0f },
-		{ +1.0f, -1.0f, +1.0f, 1.0f, 0.0f, 0.0f, 1.0f },
-		{ -1.0f, -1.0f, +1.0f, 1.0f, 0.0f, 0.0f, 1.0f },
-		{ -1.0f, -1.0f, +1.0f, 1.0f, 0.0f, 0.0f, 1.0f },
-		{ -1.0f, +1.0f, +1.0f, 1.0f, 0.0f, 0.0f, 1.0f },
-		{ -1.0f, +1.0f, -1.0f, 1.0f, 0.0f, 0.0f, 1.0f },
-		{ -1.0f, -1.0f, -1.0f, 1.0f, 0.0f, 0.0f, 1.0f },
-		{ +1.0f, -1.0f, -1.0f, 1.0f, 0.0f, 0.0f, 1.0f },
-		{ +1.0f, +1.0f, -1.0f, 1.0f, 0.0f, 0.0f, 1.0f },
-		{ +1.0f, +1.0f, +1.0f, 1.0f, 0.0f, 0.0f, 1.0f },
-		{ +1.0f, -1.0f, +1.0f, 1.0f, 0.0f, 0.0f, 1.0f }
+		{ -1.0f, -1.0f, -1.0f },
+		{ -1.0f, +1.0f, -1.0f },
+		{ +1.0f, +1.0f, -1.0f },
+		{ +1.0f, -1.0f, -1.0f },
+		{ -1.0f, -1.0f, +1.0f },
+		{ +1.0f, -1.0f, +1.0f },
+		{ +1.0f, +1.0f, +1.0f },
+		{ -1.0f, +1.0f, +1.0f },
+		{ -1.0f, +1.0f, -1.0f },
+		{ -1.0f, +1.0f, +1.0f },
+		{ +1.0f, +1.0f, +1.0f },
+		{ +1.0f, +1.0f, -1.0f },
+		{ -1.0f, -1.0f, -1.0f },
+		{ +1.0f, -1.0f, -1.0f },
+		{ +1.0f, -1.0f, +1.0f },
+		{ -1.0f, -1.0f, +1.0f },
+		{ -1.0f, -1.0f, +1.0f },
+		{ -1.0f, +1.0f, +1.0f },
+		{ -1.0f, +1.0f, -1.0f },
+		{ -1.0f, -1.0f, -1.0f },
+		{ +1.0f, -1.0f, -1.0f },
+		{ +1.0f, +1.0f, -1.0f },
+		{ +1.0f, +1.0f, +1.0f },
+		{ +1.0f, -1.0f, +1.0f }
 	};
 
-	// Create index buffer
+	// Create vertex buffer
 	D3D11_BUFFER_DESC vertex_buffer_desc = {};
 	vertex_buffer_desc.Usage = D3D11_USAGE_DEFAULT;
 	vertex_buffer_desc.ByteWidth = static_cast<UINT>(sizeof(Vertex) * vertices.size());
@@ -123,6 +123,8 @@ void Rove::Model::Render()
 
 void Rove::Model::LoadFromFile(const std::wstring& filepath)
 {
+	// https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#meshes-overview
+
 	tinygltf::Model model;
 	tinygltf::TinyGLTF loader;
 	std::string err;
@@ -181,5 +183,36 @@ void Rove::Model::LoadFromFile(const std::wstring& filepath)
 		}
 	}
 
-	int boom = 10;
+	//
+	// Rebuild Direct3D11 buffers
+	//
+
+	auto device = m_DxRenderer->GetDevice();
+
+	// Vertices
+
+	// Create vertex buffer
+	D3D11_BUFFER_DESC vertex_buffer_desc = {};
+	vertex_buffer_desc.Usage = D3D11_USAGE_DEFAULT;
+	vertex_buffer_desc.ByteWidth = static_cast<UINT>(sizeof(Vertex) * vertices.size());
+	vertex_buffer_desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+
+	D3D11_SUBRESOURCE_DATA vertex_subdata = {};
+	vertex_subdata.pSysMem = vertices.data();
+
+	DX::Check(device->CreateBuffer(&vertex_buffer_desc, &vertex_subdata, m_d3dVertexBuffer.ReleaseAndGetAddressOf()));
+
+	// Indices
+	m_IndexCount = static_cast<UINT>(indices.size());
+
+	// Create index buffer
+	D3D11_BUFFER_DESC index_buffer_desc = {};
+	index_buffer_desc.Usage = D3D11_USAGE_DEFAULT;
+	index_buffer_desc.ByteWidth = static_cast<UINT>(sizeof(UINT) * indices.size());
+	index_buffer_desc.BindFlags = D3D11_BIND_INDEX_BUFFER;
+
+	D3D11_SUBRESOURCE_DATA index_subdata = {};
+	index_subdata.pSysMem = indices.data();
+
+	DX::Check(device->CreateBuffer(&index_buffer_desc, &index_subdata, m_d3dIndexBuffer.ReleaseAndGetAddressOf()));
 }
