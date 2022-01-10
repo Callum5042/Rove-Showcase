@@ -8,7 +8,10 @@ Rove::DxShader::DxShader(DxRenderer* renderer) : m_DxRenderer(renderer)
 
 void Rove::DxShader::Load()
 {
+	CreateCameraConstantBuffer();
 	CreateWorldConstantBuffer();
+	CreatePointLightConstantBuffer();
+
 	LoadVertexShader("VertexShader.cso");
 	LoadPixelShader("PixelShader.cso");
 }
@@ -27,13 +30,30 @@ void Rove::DxShader::Apply()
 	deviceContext->PSSetShader(m_PixelShader.Get(), nullptr, 0);
 
 	// Bind the world constant buffer to the vertex shader
-	deviceContext->VSSetConstantBuffers(0, 1, m_WorldConstantBuffer.GetAddressOf());
+	deviceContext->VSSetConstantBuffers(0, 1, m_CameraConstantBuffer.GetAddressOf());
+	deviceContext->VSSetConstantBuffers(1, 1, m_WorldConstantBuffer.GetAddressOf());
+
+	// Bind the light constant buffer to pixel shader
+	deviceContext->PSSetConstantBuffers(0, 1, m_CameraConstantBuffer.GetAddressOf());
+	deviceContext->PSSetConstantBuffers(2, 1, m_PointLightConstantBuffer.GetAddressOf());
+}
+
+void Rove::DxShader::UpdateCameraBuffer(const CameraBuffer& buffer)
+{
+	auto deviceContext = m_DxRenderer->GetDeviceContext();
+	deviceContext->UpdateSubresource(m_CameraConstantBuffer.Get(), 0, nullptr, &buffer, 0, 0);
 }
 
 void Rove::DxShader::UpdateWorldConstantBuffer(const WorldBuffer& worldBuffer)
 {
-	auto d3dDeviceContext = m_DxRenderer->GetDeviceContext();
-	d3dDeviceContext->UpdateSubresource(m_WorldConstantBuffer.Get(), 0, nullptr, &worldBuffer, 0, 0);
+	auto deviceContext = m_DxRenderer->GetDeviceContext();
+	deviceContext->UpdateSubresource(m_WorldConstantBuffer.Get(), 0, nullptr, &worldBuffer, 0, 0);
+}
+
+void Rove::DxShader::UpdatePointLightBuffer(const PointLightBuffer& buffer)
+{
+	auto deviceContext = m_DxRenderer->GetDeviceContext();
+	deviceContext->UpdateSubresource(m_PointLightConstantBuffer.Get(), 0, nullptr, &buffer, 0, 0);
 }
 
 void Rove::DxShader::LoadVertexShader(std::string&& vertex_shader_path)
@@ -84,6 +104,20 @@ void Rove::DxShader::LoadPixelShader(std::string&& pixel_shader_path)
 	DX::Check(device->CreatePixelShader(data.data(), data.size(), nullptr, m_PixelShader.ReleaseAndGetAddressOf()));
 }
 
+void Rove::DxShader::CreateCameraConstantBuffer()
+{
+	auto device = m_DxRenderer->GetDevice();
+
+	// Create world constant buffer - Must set D3D11_USAGE_DYNAMIC and D3D11_CPU_ACCESS_WRITE to be able to with Map
+	D3D11_BUFFER_DESC bd = {};
+	bd.Usage = D3D11_USAGE_DEFAULT;
+	bd.ByteWidth = sizeof(CameraBuffer);
+	bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	//bd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+
+	DX::Check(device->CreateBuffer(&bd, nullptr, m_CameraConstantBuffer.ReleaseAndGetAddressOf()));
+}
+
 void Rove::DxShader::CreateWorldConstantBuffer()
 {
 	auto device = m_DxRenderer->GetDevice();
@@ -95,4 +129,17 @@ void Rove::DxShader::CreateWorldConstantBuffer()
 	bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 
 	DX::Check(device->CreateBuffer(&bd, nullptr, m_WorldConstantBuffer.ReleaseAndGetAddressOf()));
+}
+
+void Rove::DxShader::CreatePointLightConstantBuffer()
+{
+	auto device = m_DxRenderer->GetDevice();
+
+	// Create point light constant buffer
+	D3D11_BUFFER_DESC bd = {};
+	bd.Usage = D3D11_USAGE_DEFAULT;
+	bd.ByteWidth = sizeof(PointLightBuffer);
+	bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+
+	DX::Check(device->CreateBuffer(&bd, nullptr, m_PointLightConstantBuffer.ReleaseAndGetAddressOf()));
 }

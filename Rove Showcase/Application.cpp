@@ -304,13 +304,24 @@ void Rove::Application::UpdateCamera()
 
 	m_Camera->UpdateAspectRatio(width, height);
 
+	// Update camera buffer
+	Rove::CameraBuffer camera_buffer = {};
+	camera_buffer.view = DirectX::XMMatrixTranspose(m_Camera->GetView());
+	camera_buffer.projection = DirectX::XMMatrixTranspose(m_Camera->GetProjection());
+	camera_buffer.cameraPosition = m_Camera->GetPosition();
+	m_DxShader->UpdateCameraBuffer(camera_buffer);
+
+	// Update world buffer
 	Rove::WorldBuffer world_buffer = {};
 	world_buffer.world = DirectX::XMMatrixTranspose(m_Model->World);
 	world_buffer.worldInverse = DirectX::XMMatrixInverse(nullptr, m_Model->World);
-	world_buffer.view = DirectX::XMMatrixTranspose(m_Camera->GetView());
-	world_buffer.projection = DirectX::XMMatrixTranspose(m_Camera->GetProjection());
-
 	m_DxShader->UpdateWorldConstantBuffer(world_buffer);
+
+	// Light buffer
+	Rove::PointLightBuffer light_buffer = {};
+	DirectX::XMStoreFloat3(&light_buffer.position, DirectX::XMVectorSet(5.0f, 5.0f, 5.0f, 1.0f));
+
+	m_DxShader->UpdatePointLightBuffer(light_buffer);
 }
 
 void Rove::Application::Create()

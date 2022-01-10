@@ -13,12 +13,23 @@ struct PixelInput
 	float3 normal : NORMAL;
 };
 
+// Camera buffer
+cbuffer CameraBuffer : register(b0)
+{
+	matrix cView;
+	matrix cProjection;
+	float4 cCameraPosition;
+}
+
 // World constant buffer
-cbuffer WorldBuffer : register(b0)
+cbuffer WorldBuffer : register(b1)
 {
 	matrix cWorld;
 	matrix cWorldInverse;
+}
 
-	matrix cView;
-	matrix cProjection;
+// Point light buffer
+cbuffer PointLightBuffer : register(b2)
+{
+	float4 cLightPointPosition;
 }

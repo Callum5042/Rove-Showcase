@@ -4,12 +4,24 @@
 
 namespace Rove
 {
+	struct CameraBuffer
+	{
+		DirectX::XMMATRIX view;
+		DirectX::XMMATRIX projection;
+		DirectX::XMFLOAT3 cameraPosition;
+		float padding;
+	};
+
 	struct WorldBuffer
 	{
 		DirectX::XMMATRIX world;
 		DirectX::XMMATRIX worldInverse;
-		DirectX::XMMATRIX view;
-		DirectX::XMMATRIX projection;
+	};
+
+	struct PointLightBuffer
+	{
+		DirectX::XMFLOAT3 position;
+		float padding;
 	};
 
 	class DxRenderer;
@@ -23,8 +35,14 @@ namespace Rove
 		void Load();
 		void Apply();
 
+		// Update camera buffer
+		void UpdateCameraBuffer(const CameraBuffer& buffer);
+
 		// Set world constant buffer from camera
 		void UpdateWorldConstantBuffer(const WorldBuffer& worldBuffer);
+
+		// Update camera buffer
+		void UpdatePointLightBuffer(const PointLightBuffer& buffer);
 		
 	private:
 		DxRenderer* m_DxRenderer = nullptr;
@@ -40,8 +58,17 @@ namespace Rove
 		// Pixel shader
 		ComPtr<ID3D11PixelShader> m_PixelShader = nullptr;
 
+
+		// Camera constant buffer
+		ComPtr<ID3D11Buffer> m_CameraConstantBuffer = nullptr;
+		void CreateCameraConstantBuffer();
+
 		// World constant buffer
 		ComPtr<ID3D11Buffer> m_WorldConstantBuffer = nullptr;
 		void CreateWorldConstantBuffer();
+
+		// Point light constant buffer
+		ComPtr<ID3D11Buffer> m_PointLightConstantBuffer = nullptr;
+		void CreatePointLightConstantBuffer();
 	};
 }
