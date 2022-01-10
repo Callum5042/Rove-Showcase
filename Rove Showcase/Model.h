@@ -28,9 +28,6 @@ namespace Rove
 		Model(DxRenderer* renderer);
 		virtual ~Model() = default;
 
-		// Create device
-		void Create();
-
 		// Render the model
 		void Render();
 
@@ -56,11 +53,11 @@ namespace Rove
 		UINT m_VertexCount = 0;
 
 		// Vertex buffer
-		ComPtr<ID3D11Buffer> m_d3dVertexBuffer = nullptr;
-		void CreateVertexBuffer();
+		ComPtr<ID3D11Buffer> m_VertexBuffer = nullptr;
+		void CreateVertexBuffer(const std::vector<Vertex>& vertices);
 
 		// Index buffer
-		ComPtr<ID3D11Buffer> m_d3dIndexBuffer = nullptr;
-		void CreateIndexBuffer();
+		ComPtr<ID3D11Buffer> m_IndexBuffer = nullptr;
+		void CreateIndexBuffer(const std::vector<UINT>& indices);
 	};
 }
