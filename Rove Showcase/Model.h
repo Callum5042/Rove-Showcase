@@ -18,9 +18,6 @@ namespace Rove
 		float x = 0;
 		float y = 0;
 		float z = 0;
-
-		// Vertex colour
-		Colour colour = {};
 	};
 
 	class DxRenderer;
@@ -40,11 +37,23 @@ namespace Rove
 		// World 
 		DirectX::XMMATRIX World = DirectX::XMMatrixIdentity();
 
+		// Load model
+		void LoadFromFile(const std::wstring& filepath);
+
+		// Get vertices
+		constexpr UINT GetVertices() { return m_VertexCount; }
+
+		// Get indices
+		constexpr UINT GetIndices() { return m_IndexCount; }
+
 	private:
 		DxRenderer* m_DxRenderer = nullptr;
 
 		// Number of indices to draw
 		UINT m_IndexCount = 0;
+
+		// Number of vertices
+		UINT m_VertexCount = 0;
 
 		// Vertex buffer
 		ComPtr<ID3D11Buffer> m_d3dVertexBuffer = nullptr;

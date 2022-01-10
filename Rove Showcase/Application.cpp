@@ -1,14 +1,85 @@
 #include "Pch.h"
 #include "Application.h"
 
+namespace
+{
+	static bool OpenFileDialog(std::wstring& title, HWND owner)
+	{
+		// https://docs.microsoft.com/en-us/windows/win32/learnwin32/example--the-open-dialog-box
+
+		HRESULT hr = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
+		if (hr != S_OK)
+		{
+			throw std::exception("CoInitializeEx failed");
+		}
+
+		// Show dialog box
+		IFileOpenDialog* fileOpen = nullptr;
+		hr = CoCreateInstance(CLSID_FileOpenDialog, NULL, CLSCTX_ALL, IID_IFileOpenDialog, reinterpret_cast<void**>(&fileOpen));
+		if (hr != S_OK)
+		{
+			throw std::exception("CoCreateInstance failed");
+		}
+
+		// File type filters
+		COMDLG_FILTERSPEC file_filters[] =
+		{
+			{ L"glTF binary", L"*.glb"},
+		};
+
+		fileOpen->SetFileTypes(1, file_filters);
+		hr = fileOpen->Show(owner);
+
+		// Get the file name from the dialog box.
+		if (hr == S_OK)
+		{
+			IShellItem* pItem = nullptr;
+			hr = fileOpen->GetResult(&pItem);
+
+			PWSTR pszFilePath;
+			hr = pItem->GetDisplayName(SIGDN_FILESYSPATH, &pszFilePath);
+			title = pszFilePath;
+
+			CoTaskMemFree(pszFilePath);
+			pItem->Release();
+
+			CoUninitialize();
+			return true;
+		}
+
+		CoUninitialize();
+		return false;
+	}
+}
+
+std::wstring Rove::ConvertToWideString(std::string str)
+{
+	int wchars_num = MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, NULL, 0);
+
+	std::wstring wide_str;
+	wide_str.resize(wchars_num);
+
+	MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, wide_str.data(), wchars_num);
+	return wide_str;
+}
+
+std::string Rove::ConvertToString(std::wstring wide_str)
+{
+	int char_num = WideCharToMultiByte(CP_UTF8, 0, wide_str.c_str(), -1, NULL, 0, NULL, NULL);
+
+	std::string str;
+	str.resize(char_num);
+	WideCharToMultiByte(CP_UTF8, 0, wide_str.c_str(), -1, str.data(), char_num, NULL, NULL);
+
+	return str;
+}
+
 Rove::Application::Application()
 {
 	// Initialise data
 	m_Window = std::make_unique<Rove::Window>(this);
 	m_DxRenderer = std::make_unique<Rove::DxRenderer>(m_Window.get());
 	m_DxShader = std::make_unique<Rove::DxShader>(m_DxRenderer.get());
-
-	HRESULT hr = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
 
 	// Set colour
 	auto colour = DirectX::Colors::SteelBlue;
@@ -111,6 +182,8 @@ int Rove::Application::Run()
 			{
 				if (ImGui::Begin("Model", &m_ShowModelDetails, ImGuiWindowFlags_AlwaysAutoResize))
 				{
+					ImGui::Text("Vertices: %i", m_Model->GetVertices());
+					ImGui::Text("Indices: %i", m_Model->GetIndices());
 					ImGui::Checkbox("Enable Wireframe", &m_RenderWireframe);
 				}
 
@@ -268,9 +341,17 @@ void Rove::Application::Create()
 
 void Rove::Application::MenuItem_Load()
 {
-	// https://docs.microsoft.com/en-us/windows/win32/learnwin32/example--the-open-dialog-box
-	IFileOpenDialog* fileOpen = nullptr;
-	HRESULT hr = CoCreateInstance(CLSID_FileOpenDialog, NULL, CLSCTX_ALL, IID_IFileOpenDialog, reinterpret_cast<void**>(&fileOpen));
-
-	hr = fileOpen->Show(NULL);
+	std::wstring filepath;
+	if (OpenFileDialog(filepath, m_Window->GetHwnd()))
+	{
+		try
+		{
+			m_Model->LoadFromFile(filepath);
+		}
+		catch (std::exception& e)
+		{
+			std::wstring error = Rove::ConvertToWideString(e.what());
+			MessageBox(NULL, error.c_str(), L"Error", MB_OK | MB_ICONERROR);
+		}
+	}
 }

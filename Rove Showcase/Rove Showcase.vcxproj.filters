@@ -39,6 +39,10 @@
     <ClInclude Include="Rendering\DxShader.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Model.h" />
+    <ClInclude Include="TinyGltf\json.hpp" />
+    <ClInclude Include="TinyGltf\stb_image.h" />
+    <ClInclude Include="TinyGltf\stb_image_write.h" />
+    <ClInclude Include="TinyGltf\tiny_gltf.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="imgui.ini" />

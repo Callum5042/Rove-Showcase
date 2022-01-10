@@ -13,7 +13,7 @@ namespace Rove
 	constexpr int WINDOW_MIN_HEIGHT = 200;
 
 	// Show info message box
-	void ShowMessage(std::wstring&& text);
+	void ShowMessage(const std::wstring& text);
 
 	// Window
 	class Window
