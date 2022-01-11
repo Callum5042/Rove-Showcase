@@ -240,6 +240,12 @@ int Rove::Application::Run()
 						{
 							UpdateLightBuffer();
 						}
+
+						// Add line seperate between each light section
+						if (i != m_PointLights.size() - 1)
+						{
+							ImGui::Separator();
+						}
 					}
 				}
 
