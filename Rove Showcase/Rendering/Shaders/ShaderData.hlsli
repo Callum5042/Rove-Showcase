@@ -28,11 +28,21 @@ cbuffer WorldBuffer : register(b1)
 	matrix cWorldInverse;
 }
 
+
+// Point light structure
+struct PointLight
+{
+	float4 lightPointPosition;
+	float4 lightPointDiffuse;
+	float4 lightPointAmbient;
+	float4 lightPointSpecular;
+};
+
 // Point light buffer
 cbuffer PointLightBuffer : register(b2)
 {
-	float4 cLightPointPosition;
-	float4 cLightPointDiffuse;
-	float4 cLightPointAmbient;
-	float4 cLightPointSpecular;
+	int cLightCount;
+	float3 padding;
+
+	PointLight cPointLight[255];
 }

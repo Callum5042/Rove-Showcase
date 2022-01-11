@@ -18,7 +18,7 @@ namespace Rove
 		DirectX::XMMATRIX worldInverse;
 	};
 
-	struct PointLightBuffer
+	struct PointLightStruct
 	{
 		DirectX::XMFLOAT3 position;
 		float padding;
@@ -26,6 +26,14 @@ namespace Rove
 		DirectX::XMFLOAT4 diffuse;
 		DirectX::XMFLOAT4 ambient;
 		DirectX::XMFLOAT4 specular;
+	};
+
+	struct PointLightBuffer
+	{
+		int lightCount;
+		DirectX::XMFLOAT3 padding;
+
+		PointLightStruct pointLight[255];
 	};
 
 	class DxRenderer;
