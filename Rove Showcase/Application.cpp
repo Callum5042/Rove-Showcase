@@ -395,10 +395,22 @@ void Rove::Application::UpdateLightBuffer()
 {
 	// Update light buffer
 	Rove::PointLightBuffer light_buffer = {};
-	light_buffer.position = m_PointLight->Position;
-	light_buffer.diffuse = m_PointLight->DiffuseColour;
-	light_buffer.ambient = m_PointLight->AmbientColour;
-	light_buffer.specular = m_PointLight->SpecularColour;
+
+	light_buffer.lightCount = 2;
+
+	light_buffer.pointLight[0] = Rove::PointLightStruct();
+	light_buffer.pointLight[0].position = m_PointLight->Position;
+	light_buffer.pointLight[0].diffuse = m_PointLight->DiffuseColour;
+	light_buffer.pointLight[0].ambient = m_PointLight->AmbientColour;
+	light_buffer.pointLight[0].specular = m_PointLight->SpecularColour;
+
+	light_buffer.pointLight[1] = Rove::PointLightStruct();
+	light_buffer.pointLight[1].position = m_PointLight->Position;
+	light_buffer.pointLight[1].diffuse = DirectX::XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f);
+	light_buffer.pointLight[1].ambient = DirectX::XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
+	light_buffer.pointLight[1].specular = DirectX::XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
+
+	light_buffer.pointLight[1].position.x *= -1;
 
 	m_DxShader->UpdatePointLightBuffer(light_buffer);
 }
