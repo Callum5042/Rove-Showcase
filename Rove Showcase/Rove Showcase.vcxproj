@@ -233,6 +233,7 @@
     <ClInclude Include="Pch.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Model.h" />
+    <ClInclude Include="PointLight.h" />
     <ClInclude Include="Rendering\DxRenderer.h" />
     <ClInclude Include="Rendering\DxShader.h" />
     <ClInclude Include="TinyGltf\json.hpp" />

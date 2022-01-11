@@ -80,6 +80,8 @@ Rove::Application::Application()
 	m_Window = std::make_unique<Rove::Window>(this);
 	m_DxRenderer = std::make_unique<Rove::DxRenderer>(m_Window.get());
 	m_DxShader = std::make_unique<Rove::DxShader>(m_DxRenderer.get());
+	m_PointLight = std::make_unique<Rove::PointLight>();
+	m_PointLight->Position = DirectX::XMFLOAT3(5.0f, 5.0f, -5.0f);
 
 	// Set colour
 	auto colour = DirectX::Colors::SteelBlue;
@@ -138,7 +140,7 @@ int Rove::Application::Run()
 			//
 			// Render ImGui windows
 			// 
-			// ImGui::ShowDemoWindow(nullptr);
+			//ImGui::ShowDemoWindow(nullptr);
 
 			// Debug details
 			if (m_ShowDebugDetails) 
@@ -196,6 +198,20 @@ int Rove::Application::Run()
 				if (ImGui::Begin("Environment", &m_ShowEnvironmentDetails, ImGuiWindowFlags_AlwaysAutoResize))
 				{
 					ImGui::ColorEdit3("Background Colour", m_BackgroundColour, ImGuiColorEditFlags_NoOptions);
+					ImGui::Separator();
+					ImGui::Text("Lights");
+
+					static bool cast_shadows = false;
+					ImGui::Checkbox("Cast Shadows", &cast_shadows);
+
+					float* light_position = reinterpret_cast<float*>(&m_PointLight->Position);
+					if (ImGui::DragFloat3("Position", light_position))
+					{
+						// Update light buffer
+						Rove::PointLightBuffer light_buffer = {};
+						light_buffer.position = m_PointLight->Position;
+						m_DxShader->UpdatePointLightBuffer(light_buffer);
+					}
 				}
 
 				ImGui::End();
@@ -319,8 +335,7 @@ void Rove::Application::UpdateCamera()
 
 	// Light buffer
 	Rove::PointLightBuffer light_buffer = {};
-	DirectX::XMStoreFloat3(&light_buffer.position, DirectX::XMVectorSet(5.0f, 5.0f, 5.0f, 1.0f));
-
+	light_buffer.position = m_PointLight->Position;
 	m_DxShader->UpdatePointLightBuffer(light_buffer);
 }
 
@@ -337,10 +352,6 @@ void Rove::Application::Create()
 	int width, height;
 	m_Window->GetSize(&width, &height);
 	m_Camera = std::make_unique<Rove::Camera>(width, height);
-
-	// Viewport
-	m_ViewportComponent = std::make_unique<Rove::ViewportComponent>(this);
-	m_ViewportComponent->OnCreate();
 
 	// Model
 	m_Model = std::make_unique<Rove::Model>(m_DxRenderer.get());
