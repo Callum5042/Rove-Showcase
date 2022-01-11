@@ -48,7 +48,10 @@ namespace Rove
 		std::unique_ptr<DxShader> m_DxShader = nullptr;
 		std::unique_ptr<Camera> m_Camera = nullptr;
 		std::unique_ptr<Model> m_Model = nullptr;
-		std::unique_ptr<PointLight> m_PointLight = nullptr;
+
+		//std::unique_ptr<PointLight> m_PointLight = nullptr;
+
+		std::vector<std::unique_ptr<PointLight>> m_PointLights;
 
 		void SetupDearImGui();
 		void UpdateCamera();
