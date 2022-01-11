@@ -207,10 +207,25 @@ int Rove::Application::Run()
 					float* light_position = reinterpret_cast<float*>(&m_PointLight->Position);
 					if (ImGui::DragFloat3("Position", light_position))
 					{
-						// Update light buffer
-						Rove::PointLightBuffer light_buffer = {};
-						light_buffer.position = m_PointLight->Position;
-						m_DxShader->UpdatePointLightBuffer(light_buffer);
+						UpdateLightBuffer();
+					}
+
+					float* light_diffuse = reinterpret_cast<float*>(&m_PointLight->DiffuseColour);
+					if (ImGui::ColorEdit3("Diffuse", light_diffuse))
+					{
+						UpdateLightBuffer();
+					}
+
+					float* light_ambient = reinterpret_cast<float*>(&m_PointLight->AmbientColour);
+					if (ImGui::ColorEdit3("Ambient", light_ambient))
+					{
+						UpdateLightBuffer();
+					}
+
+					float* light_specular = reinterpret_cast<float*>(&m_PointLight->SpecularColour);
+					if (ImGui::ColorEdit3("Specular", light_specular))
+					{
+						UpdateLightBuffer();
 					}
 				}
 
@@ -332,11 +347,6 @@ void Rove::Application::UpdateCamera()
 	world_buffer.world = DirectX::XMMatrixTranspose(m_Model->World);
 	world_buffer.worldInverse = DirectX::XMMatrixInverse(nullptr, m_Model->World);
 	m_DxShader->UpdateWorldConstantBuffer(world_buffer);
-
-	// Light buffer
-	Rove::PointLightBuffer light_buffer = {};
-	light_buffer.position = m_PointLight->Position;
-	m_DxShader->UpdatePointLightBuffer(light_buffer);
 }
 
 void Rove::Application::Create()
@@ -359,6 +369,9 @@ void Rove::Application::Create()
 
 	// Dear ImGui
 	SetupDearImGui();
+
+	// Update buffers
+	UpdateLightBuffer();
 }
 
 void Rove::Application::MenuItem_Load()
@@ -376,4 +389,16 @@ void Rove::Application::MenuItem_Load()
 			MessageBox(NULL, error.c_str(), L"Error", MB_OK | MB_ICONERROR);
 		}
 	}
+}
+
+void Rove::Application::UpdateLightBuffer()
+{
+	// Update light buffer
+	Rove::PointLightBuffer light_buffer = {};
+	light_buffer.position = m_PointLight->Position;
+	light_buffer.diffuse = m_PointLight->DiffuseColour;
+	light_buffer.ambient = m_PointLight->AmbientColour;
+	light_buffer.specular = m_PointLight->SpecularColour;
+
+	m_DxShader->UpdatePointLightBuffer(light_buffer);
 }

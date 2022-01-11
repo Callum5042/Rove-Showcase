@@ -32,4 +32,7 @@ cbuffer WorldBuffer : register(b1)
 cbuffer PointLightBuffer : register(b2)
 {
 	float4 cLightPointPosition;
+	float4 cLightPointDiffuse;
+	float4 cLightPointAmbient;
+	float4 cLightPointSpecular;
 }

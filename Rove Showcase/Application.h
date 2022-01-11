@@ -70,5 +70,8 @@ namespace Rove
 
 		// Model wireframe
 		bool m_RenderWireframe = false;
+
+		// Light updates
+		void UpdateLightBuffer();
 	};
 }

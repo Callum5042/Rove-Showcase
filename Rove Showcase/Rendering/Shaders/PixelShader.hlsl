@@ -3,9 +3,9 @@
 // Point lighting
 float4 CalculatePointLighting(float3 position, float3 normal)
 {
-	float4 diffuse_light_colour = float4(0.6f, 0.6f, 0.6f, 1.0f);
-	float4 ambient_light_colour = float4(0.1f, 0.1f, 0.1f, 1.0f);
-	float4 specular_light_colour = float4(0.1f, 0.1f, 0.1f, 1.0f);
+	float4 diffuse_light_colour = cLightPointDiffuse;
+	float4 ambient_light_colour = cLightPointAmbient;
+	float4 specular_light_colour = cLightPointSpecular;
 
 	// Diffuse lighting
 	float3 light_vector = normalize(cLightPointPosition.xyz - position);
