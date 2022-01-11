@@ -80,8 +80,11 @@ Rove::Application::Application()
 	m_Window = std::make_unique<Rove::Window>(this);
 	m_DxRenderer = std::make_unique<Rove::DxRenderer>(m_Window.get());
 	m_DxShader = std::make_unique<Rove::DxShader>(m_DxRenderer.get());
-	m_PointLight = std::make_unique<Rove::PointLight>();
-	m_PointLight->Position = DirectX::XMFLOAT3(5.0f, 5.0f, -5.0f);
+	
+	
+	auto light = std::make_unique<Rove::PointLight>();
+	light->Position = DirectX::XMFLOAT3(5.0f, 5.0f, -5.0f);
+	m_PointLights.push_back(std::move(light));
 
 	// Set colour
 	auto colour = DirectX::Colors::SteelBlue;
@@ -201,31 +204,48 @@ int Rove::Application::Run()
 					ImGui::Separator();
 					ImGui::Text("Lights");
 
-					static bool cast_shadows = false;
-					ImGui::Checkbox("Cast Shadows", &cast_shadows);
+					/*static bool cast_shadows = false;
+					ImGui::Checkbox("Cast Shadows", &cast_shadows);*/
 
-					float* light_position = reinterpret_cast<float*>(&m_PointLight->Position);
-					if (ImGui::DragFloat3("Position", light_position))
+					if (ImGui::Button("Add light"))
 					{
-						UpdateLightBuffer();
+						m_PointLights.push_back(std::make_unique<Rove::PointLight>());
 					}
 
-					float* light_diffuse = reinterpret_cast<float*>(&m_PointLight->DiffuseColour);
-					if (ImGui::ColorEdit3("Diffuse", light_diffuse))
+					for (int i = 0; i < m_PointLights.size(); ++i)
 					{
-						UpdateLightBuffer();
-					}
+						const auto& point_light = m_PointLights[i];
 
-					float* light_ambient = reinterpret_cast<float*>(&m_PointLight->AmbientColour);
-					if (ImGui::ColorEdit3("Ambient", light_ambient))
-					{
-						UpdateLightBuffer();
-					}
+						float* light_position = reinterpret_cast<float*>(&point_light->Position);
 
-					float* light_specular = reinterpret_cast<float*>(&m_PointLight->SpecularColour);
-					if (ImGui::ColorEdit3("Specular", light_specular))
-					{
-						UpdateLightBuffer();
+						if (ImGui::DragFloat3(("Position##" + std::to_string(i)).c_str(), light_position))
+						{
+							UpdateLightBuffer();
+						}
+
+						float* light_diffuse = reinterpret_cast<float*>(&point_light->DiffuseColour);
+						if (ImGui::ColorEdit3(("Diffuse##" + std::to_string(i)).c_str(), light_diffuse))
+						{
+							UpdateLightBuffer();
+						}
+
+						float* light_ambient = reinterpret_cast<float*>(&point_light->AmbientColour);
+						if (ImGui::ColorEdit3(("Ambient##" + std::to_string(i)).c_str(), light_ambient))
+						{
+							UpdateLightBuffer();
+						}
+
+						float* light_specular = reinterpret_cast<float*>(&point_light->SpecularColour);
+						if (ImGui::ColorEdit3(("Specular##" + std::to_string(i)).c_str(), light_specular))
+						{
+							UpdateLightBuffer();
+						}
+
+						// Add line seperate between each light section
+						if (i != m_PointLights.size() - 1)
+						{
+							ImGui::Separator();
+						}
 					}
 				}
 
@@ -395,10 +415,16 @@ void Rove::Application::UpdateLightBuffer()
 {
 	// Update light buffer
 	Rove::PointLightBuffer light_buffer = {};
-	light_buffer.position = m_PointLight->Position;
-	light_buffer.diffuse = m_PointLight->DiffuseColour;
-	light_buffer.ambient = m_PointLight->AmbientColour;
-	light_buffer.specular = m_PointLight->SpecularColour;
+
+	light_buffer.lightCount = static_cast<int>(m_PointLights.size());
+	for (int i = 0; i < m_PointLights.size(); ++i)
+	{
+		light_buffer.pointLight[i] = Rove::PointLightStruct();
+		light_buffer.pointLight[i].position = m_PointLights[i]->Position;
+		light_buffer.pointLight[i].diffuse = m_PointLights[i]->DiffuseColour;
+		light_buffer.pointLight[i].ambient = m_PointLights[i]->AmbientColour;
+		light_buffer.pointLight[i].specular = m_PointLights[i]->SpecularColour;
+	}
 
 	m_DxShader->UpdatePointLightBuffer(light_buffer);
 }
