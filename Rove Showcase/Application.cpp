@@ -7,7 +7,7 @@ namespace
 	{
 		// https://docs.microsoft.com/en-us/windows/win32/learnwin32/example--the-open-dialog-box
 
-		HRESULT hr = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
+		HRESULT hr = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE); 
 		if (hr != S_OK)
 		{
 			throw std::exception("CoInitializeEx failed");
@@ -80,6 +80,8 @@ Rove::Application::Application()
 	m_Window = std::make_unique<Rove::Window>(this);
 	m_DxRenderer = std::make_unique<Rove::DxRenderer>(m_Window.get());
 	m_DxShader = std::make_unique<Rove::DxShader>(m_DxRenderer.get());
+	m_PointLight = std::make_unique<Rove::PointLight>();
+	m_PointLight->Position = DirectX::XMFLOAT3(5.0f, 5.0f, -5.0f);
 
 	// Set colour
 	auto colour = DirectX::Colors::SteelBlue;
@@ -138,7 +140,7 @@ int Rove::Application::Run()
 			//
 			// Render ImGui windows
 			// 
-			// ImGui::ShowDemoWindow(nullptr);
+			//ImGui::ShowDemoWindow(nullptr);
 
 			// Debug details
 			if (m_ShowDebugDetails) 
@@ -196,6 +198,35 @@ int Rove::Application::Run()
 				if (ImGui::Begin("Environment", &m_ShowEnvironmentDetails, ImGuiWindowFlags_AlwaysAutoResize))
 				{
 					ImGui::ColorEdit3("Background Colour", m_BackgroundColour, ImGuiColorEditFlags_NoOptions);
+					ImGui::Separator();
+					ImGui::Text("Lights");
+
+					static bool cast_shadows = false;
+					ImGui::Checkbox("Cast Shadows", &cast_shadows);
+
+					float* light_position = reinterpret_cast<float*>(&m_PointLight->Position);
+					if (ImGui::DragFloat3("Position", light_position))
+					{
+						UpdateLightBuffer();
+					}
+
+					float* light_diffuse = reinterpret_cast<float*>(&m_PointLight->DiffuseColour);
+					if (ImGui::ColorEdit3("Diffuse", light_diffuse))
+					{
+						UpdateLightBuffer();
+					}
+
+					float* light_ambient = reinterpret_cast<float*>(&m_PointLight->AmbientColour);
+					if (ImGui::ColorEdit3("Ambient", light_ambient))
+					{
+						UpdateLightBuffer();
+					}
+
+					float* light_specular = reinterpret_cast<float*>(&m_PointLight->SpecularColour);
+					if (ImGui::ColorEdit3("Specular", light_specular))
+					{
+						UpdateLightBuffer();
+					}
 				}
 
 				ImGui::End();
@@ -304,11 +335,17 @@ void Rove::Application::UpdateCamera()
 
 	m_Camera->UpdateAspectRatio(width, height);
 
+	// Update camera buffer
+	Rove::CameraBuffer camera_buffer = {};
+	camera_buffer.view = DirectX::XMMatrixTranspose(m_Camera->GetView());
+	camera_buffer.projection = DirectX::XMMatrixTranspose(m_Camera->GetProjection());
+	camera_buffer.cameraPosition = m_Camera->GetPosition();
+	m_DxShader->UpdateCameraBuffer(camera_buffer);
+
+	// Update world buffer
 	Rove::WorldBuffer world_buffer = {};
 	world_buffer.world = DirectX::XMMatrixTranspose(m_Model->World);
-	world_buffer.view = DirectX::XMMatrixTranspose(m_Camera->GetView());
-	world_buffer.projection = DirectX::XMMatrixTranspose(m_Camera->GetProjection());
-
+	world_buffer.worldInverse = DirectX::XMMatrixInverse(nullptr, m_Model->World);
 	m_DxShader->UpdateWorldConstantBuffer(world_buffer);
 }
 
@@ -326,16 +363,15 @@ void Rove::Application::Create()
 	m_Window->GetSize(&width, &height);
 	m_Camera = std::make_unique<Rove::Camera>(width, height);
 
-	// Viewport
-	m_ViewportComponent = std::make_unique<Rove::ViewportComponent>(this);
-	m_ViewportComponent->OnCreate();
-
 	// Model
 	m_Model = std::make_unique<Rove::Model>(m_DxRenderer.get());
 	UpdateCamera();
 
 	// Dear ImGui
 	SetupDearImGui();
+
+	// Update buffers
+	UpdateLightBuffer();
 }
 
 void Rove::Application::MenuItem_Load()
@@ -353,4 +389,16 @@ void Rove::Application::MenuItem_Load()
 			MessageBox(NULL, error.c_str(), L"Error", MB_OK | MB_ICONERROR);
 		}
 	}
+}
+
+void Rove::Application::UpdateLightBuffer()
+{
+	// Update light buffer
+	Rove::PointLightBuffer light_buffer = {};
+	light_buffer.position = m_PointLight->Position;
+	light_buffer.diffuse = m_PointLight->DiffuseColour;
+	light_buffer.ambient = m_PointLight->AmbientColour;
+	light_buffer.specular = m_PointLight->SpecularColour;
+
+	m_DxShader->UpdatePointLightBuffer(light_buffer);
 }

@@ -18,6 +18,11 @@ namespace Rove
 		float x = 0;
 		float y = 0;
 		float z = 0;
+
+		// Normals
+		float normal_x = 0;
+		float normal_y = 0;
+		float normal_z = 0;
 	};
 
 	class DxRenderer;

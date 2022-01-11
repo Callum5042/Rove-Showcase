@@ -7,6 +7,7 @@
 
 #include "Model.h"
 #include "Camera.h"
+#include "PointLight.h"
 
 // Components
 #include "Components\ViewportComponent.h"
@@ -47,13 +48,10 @@ namespace Rove
 		std::unique_ptr<DxShader> m_DxShader = nullptr;
 		std::unique_ptr<Camera> m_Camera = nullptr;
 		std::unique_ptr<Model> m_Model = nullptr;
+		std::unique_ptr<PointLight> m_PointLight = nullptr;
 
 		void SetupDearImGui();
 		void UpdateCamera();
-
-		// Components
-		std::unique_ptr<ViewportComponent> m_ViewportComponent = nullptr;
-		std::unique_ptr<InfoComponent> m_InfoComponent = nullptr;
 
 		void Create();
 		void MenuItem_Load();
@@ -72,5 +70,8 @@ namespace Rove
 
 		// Model wireframe
 		bool m_RenderWireframe = false;
+
+		// Light updates
+		void UpdateLightBuffer();
 	};
 }

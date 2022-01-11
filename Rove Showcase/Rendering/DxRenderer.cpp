@@ -180,7 +180,7 @@ void Rove::DxRenderer::CreateSolidRasterState()
 {
 	D3D11_RASTERIZER_DESC rasterizerState = {};
 	rasterizerState.AntialiasedLineEnable = true;
-	rasterizerState.CullMode = D3D11_CULL_BACK;
+	rasterizerState.CullMode = D3D11_CULL_FRONT;
 	rasterizerState.FillMode = D3D11_FILL_SOLID;
 	rasterizerState.DepthClipEnable = true;
 	rasterizerState.FrontCounterClockwise = true;

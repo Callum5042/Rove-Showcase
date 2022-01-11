@@ -2,18 +2,37 @@
 struct VertexInput
 {
 	float3 position : POSITION;
+	float3 normal : NORMAL;
 };
 
 // Vertex output / pixel input structure
-struct VertexOutput
+struct PixelInput
 {
-	float4 position : SV_POSITION;
+	float4 positionClipSpace : SV_POSITION;
+	float3 position : POSITION;
+	float3 normal : NORMAL;
 };
 
-// World constant buffer
-cbuffer WorldBuffer : register(b0)
+// Camera buffer
+cbuffer CameraBuffer : register(b0)
 {
-	matrix cWorld;
 	matrix cView;
 	matrix cProjection;
+	float4 cCameraPosition;
+}
+
+// World constant buffer
+cbuffer WorldBuffer : register(b1)
+{
+	matrix cWorld;
+	matrix cWorldInverse;
+}
+
+// Point light buffer
+cbuffer PointLightBuffer : register(b2)
+{
+	float4 cLightPointPosition;
+	float4 cLightPointDiffuse;
+	float4 cLightPointAmbient;
+	float4 cLightPointSpecular;
 }

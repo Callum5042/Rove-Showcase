@@ -18,7 +18,7 @@ void Rove::Model::CreateVertexBuffer(const std::vector<Vertex>& vertices)
 {
 	auto d3dDevice = m_DxRenderer->GetDevice();
 
-	m_VertexCount = vertices.size();
+	m_VertexCount = static_cast<UINT>(vertices.size());
 
 	// Create vertex buffer
 	D3D11_BUFFER_DESC vertex_buffer_desc = {};
@@ -99,45 +99,56 @@ void Rove::Model::LoadFromFile(const std::wstring& filepath)
 		for (auto& primitive : mesh.primitives)
 		{
 			{
-				const tinygltf::Accessor& accessor = model.accessors[primitive.attributes["POSITION"]];
-				const tinygltf::BufferView& bufferView = model.bufferViews[accessor.bufferView];
-				const tinygltf::Buffer& buffer = model.buffers[bufferView.buffer];
-
 				// Position
-				const float* positions = reinterpret_cast<const float*>(&buffer.data[bufferView.byteOffset + accessor.byteOffset]);
-				for (size_t i = 0; i < accessor.count; ++i)
 				{
-					float x = positions[i * 3 + 0];
-					float y = positions[i * 3 + 1];
-					float z = positions[i * 3 + 2];
+					const tinygltf::Accessor& accessor = model.accessors[primitive.attributes["POSITION"]];
+					const tinygltf::BufferView& bufferView = model.bufferViews[accessor.bufferView];
+					const tinygltf::Buffer& buffer = model.buffers[bufferView.buffer];
 
-					Vertex vertex;
-					vertex.x = x;
-					vertex.y = y;
-					vertex.z = z;
+					const tinygltf::Accessor& normal_accessor = model.accessors[primitive.attributes["NORMAL"]];
+					const tinygltf::BufferView& normal_bufferView = model.bufferViews[normal_accessor.bufferView];
+					const tinygltf::Buffer& normal_buffer = model.buffers[normal_bufferView.buffer];
 
-					vertices.push_back(vertex);
+					const float* positions = reinterpret_cast<const float*>(&buffer.data[bufferView.byteOffset + accessor.byteOffset]);
+					const float* normals = reinterpret_cast<const float*>(&normal_buffer.data[normal_bufferView.byteOffset + normal_accessor.byteOffset]);
+
+					for (size_t i = 0; i < accessor.count; ++i)
+					{
+						float x = positions[i * 3 + 0];
+						float y = positions[i * 3 + 1];
+						float z = positions[i * 3 + 2];
+
+						float nx = normals[i * 3 + 0];
+						float ny = normals[i * 3 + 1];
+						float nz = normals[i * 3 + 2];
+
+						Vertex vertex;
+						vertex.x = x;
+						vertex.y = y;
+						vertex.z = z;
+
+						vertex.normal_x = nx;
+						vertex.normal_y = ny;
+						vertex.normal_z = nz;
+
+						vertices.push_back(vertex);
+					}
 				}
 
 				// Indices
-				const auto& indices_accessor = model.accessors[primitive.indices];
-				const auto& indices_buffer_view = model.bufferViews[indices_accessor.bufferView];
-				const auto& indices_buffer = model.buffers[indices_buffer_view.buffer];
-
-				const short* _indices = reinterpret_cast<const short*>(&indices_buffer.data[indices_buffer_view.byteOffset + indices_accessor.byteOffset]);
-
-				for (int i = 0; i < indices_accessor.count; ++i) 
 				{
-					indices.push_back(_indices[i]);
+					const auto& accessor = model.accessors[primitive.indices];
+					const auto& buffer_view = model.bufferViews[accessor.bufferView];
+					const auto& buffer = model.buffers[buffer_view.buffer];
+
+					const short* _indices = reinterpret_cast<const short*>(&buffer.data[buffer_view.byteOffset + accessor.byteOffset]);
+					indices.assign(_indices, _indices + accessor.count);
 				}
 			}
 		}
 	}
 
-	//
 	// Rebuild Direct3D11 buffers
-	//
-
 	CreateVertexBuffer(vertices);
 	CreateIndexBuffer(indices);
 }
