@@ -161,6 +161,21 @@ int Rove::Application::Run()
 				ImGui::End();
 			}
 
+			// Renderer details
+			if (m_ShowRendererDetails)
+			{
+				if (ImGui::Begin("Renderer##5", &m_ShowRendererDetails, ImGuiWindowFlags_AlwaysAutoResize))
+				{
+					ImGui::Text(m_DxRenderer->GetGpuName().c_str());
+
+					std::string vram = "VRAM: ";
+					vram += std::to_string(m_DxRenderer->GetGpuVramMB()) + " MB";
+					ImGui::Text(vram.c_str());
+				}
+
+				ImGui::End();
+			}
+
 			// Camera details
 			if (m_ShowCameraDetails)
 			{
@@ -269,6 +284,7 @@ int Rove::Application::Run()
 				if (ImGui::BeginMenu("View"))
 				{
 					ImGui::MenuItem("Debug", nullptr, &m_ShowDebugDetails);
+					ImGui::MenuItem("Renderer", nullptr, &m_ShowRendererDetails);
 					ImGui::MenuItem("Camera", nullptr, &m_ShowCameraDetails);
 					ImGui::MenuItem("Model", nullptr, &m_ShowModelDetails);
 					ImGui::MenuItem("Environment", nullptr, &m_ShowEnvironmentDetails);

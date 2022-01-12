@@ -64,6 +64,7 @@ namespace Rove
 		bool m_ShowDebugDetails = true;
 		bool m_ShowModelDetails = true;
 		bool m_ShowEnvironmentDetails = true;
+		bool m_ShowRendererDetails = true;
 
 		int m_MousePressedX = 0;
 		int m_MousePressedY = 0;

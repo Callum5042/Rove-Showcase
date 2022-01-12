@@ -1,6 +1,7 @@
 #include "Pch.h"
 #include "DxRenderer.h"
 #include "Windows/Window.h"
+#include "Application.h"
 using Rove::DX::Check;
 
 Rove::DxRenderer::DxRenderer(Window* window) : m_Window(window)
@@ -107,11 +108,11 @@ void Rove::DxRenderer::CreateSwapChain(int width, int height)
 	ComPtr<IDXGIDevice> dxgiDevice = nullptr;
 	DX::Check(m_Device.As(&dxgiDevice));
 
-	ComPtr<IDXGIAdapter> adapter = nullptr;
-	DX::Check(dxgiDevice->GetAdapter(adapter.GetAddressOf()));
+	//ComPtr<IDXGIAdapter> adapter = nullptr;
+	DX::Check(dxgiDevice->GetAdapter(m_Adapter.GetAddressOf()));
 
 	ComPtr<IDXGIFactory> dxgiFactory = nullptr;
-	DX::Check(adapter->GetParent(__uuidof(IDXGIFactory), reinterpret_cast<void**>(dxgiFactory.GetAddressOf())));
+	DX::Check(m_Adapter->GetParent(__uuidof(IDXGIFactory), reinterpret_cast<void**>(dxgiFactory.GetAddressOf())));
 
 	// Query IDXGIFactory to try to get IDXGIFactory2
 	ComPtr<IDXGIFactory2> dxgiFactory2 = nullptr;
@@ -131,6 +132,13 @@ void Rove::DxRenderer::CreateSwapChain(int width, int height)
 
 	// CreateSwapChainForHwnd is the prefered way of creating the swap chain
 	DX::Check(dxgiFactory2->CreateSwapChainForHwnd(m_Device.Get(), m_Window->GetHwnd(), &swapchain_desc, nullptr, nullptr, &m_SwapChain));
+
+	// Get adapter details
+	DXGI_ADAPTER_DESC desc;
+	m_Adapter->GetDesc(&desc);
+
+	m_GpuName = Rove::ConvertToString(std::wstring(desc.Description));
+	m_GpuVramMb = static_cast<int>(desc.DedicatedVideoMemory / 1024 / 1024);
 }
 
 void Rove::DxRenderer::CreateRenderTargetAndDepthStencilView(int width, int height)
