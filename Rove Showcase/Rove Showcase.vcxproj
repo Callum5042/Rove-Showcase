@@ -176,6 +176,9 @@
     <ClCompile Include="Components\InfoComponent.cpp" />
     <ClCompile Include="Components\ViewportComponent.cpp" />
     <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="ImGui\implot.cpp" />
+    <ClCompile Include="ImGui\implot_demo.cpp" />
+    <ClCompile Include="ImGui\implot_items.cpp" />
     <ClCompile Include="Model.cpp" />
     <ClCompile Include="Rendering\DxRenderer.cpp" />
     <ClCompile Include="ImGui\imgui.cpp">
@@ -228,6 +231,8 @@
     <ClInclude Include="ImGui\imgui_impl_win32.h" />
     <ClInclude Include="ImGui\imgui_internal.h" />
     <ClInclude Include="ImGui\imgui_stdlib.h" />
+    <ClInclude Include="ImGui\implot.h" />
+    <ClInclude Include="ImGui\implot_internal.h" />
     <ClInclude Include="ImGui\imstb_rectpack.h" />
     <ClInclude Include="ImGui\imstb_textedit.h" />
     <ClInclude Include="ImGui\imstb_truetype.h" />

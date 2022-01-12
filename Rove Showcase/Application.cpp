@@ -98,6 +98,7 @@ Rove::Application::~Application()
 	// Clean up ImGui
 	ImGui_ImplDX11_Shutdown();
 	ImGui_ImplWin32_Shutdown();
+	ImPlot::DestroyContext();
 	ImGui::DestroyContext();
 }
 
@@ -148,7 +149,8 @@ int Rove::Application::Run()
 			m_DxRenderer->SetSolidRasterState();
 
 			// Render ImGui windows
-			ImGui::ShowDemoWindow(nullptr);
+			//ImGui::ShowDemoWindow(nullptr);
+			//ImPlot::ShowDemoWindow();
 
 			// Debug details
 			if (m_ShowDebugDetails) 
@@ -169,7 +171,7 @@ int Rove::Application::Run()
 			// Renderer details
 			if (m_ShowRendererDetails)
 			{
-				if (ImGui::Begin("Renderer", &m_ShowRendererDetails, ImGuiWindowFlags_AlwaysAutoResize))
+				if (ImGui::Begin("Renderer", &m_ShowRendererDetails))
 				{
 					ImGui::Text(m_DxRenderer->GetGpuName().c_str());
 
@@ -179,7 +181,14 @@ int Rove::Application::Run()
 
 					std::string fps = "FPS: " + std::to_string(m_FramesPerSecond);
 					ImGui::Text(fps.c_str());
-					ImGui::PlotLines("Frame Times", m_FrameTime.data(), static_cast<int>(m_FrameTime.size()));
+
+					if (ImPlot::BeginPlot("Frame time (ms)"))
+					{
+						ImPlot::SetupAxes("time (ms)", "frame", ImPlotAxisFlags_AutoFit, ImPlotAxisFlags_AutoFit);
+						ImPlot::PlotLine("Frames", m_FrameTime.data(), static_cast<int>(m_FrameTime.size()), 0.1);
+
+						ImPlot::EndPlot();
+					}
 				}
 
 				ImGui::End();
@@ -361,8 +370,10 @@ void Rove::Application::SetupDearImGui()
 {
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
+	ImPlot::CreateContext();
 	ImGuiIO& io = ImGui::GetIO();
 
+	ImPlot::GetStyle().AntiAliasedLines = true;
 	io.Fonts->AddFontFromFileTTF("ImGui\\fonts\\DroidSans.ttf", 13);
 
 	ImGui::StyleColorsDark();
