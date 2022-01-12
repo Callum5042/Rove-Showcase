@@ -150,7 +150,7 @@ int Rove::Application::Run()
 
 			// Render ImGui windows
 			//ImGui::ShowDemoWindow(nullptr);
-			//ImPlot::ShowDemoWindow();
+			ImPlot::ShowDemoWindow();
 
 			// Debug details
 			if (m_ShowDebugDetails) 
@@ -184,8 +184,8 @@ int Rove::Application::Run()
 
 					if (ImPlot::BeginPlot("Frame time (ms)"))
 					{
-						ImPlot::SetupAxes("time (ms)", "frame", ImPlotAxisFlags_AutoFit, ImPlotAxisFlags_AutoFit);
-						ImPlot::PlotLine("Frames", m_FrameTime.data(), static_cast<int>(m_FrameTime.size()), 0.1);
+						ImPlot::SetupAxes("frame", "time (ms)", ImPlotAxisFlags_AutoFit, ImPlotAxisFlags_AutoFit);
+						ImPlot::PlotLine("time", m_FrameTime.data(), static_cast<int>(m_FrameTime.size()), 0.1);
 
 						ImPlot::EndPlot();
 					}
