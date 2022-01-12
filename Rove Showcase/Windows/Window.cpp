@@ -153,6 +153,11 @@ std::wstring Rove::Window::GetTitle()
 	return title;
 }
 
+void Rove::Window::SetTitle(const std::wstring& title)
+{
+	SetWindowText(m_Hwnd, title.c_str());
+}
+
 void Rove::Window::WindowResizing(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	// Don't call onresize if the window has not yet been created

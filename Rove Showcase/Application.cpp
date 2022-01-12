@@ -106,6 +106,10 @@ int Rove::Application::Run()
 	Create();
 	m_Window->Show();
 
+	// Starts the timer
+	m_Timer = std::make_unique<Rove::Timer>();
+	m_Timer->Start();
+
 	// Main loop
 	MSG msg = {};
 	while (msg.message != WM_QUIT)
@@ -117,6 +121,9 @@ int Rove::Application::Run()
 		}
 		else
 		{
+			m_Timer->Tick();
+			CalculateFramesPerSecond();
+
 			// Start rendering into Dear ImGui
 			ImGui_ImplDX11_NewFrame();
 			ImGui_ImplWin32_NewFrame();
@@ -140,10 +147,8 @@ int Rove::Application::Run()
 			// Enable solid rendering
 			m_DxRenderer->SetSolidRasterState();
 
-			//
 			// Render ImGui windows
-			// 
-			//ImGui::ShowDemoWindow(nullptr);
+			ImGui::ShowDemoWindow(nullptr);
 
 			// Debug details
 			if (m_ShowDebugDetails) 
@@ -164,13 +169,17 @@ int Rove::Application::Run()
 			// Renderer details
 			if (m_ShowRendererDetails)
 			{
-				if (ImGui::Begin("Renderer##5", &m_ShowRendererDetails, ImGuiWindowFlags_AlwaysAutoResize))
+				if (ImGui::Begin("Renderer", &m_ShowRendererDetails, ImGuiWindowFlags_AlwaysAutoResize))
 				{
 					ImGui::Text(m_DxRenderer->GetGpuName().c_str());
 
 					std::string vram = "VRAM: ";
 					vram += std::to_string(m_DxRenderer->GetGpuVramMB()) + " MB";
 					ImGui::Text(vram.c_str());
+
+					std::string fps = "FPS: " + std::to_string(m_FramesPerSecond);
+					ImGui::Text(fps.c_str());
+					ImGui::PlotLines("Frame Times", m_FrameTime.data(), static_cast<int>(m_FrameTime.size()));
 				}
 
 				ImGui::End();
@@ -443,4 +452,25 @@ void Rove::Application::UpdateLightBuffer()
 	}
 
 	m_DxShader->UpdatePointLightBuffer(light_buffer);
+}
+
+void Rove::Application::CalculateFramesPerSecond()
+{
+	// Consider using a third-party library such as ImPlot: https://github.com/epezent/implot
+	// (see others https://github.com/ocornut/imgui/wiki/Useful-Extensions)
+
+	static double time = 0;
+	static int frameCount = 0;
+
+	frameCount++;
+	time += m_Timer->DeltaTime();
+	if (time > 1.0f)
+	{
+		auto fps = frameCount;
+		time = 0.0f;
+		frameCount = 0;
+
+		m_FramesPerSecond = fps;
+		m_FrameTime.push_back(1000.0f / fps);
+	}
 }
