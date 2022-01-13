@@ -81,9 +81,12 @@ Rove::Application::Application()
 	m_DxRenderer = std::make_unique<Rove::DxRenderer>(m_Window.get());
 	m_DxShader = std::make_unique<Rove::DxShader>(m_DxRenderer.get());
 	
-	
+	// Default light
 	auto light = std::make_unique<Rove::PointLight>();
-	light->Position = DirectX::XMFLOAT3(5.0f, 5.0f, -5.0f);
+	light->Position = DirectX::XMFLOAT3(5.0f, 8.0f, -10.0f);
+	light->DiffuseColour = DirectX::XMFLOAT4(0.785f, 0.785f, 0.785f, 1.0f);
+	light->AmbientColour = DirectX::XMFLOAT4(0.3925f, 0.3925f, 0.3925f, 1.0f);
+	light->SpecularColour = DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 	m_PointLights.push_back(std::move(light));
 
 	// Set colour
