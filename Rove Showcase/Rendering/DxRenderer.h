@@ -58,6 +58,15 @@ namespace Rove
 		// GPU VRAM
 		constexpr int GetGpuVramMB() { return m_GpuVramMb; }
 
+		// Copy MSAA to back buffer
+		void CopyMsaaRenderTargetBackBuffer();
+
+		// Set render to MSAA
+		void SetRenderToMsaa();
+
+		// Set render to back buffer
+		void SetRenderToBackBuffer();
+
 	private:
 		Window* m_Window = nullptr;
 
@@ -67,6 +76,7 @@ namespace Rove
 		void CreateDeviceAndContext();
 
 		// Swapchain
+		ComPtr<ID3D11Texture2D> m_BackBuffer = nullptr;
 		ComPtr<IDXGISwapChain1> m_SwapChain = nullptr;
 		void CreateSwapChain(int width, int height);
 
@@ -90,5 +100,15 @@ namespace Rove
 		ComPtr<IDXGIAdapter> m_Adapter = nullptr;
 		std::string m_GpuName;
 		int m_GpuVramMb = 0;
+
+		// Multisample anti-aliasing
+		UINT m_4xMsaaQuality = 0;
+
+		void CreateMsaaRenderTargetView(int width, int height);
+		ComPtr<ID3D11Texture2D> m_MsaaTexture = nullptr;
+		ComPtr<ID3D11RenderTargetView> m_MsaaRenderTargetView = nullptr;
+
+		void CreateMsaaDepthStencilView(int width, int height);
+		ComPtr<ID3D11DepthStencilView> m_MsaaDepthStencilView = nullptr;
 	};
 }

@@ -82,5 +82,8 @@ namespace Rove
 		void CalculateFramesPerSecond();
 		std::vector<float> m_FrameTime;
 		int m_FramesPerSecond = 0;
+
+		// Multisample anti-aliasing
+		bool m_EnableMsaa = false;
 	};
 }

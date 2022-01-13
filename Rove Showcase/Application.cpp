@@ -136,6 +136,17 @@ int Rove::Application::Run()
 			// Clear backbuffer
 			m_DxRenderer->Clear(m_BackgroundColour);
 
+			// Render MSAA?
+			if (m_EnableMsaa)
+			{
+				m_DxRenderer->SetRenderToMsaa();
+			}
+			else
+			{
+				m_DxRenderer->SetRenderToBackBuffer();
+			}
+
+
 			// Render model into viewport
 			m_DxShader->Apply();
 
@@ -184,6 +195,8 @@ int Rove::Application::Run()
 
 					std::string fps = "FPS: " + std::to_string(m_FramesPerSecond);
 					ImGui::Text(fps.c_str());
+
+					ImGui::Checkbox("MSAA", &m_EnableMsaa);
 
 					static bool show_frame_statistics = false;
 					ImGui::Checkbox("Show frame statistics", &show_frame_statistics);
@@ -324,6 +337,11 @@ int Rove::Application::Run()
 			// Render Dear ImGui
 			ImGui::Render();
 			ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+
+			if (m_EnableMsaa) 
+			{
+				m_DxRenderer->CopyMsaaRenderTargetBackBuffer();
+			}
 
 			// Present backbuffer to screen
 			m_DxRenderer->Present();

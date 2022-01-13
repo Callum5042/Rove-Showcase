@@ -21,6 +21,15 @@ void Rove::DxRenderer::Create()
 
 	CreateWireframeRasterState();
 	CreateSolidRasterState();
+
+	// MSAA //
+
+	// Check antialising levels
+	DX::Check(m_Device->CheckMultisampleQualityLevels(DXGI_FORMAT_R8G8B8A8_UNORM, 4, &m_4xMsaaQuality));
+
+	// Render to texture
+	CreateMsaaRenderTargetView(window_width, window_height);
+	CreateMsaaDepthStencilView(window_width, window_height);
 }
 
 void Rove::DxRenderer::Clear(const float* colour)
@@ -29,8 +38,8 @@ void Rove::DxRenderer::Clear(const float* colour)
 	m_DeviceContext->ClearRenderTargetView(m_RenderTargetView.Get(), colour);
 	m_DeviceContext->ClearDepthStencilView(m_DepthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
-	// Bind the render target view to the pipeline's output merger stage
-	m_DeviceContext->OMSetRenderTargets(1, m_RenderTargetView.GetAddressOf(), m_DepthStencilView.Get());
+	m_DeviceContext->ClearRenderTargetView(m_MsaaRenderTargetView.Get(), colour);
+	m_DeviceContext->ClearDepthStencilView(m_MsaaDepthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
 	int window_width = 0;
 	int window_height = 0;
@@ -50,6 +59,8 @@ void Rove::DxRenderer::Resize(int width, int height)
 	if (m_Device == nullptr)
 		return;
 
+	m_BackBuffer.ReleaseAndGetAddressOf();
+
 	// Releases the current render target and depth stencil view
 	m_DepthStencilView.ReleaseAndGetAddressOf();
 	m_RenderTargetView.ReleaseAndGetAddressOf();
@@ -59,6 +70,10 @@ void Rove::DxRenderer::Resize(int width, int height)
 
 	// Creates a new render target and depth stencil view with the new window size
 	CreateRenderTargetAndDepthStencilView(width, height);
+
+	// Render to texture
+	CreateMsaaRenderTargetView(width, height);
+	CreateMsaaDepthStencilView(width, height);
 
 	// Sets a new viewport with the new window size
 	SetViewport(width, height);
@@ -72,6 +87,21 @@ void Rove::DxRenderer::SetWireframeRasterState()
 void Rove::DxRenderer::SetSolidRasterState()
 {
 	m_DeviceContext->RSSetState(m_RasterStateSolid.Get());
+}
+
+void Rove::DxRenderer::CopyMsaaRenderTargetBackBuffer()
+{
+	m_DeviceContext->ResolveSubresource(m_BackBuffer.Get(), 0, m_MsaaTexture.Get(), 0, DXGI_FORMAT_R8G8B8A8_UNORM);
+}
+
+void Rove::DxRenderer::SetRenderToMsaa()
+{
+	m_DeviceContext->OMSetRenderTargets(1, m_MsaaRenderTargetView.GetAddressOf(), m_MsaaDepthStencilView.Get());
+}
+
+void Rove::DxRenderer::SetRenderToBackBuffer()
+{
+	m_DeviceContext->OMSetRenderTargets(1, m_RenderTargetView.GetAddressOf(), m_DepthStencilView.Get());
 }
 
 void Rove::DxRenderer::CreateDeviceAndContext()
@@ -144,9 +174,8 @@ void Rove::DxRenderer::CreateSwapChain(int width, int height)
 void Rove::DxRenderer::CreateRenderTargetAndDepthStencilView(int width, int height)
 {
 	// Create the render target view
-	ComPtr<ID3D11Texture2D> back_buffer = nullptr;
-	DX::Check(m_SwapChain->GetBuffer(0, __uuidof(ID3D11Resource), reinterpret_cast<void**>(back_buffer.GetAddressOf())));
-	DX::Check(m_Device->CreateRenderTargetView(back_buffer.Get(), nullptr, m_RenderTargetView.GetAddressOf()));
+	DX::Check(m_SwapChain->GetBuffer(0, __uuidof(ID3D11Resource), reinterpret_cast<void**>(m_BackBuffer.GetAddressOf())));
+	DX::Check(m_Device->CreateRenderTargetView(m_BackBuffer.Get(), nullptr, m_RenderTargetView.GetAddressOf()));
 
 	// Describe the depth stencil view
 	D3D11_TEXTURE2D_DESC depth_desc = {};
@@ -164,9 +193,6 @@ void Rove::DxRenderer::CreateRenderTargetAndDepthStencilView(int width, int heig
 	ComPtr<ID3D11Texture2D> depth_stencil = nullptr;
 	DX::Check(m_Device->CreateTexture2D(&depth_desc, nullptr, &depth_stencil));
 	DX::Check(m_Device->CreateDepthStencilView(depth_stencil.Get(), nullptr, m_DepthStencilView.GetAddressOf()));
-
-	// Binds both the render target and depth stencil to the pipeline's output merger stage
-	m_DeviceContext->OMSetRenderTargets(1, m_RenderTargetView.GetAddressOf(), m_DepthStencilView.Get());
 }
 
 void Rove::DxRenderer::SetViewport(int width, int height)
@@ -199,6 +225,51 @@ void Rove::DxRenderer::CreateSolidRasterState()
 	rasterizerState.SlopeScaledDepthBias = 1.0f;
 
 	DX::Check(m_Device->CreateRasterizerState(&rasterizerState, m_RasterStateSolid.ReleaseAndGetAddressOf()));
+}
+
+void Rove::DxRenderer::CreateMsaaRenderTargetView(int width, int height)
+{
+	// Render targets
+	D3D11_TEXTURE2D_DESC texture_desc = {};
+	texture_desc.Width = width;
+	texture_desc.Height = height;
+	texture_desc.MipLevels = 1;
+	texture_desc.ArraySize = 1;
+	texture_desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	texture_desc.SampleDesc.Count = 4;
+	texture_desc.SampleDesc.Quality = m_4xMsaaQuality - 1;
+	texture_desc.Usage = D3D11_USAGE_DEFAULT;
+	texture_desc.BindFlags = D3D11_BIND_RENDER_TARGET;
+	texture_desc.CPUAccessFlags = 0;
+	texture_desc.MiscFlags = 0;
+
+	DX::Check(m_Device->CreateTexture2D(&texture_desc, 0, m_MsaaTexture.ReleaseAndGetAddressOf()));
+
+	// Create the render target view.
+	D3D11_RENDER_TARGET_VIEW_DESC target_view_desc = {};
+	target_view_desc.Format = texture_desc.Format;
+	target_view_desc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2DMS;
+	target_view_desc.Texture2D.MipSlice = 0;
+
+	DX::Check(m_Device->CreateRenderTargetView(m_MsaaTexture.Get(), &target_view_desc, m_MsaaRenderTargetView.ReleaseAndGetAddressOf()));
+}
+
+void Rove::DxRenderer::CreateMsaaDepthStencilView(int width, int height)
+{
+	D3D11_TEXTURE2D_DESC texture_desc = {};
+	texture_desc.Width = width;
+	texture_desc.Height = height;
+	texture_desc.MipLevels = 1;
+	texture_desc.ArraySize = 1;
+	texture_desc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+	texture_desc.SampleDesc.Count = 4;
+	texture_desc.SampleDesc.Quality = m_4xMsaaQuality - 1;
+	texture_desc.Usage = D3D11_USAGE_DEFAULT;
+	texture_desc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+
+	ComPtr<ID3D11Texture2D> texture = nullptr;
+	DX::Check(m_Device->CreateTexture2D(&texture_desc, nullptr, texture.ReleaseAndGetAddressOf()));
+	DX::Check(m_Device->CreateDepthStencilView(texture.Get(), nullptr, m_MsaaDepthStencilView.ReleaseAndGetAddressOf()));
 }
 
 void Rove::DxRenderer::CreateWireframeRasterState()
