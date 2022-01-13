@@ -98,6 +98,7 @@ Rove::Application::~Application()
 	// Clean up ImGui
 	ImGui_ImplDX11_Shutdown();
 	ImGui_ImplWin32_Shutdown();
+	ImPlot::DestroyContext();
 	ImGui::DestroyContext();
 }
 
@@ -105,6 +106,10 @@ int Rove::Application::Run()
 {
 	Create();
 	m_Window->Show();
+
+	// Starts the timer
+	m_Timer = std::make_unique<Rove::Timer>();
+	m_Timer->Start();
 
 	// Main loop
 	MSG msg = {};
@@ -117,6 +122,9 @@ int Rove::Application::Run()
 		}
 		else
 		{
+			m_Timer->Tick();
+			CalculateFramesPerSecond();
+
 			// Start rendering into Dear ImGui
 			ImGui_ImplDX11_NewFrame();
 			ImGui_ImplWin32_NewFrame();
@@ -140,10 +148,9 @@ int Rove::Application::Run()
 			// Enable solid rendering
 			m_DxRenderer->SetSolidRasterState();
 
-			//
 			// Render ImGui windows
-			// 
 			//ImGui::ShowDemoWindow(nullptr);
+			//ImPlot::ShowDemoWindow();
 
 			// Debug details
 			if (m_ShowDebugDetails) 
@@ -156,6 +163,38 @@ int Rove::Application::Run()
 					ScreenToClient(m_Window->GetHwnd(), &mouse_position);
 
 					ImGui::Text("Mouse (%i, %i)", mouse_position.x, mouse_position.y);
+				}
+
+				ImGui::End();
+			}
+
+			// Renderer details
+			if (m_ShowRendererDetails)
+			{
+				if (ImGui::Begin("Renderer", &m_ShowRendererDetails))
+				{
+					ImGui::Text(m_DxRenderer->GetGpuName().c_str());
+
+					std::string vram = "VRAM: ";
+					vram += std::to_string(m_DxRenderer->GetGpuVramMB()) + " MB";
+					ImGui::Text(vram.c_str());
+
+					std::string fps = "FPS: " + std::to_string(m_FramesPerSecond);
+					ImGui::Text(fps.c_str());
+
+					static bool show_frame_statistics = false;
+					ImGui::Checkbox("Show frame statistics", &show_frame_statistics);
+
+					if (show_frame_statistics)
+					{
+						if (ImPlot::BeginPlot("Frame time (ms)"))
+						{
+							ImPlot::SetupAxes("frame", "time (ms)", ImPlotAxisFlags_AutoFit, ImPlotAxisFlags_AutoFit);
+							ImPlot::PlotLine("time", m_FrameTime.data(), static_cast<int>(m_FrameTime.size()), 0.1);
+
+							ImPlot::EndPlot();
+						}
+					}
 				}
 
 				ImGui::End();
@@ -269,6 +308,7 @@ int Rove::Application::Run()
 				if (ImGui::BeginMenu("View"))
 				{
 					ImGui::MenuItem("Debug", nullptr, &m_ShowDebugDetails);
+					ImGui::MenuItem("Renderer", nullptr, &m_ShowRendererDetails);
 					ImGui::MenuItem("Camera", nullptr, &m_ShowCameraDetails);
 					ImGui::MenuItem("Model", nullptr, &m_ShowModelDetails);
 					ImGui::MenuItem("Environment", nullptr, &m_ShowEnvironmentDetails);
@@ -336,8 +376,10 @@ void Rove::Application::SetupDearImGui()
 {
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
+	ImPlot::CreateContext();
 	ImGuiIO& io = ImGui::GetIO();
 
+	ImPlot::GetStyle().AntiAliasedLines = true;
 	io.Fonts->AddFontFromFileTTF("ImGui\\fonts\\DroidSans.ttf", 13);
 
 	ImGui::StyleColorsDark();
@@ -427,4 +469,25 @@ void Rove::Application::UpdateLightBuffer()
 	}
 
 	m_DxShader->UpdatePointLightBuffer(light_buffer);
+}
+
+void Rove::Application::CalculateFramesPerSecond()
+{
+	// Consider using a third-party library such as ImPlot: https://github.com/epezent/implot
+	// (see others https://github.com/ocornut/imgui/wiki/Useful-Extensions)
+
+	static double time = 0;
+	static int frameCount = 0;
+
+	frameCount++;
+	time += m_Timer->DeltaTime();
+	if (time > 1.0f)
+	{
+		auto fps = frameCount;
+		time = 0.0f;
+		frameCount = 0;
+
+		m_FramesPerSecond = fps;
+		m_FrameTime.push_back(1000.0f / fps);
+	}
 }

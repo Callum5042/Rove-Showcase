@@ -8,6 +8,7 @@
 #include "Model.h"
 #include "Camera.h"
 #include "PointLight.h"
+#include "Timer.h"
 
 // Components
 #include "Components\ViewportComponent.h"
@@ -48,8 +49,7 @@ namespace Rove
 		std::unique_ptr<DxShader> m_DxShader = nullptr;
 		std::unique_ptr<Camera> m_Camera = nullptr;
 		std::unique_ptr<Model> m_Model = nullptr;
-
-		//std::unique_ptr<PointLight> m_PointLight = nullptr;
+		std::unique_ptr<Timer> m_Timer = nullptr;
 
 		std::vector<std::unique_ptr<PointLight>> m_PointLights;
 
@@ -64,6 +64,7 @@ namespace Rove
 		bool m_ShowDebugDetails = true;
 		bool m_ShowModelDetails = true;
 		bool m_ShowEnvironmentDetails = true;
+		bool m_ShowRendererDetails = true;
 
 		int m_MousePressedX = 0;
 		int m_MousePressedY = 0;
@@ -76,5 +77,10 @@ namespace Rove
 
 		// Light updates
 		void UpdateLightBuffer();
+
+		// Calculate frames
+		void CalculateFramesPerSecond();
+		std::vector<float> m_FrameTime;
+		int m_FramesPerSecond = 0;
 	};
 }

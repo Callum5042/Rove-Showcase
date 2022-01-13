@@ -19,6 +19,10 @@
     <ClCompile Include="Rendering\DxShader.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Model.cpp" />
+    <ClCompile Include="Timer.cpp" />
+    <ClCompile Include="ImGui\implot.cpp" />
+    <ClCompile Include="ImGui\implot_items.cpp" />
+    <ClCompile Include="ImGui\implot_demo.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Pch.h" />
@@ -44,6 +48,9 @@
     <ClInclude Include="TinyGltf\stb_image_write.h" />
     <ClInclude Include="TinyGltf\tiny_gltf.h" />
     <ClInclude Include="PointLight.h" />
+    <ClInclude Include="Timer.h" />
+    <ClInclude Include="ImGui\implot.h" />
+    <ClInclude Include="ImGui\implot_internal.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="imgui.ini" />

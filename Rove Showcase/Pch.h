@@ -23,6 +23,7 @@ using Microsoft::WRL::ComPtr;
 #include "ImGui\imgui_impl_win32.h"
 #include "ImGui\imgui_impl_dx11.h"
 #include "ImGui\imgui_stdlib.h"
+#include "ImGui\implot.h"
 
 // C++
 #include <string>
@@ -35,3 +36,6 @@ using Microsoft::WRL::ComPtr;
 
 #include <locale>
 #include <codecvt>
+
+#undef min
+#undef max

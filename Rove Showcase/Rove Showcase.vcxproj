@@ -176,6 +176,9 @@
     <ClCompile Include="Components\InfoComponent.cpp" />
     <ClCompile Include="Components\ViewportComponent.cpp" />
     <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="ImGui\implot.cpp" />
+    <ClCompile Include="ImGui\implot_demo.cpp" />
+    <ClCompile Include="ImGui\implot_items.cpp" />
     <ClCompile Include="Model.cpp" />
     <ClCompile Include="Rendering\DxRenderer.cpp" />
     <ClCompile Include="ImGui\imgui.cpp">
@@ -215,6 +218,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="Rendering\DxShader.cpp" />
+    <ClCompile Include="Timer.cpp" />
     <ClCompile Include="Windows\Window.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -227,6 +231,8 @@
     <ClInclude Include="ImGui\imgui_impl_win32.h" />
     <ClInclude Include="ImGui\imgui_internal.h" />
     <ClInclude Include="ImGui\imgui_stdlib.h" />
+    <ClInclude Include="ImGui\implot.h" />
+    <ClInclude Include="ImGui\implot_internal.h" />
     <ClInclude Include="ImGui\imstb_rectpack.h" />
     <ClInclude Include="ImGui\imstb_textedit.h" />
     <ClInclude Include="ImGui\imstb_truetype.h" />
@@ -236,6 +242,7 @@
     <ClInclude Include="PointLight.h" />
     <ClInclude Include="Rendering\DxRenderer.h" />
     <ClInclude Include="Rendering\DxShader.h" />
+    <ClInclude Include="Timer.h" />
     <ClInclude Include="TinyGltf\json.hpp" />
     <ClInclude Include="TinyGltf\stb_image.h" />
     <ClInclude Include="TinyGltf\stb_image_write.h" />

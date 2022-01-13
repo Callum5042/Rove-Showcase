@@ -40,6 +40,9 @@ namespace Rove
 		// Get window title
 		std::wstring GetTitle();
 
+		// Set window title
+		void SetTitle(const std::wstring& title);
+
 		// Get application
 		constexpr Application* GetApplication() { return m_Application; }
 

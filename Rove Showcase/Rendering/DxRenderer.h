@@ -52,6 +52,12 @@ namespace Rove
 		// Set raster state as solid
 		void SetSolidRasterState();
 
+		// GPU name
+		constexpr std::string& GetGpuName() { return m_GpuName; }
+
+		// GPU VRAM
+		constexpr int GetGpuVramMB() { return m_GpuVramMb; }
+
 	private:
 		Window* m_Window = nullptr;
 
@@ -79,5 +85,10 @@ namespace Rove
 		// Solid raster state
 		ComPtr<ID3D11RasterizerState> m_RasterStateSolid = nullptr;
 		void CreateSolidRasterState();
+
+		// Adapter info
+		ComPtr<IDXGIAdapter> m_Adapter = nullptr;
+		std::string m_GpuName;
+		int m_GpuVramMb = 0;
 	};
 }
