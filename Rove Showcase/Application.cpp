@@ -150,7 +150,7 @@ int Rove::Application::Run()
 
 			// Render ImGui windows
 			//ImGui::ShowDemoWindow(nullptr);
-			ImPlot::ShowDemoWindow();
+			//ImPlot::ShowDemoWindow();
 
 			// Debug details
 			if (m_ShowDebugDetails) 
@@ -182,12 +182,18 @@ int Rove::Application::Run()
 					std::string fps = "FPS: " + std::to_string(m_FramesPerSecond);
 					ImGui::Text(fps.c_str());
 
-					if (ImPlot::BeginPlot("Frame time (ms)"))
-					{
-						ImPlot::SetupAxes("frame", "time (ms)", ImPlotAxisFlags_AutoFit, ImPlotAxisFlags_AutoFit);
-						ImPlot::PlotLine("time", m_FrameTime.data(), static_cast<int>(m_FrameTime.size()), 0.1);
+					static bool show_frame_statistics = false;
+					ImGui::Checkbox("Show frame statistics", &show_frame_statistics);
 
-						ImPlot::EndPlot();
+					if (show_frame_statistics)
+					{
+						if (ImPlot::BeginPlot("Frame time (ms)"))
+						{
+							ImPlot::SetupAxes("frame", "time (ms)", ImPlotAxisFlags_AutoFit, ImPlotAxisFlags_AutoFit);
+							ImPlot::PlotLine("time", m_FrameTime.data(), static_cast<int>(m_FrameTime.size()), 0.1);
+
+							ImPlot::EndPlot();
+						}
 					}
 				}
 
