@@ -114,6 +114,9 @@ int Rove::Application::Run()
 	m_Timer = std::make_unique<Rove::Timer>();
 	m_Timer->Start();
 
+	// Load pyramid model as default
+	m_Model->LoadFromFile(L"D:\\pyramid.glb");
+
 	// Main loop
 	MSG msg = {};
 	while (msg.message != WM_QUIT)
