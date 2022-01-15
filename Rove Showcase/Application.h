@@ -85,5 +85,8 @@ namespace Rove
 
 		// Multisample anti-aliasing
 		bool m_EnableMsaa = false;
+
+		// V-Sync
+		bool m_EnableVSync = true;
 	};
 }

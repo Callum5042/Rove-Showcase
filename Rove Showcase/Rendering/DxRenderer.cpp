@@ -47,10 +47,10 @@ void Rove::DxRenderer::Clear(const float* colour)
 	SetViewport(window_width, window_height);
 }
 
-void Rove::DxRenderer::Present()
+void Rove::DxRenderer::Present(bool enable_vsync)
 {
 	DXGI_PRESENT_PARAMETERS presentParameters = {};
-	DX::Check(m_SwapChain->Present1(0, 0, &presentParameters));
+	DX::Check(m_SwapChain->Present1(enable_vsync ? 1 : 0, 0, &presentParameters));
 }
 
 void Rove::DxRenderer::Resize(int width, int height)

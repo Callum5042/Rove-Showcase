@@ -35,7 +35,7 @@ namespace Rove
 		void Clear(const float* colour);
 
 		// Display the rendered scene
-		void Present();
+		void Present(bool enable_vsync);
 
 		// Resizing
 		void Resize(int width, int height);

@@ -200,6 +200,7 @@ int Rove::Application::Run()
 					ImGui::Text(fps.c_str());
 
 					ImGui::Checkbox("MSAA", &m_EnableMsaa);
+					ImGui::Checkbox("V-Sync", &m_EnableVSync);
 
 					static bool show_frame_statistics = false;
 					ImGui::Checkbox("Show frame statistics", &show_frame_statistics);
@@ -347,7 +348,7 @@ int Rove::Application::Run()
 			}
 
 			// Present backbuffer to screen
-			m_DxRenderer->Present();
+			m_DxRenderer->Present(m_EnableVSync);
 		}
 	}
 
