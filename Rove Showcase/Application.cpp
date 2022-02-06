@@ -149,7 +149,6 @@ int Rove::Application::Run()
 				m_DxRenderer->SetRenderToBackBuffer();
 			}
 
-
 			// Render model into viewport
 			m_DxShader->Apply();
 
@@ -166,183 +165,13 @@ int Rove::Application::Run()
 			m_DxRenderer->SetSolidRasterState();
 
 			// Render ImGui windows
-			//ImGui::ShowDemoWindow(nullptr);
-			//ImPlot::ShowDemoWindow();
-
-			// Debug details
-			if (m_ShowDebugDetails) 
-			{
-				if (ImGui::Begin("Debug", &m_ShowDebugDetails, ImGuiWindowFlags_AlwaysAutoResize))
-				{
-					// Position
-					POINT mouse_position;
-					GetCursorPos(&mouse_position);
-					ScreenToClient(m_Window->GetHwnd(), &mouse_position);
-
-					ImGui::Text("Mouse (%i, %i)", mouse_position.x, mouse_position.y);
-				}
-
-				ImGui::End();
-			}
-
-			// Renderer details
-			if (m_ShowRendererDetails)
-			{
-				if (ImGui::Begin("Renderer", &m_ShowRendererDetails))
-				{
-					ImGui::Text(m_DxRenderer->GetGpuName().c_str());
-
-					std::string vram = "VRAM: ";
-					vram += std::to_string(m_DxRenderer->GetGpuVramMB()) + " MB";
-					ImGui::Text(vram.c_str());
-
-					std::string fps = "FPS: " + std::to_string(m_FramesPerSecond);
-					ImGui::Text(fps.c_str());
-
-					ImGui::Checkbox("MSAA", &m_EnableMsaa);
-					ImGui::Checkbox("V-Sync", &m_EnableVSync);
-
-					static bool show_frame_statistics = false;
-					ImGui::Checkbox("Show frame statistics", &show_frame_statistics);
-
-					if (show_frame_statistics)
-					{
-						if (ImPlot::BeginPlot("Frame time (ms)"))
-						{
-							ImPlot::SetupAxes("frame", "time (ms)", ImPlotAxisFlags_AutoFit, ImPlotAxisFlags_AutoFit);
-							ImPlot::PlotLine("time", m_FrameTime.data(), static_cast<int>(m_FrameTime.size()), 0.1);
-
-							ImPlot::EndPlot();
-						}
-					}
-				}
-
-				ImGui::End();
-			}
-
-			// Camera details
-			if (m_ShowCameraDetails)
-			{
-				if (ImGui::Begin("Camera", &m_ShowCameraDetails, ImGuiWindowFlags_AlwaysAutoResize))
-				{
-					// Position
-					DirectX::XMFLOAT3 position = m_Camera->GetPosition();
-					ImGui::Text("X: %f - Y: %f - Z: %f", position.x, position.y, position.z);
-
-					// Field of view
-					float fov_degrees = m_Camera->GetFieldOfView();
-					if (ImGui::SliderFloat("Field of view", &fov_degrees, 0.1f, 179.9f))
-					{
-						m_Camera->SetFov(fov_degrees);
-						UpdateCamera();
-					}
-				}
-
-				ImGui::End();
-			}
-
-			// Model details
-			if (m_ShowModelDetails) 
-			{
-				if (ImGui::Begin("Model", &m_ShowModelDetails, ImGuiWindowFlags_AlwaysAutoResize))
-				{
-					ImGui::Text("Vertices: %i", m_Model->GetVertices());
-					ImGui::Text("Indices: %i", m_Model->GetIndices());
-					ImGui::Checkbox("Enable Wireframe", &m_RenderWireframe);
-				}
-
-				ImGui::End();
-			}
-
-			// Environment details
-			if (m_ShowEnvironmentDetails) 
-			{
-				if (ImGui::Begin("Environment", &m_ShowEnvironmentDetails, ImGuiWindowFlags_AlwaysAutoResize))
-				{
-					ImGui::ColorEdit3("Background Colour", m_BackgroundColour, ImGuiColorEditFlags_NoOptions);
-					ImGui::Separator();
-					ImGui::Text("Lights");
-
-					/*static bool cast_shadows = false;
-					ImGui::Checkbox("Cast Shadows", &cast_shadows);*/
-
-					if (ImGui::Button("Add light"))
-					{
-						m_PointLights.push_back(std::make_unique<Rove::PointLight>());
-					}
-
-					for (int i = 0; i < m_PointLights.size(); ++i)
-					{
-						const auto& point_light = m_PointLights[i];
-
-						float* light_position = reinterpret_cast<float*>(&point_light->Position);
-
-						if (ImGui::DragFloat3(("Position##" + std::to_string(i)).c_str(), light_position))
-						{
-							UpdateLightBuffer();
-						}
-
-						float* light_diffuse = reinterpret_cast<float*>(&point_light->DiffuseColour);
-						if (ImGui::ColorEdit3(("Diffuse##" + std::to_string(i)).c_str(), light_diffuse))
-						{
-							UpdateLightBuffer();
-						}
-
-						float* light_ambient = reinterpret_cast<float*>(&point_light->AmbientColour);
-						if (ImGui::ColorEdit3(("Ambient##" + std::to_string(i)).c_str(), light_ambient))
-						{
-							UpdateLightBuffer();
-						}
-
-						float* light_specular = reinterpret_cast<float*>(&point_light->SpecularColour);
-						if (ImGui::ColorEdit3(("Specular##" + std::to_string(i)).c_str(), light_specular))
-						{
-							UpdateLightBuffer();
-						}
-
-						// Add line seperate between each light section
-						if (i != m_PointLights.size() - 1)
-						{
-							ImGui::Separator();
-						}
-					}
-				}
-
-				ImGui::End();
-			}
-
-			// Menu
-			{
-				ImGui::BeginMainMenuBar();
-
-				if (ImGui::BeginMenu("File"))
-				{
-					if (ImGui::MenuItem("Open"))
-					{
-						MenuItem_Load();
-					}
-
-					ImGui::EndMenu();
-				}
-
-				if (ImGui::BeginMenu("View"))
-				{
-					ImGui::MenuItem("Debug", nullptr, &m_ShowDebugDetails);
-					ImGui::MenuItem("Renderer", nullptr, &m_ShowRendererDetails);
-					ImGui::MenuItem("Camera", nullptr, &m_ShowCameraDetails);
-					ImGui::MenuItem("Model", nullptr, &m_ShowModelDetails);
-					ImGui::MenuItem("Environment", nullptr, &m_ShowEnvironmentDetails);
-					ImGui::EndMenu();
-				}
-
-				ImGui::EndMainMenuBar();
-			}
+			RenderGui();
 
 			// Render Dear ImGui
 			ImGui::Render();
 			ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 
-			if (m_EnableMsaa) 
+			if (m_EnableMsaa)
 			{
 				m_DxRenderer->CopyMsaaRenderTargetBackBuffer();
 			}
@@ -514,5 +343,180 @@ void Rove::Application::CalculateFramesPerSecond()
 
 		m_FramesPerSecond = fps;
 		m_FrameTime.push_back(1000.0f / fps);
+	}
+}
+
+void Rove::Application::RenderGui()
+{
+	//ImGui::ShowDemoWindow(nullptr);
+	//ImPlot::ShowDemoWindow();
+
+	// Debug details
+	if (m_ShowDebugDetails)
+	{
+		if (ImGui::Begin("Debug", &m_ShowDebugDetails, ImGuiWindowFlags_AlwaysAutoResize))
+		{
+			// Position
+			POINT mouse_position;
+			GetCursorPos(&mouse_position);
+			ScreenToClient(m_Window->GetHwnd(), &mouse_position);
+
+			ImGui::Text("Mouse (%i, %i)", mouse_position.x, mouse_position.y);
+		}
+
+		ImGui::End();
+	}
+
+	// Renderer details
+	if (m_ShowRendererDetails)
+	{
+		if (ImGui::Begin("Renderer", &m_ShowRendererDetails))
+		{
+			ImGui::Text(m_DxRenderer->GetGpuName().c_str());
+
+			std::string vram = "VRAM: ";
+			vram += std::to_string(m_DxRenderer->GetGpuVramMB()) + " MB";
+			ImGui::Text(vram.c_str());
+
+			std::string fps = "FPS: " + std::to_string(m_FramesPerSecond);
+			ImGui::Text(fps.c_str());
+
+			ImGui::Checkbox("MSAA", &m_EnableMsaa);
+			ImGui::Checkbox("V-Sync", &m_EnableVSync);
+
+			static bool show_frame_statistics = false;
+			ImGui::Checkbox("Show frame statistics", &show_frame_statistics);
+
+			if (show_frame_statistics)
+			{
+				if (ImPlot::BeginPlot("Frame time (ms)"))
+				{
+					ImPlot::SetupAxes("frame", "time (ms)", ImPlotAxisFlags_AutoFit, ImPlotAxisFlags_AutoFit);
+					ImPlot::PlotLine("time", m_FrameTime.data(), static_cast<int>(m_FrameTime.size()), 0.1);
+
+					ImPlot::EndPlot();
+				}
+			}
+		}
+
+		ImGui::End();
+	}
+
+	// Camera details
+	if (m_ShowCameraDetails)
+	{
+		if (ImGui::Begin("Camera", &m_ShowCameraDetails, ImGuiWindowFlags_AlwaysAutoResize))
+		{
+			// Position
+			DirectX::XMFLOAT3 position = m_Camera->GetPosition();
+			ImGui::Text("X: %f - Y: %f - Z: %f", position.x, position.y, position.z);
+
+			// Field of view
+			float fov_degrees = m_Camera->GetFieldOfView();
+			if (ImGui::SliderFloat("Field of view", &fov_degrees, 0.1f, 179.9f))
+			{
+				m_Camera->SetFov(fov_degrees);
+				UpdateCamera();
+			}
+		}
+
+		ImGui::End();
+	}
+
+	// Model details
+	if (m_ShowModelDetails)
+	{
+		if (ImGui::Begin("Model", &m_ShowModelDetails, ImGuiWindowFlags_AlwaysAutoResize))
+		{
+			ImGui::Text("Vertices: %i", m_Model->GetVertices());
+			ImGui::Text("Indices: %i", m_Model->GetIndices());
+			ImGui::Checkbox("Enable Wireframe", &m_RenderWireframe);
+		}
+
+		ImGui::End();
+	}
+
+	// Environment details
+	if (m_ShowEnvironmentDetails)
+	{
+		if (ImGui::Begin("Environment", &m_ShowEnvironmentDetails, ImGuiWindowFlags_AlwaysAutoResize))
+		{
+			ImGui::ColorEdit3("Background Colour", m_BackgroundColour, ImGuiColorEditFlags_NoOptions);
+			ImGui::Separator();
+			ImGui::Text("Lights");
+
+			/*static bool cast_shadows = false;
+			ImGui::Checkbox("Cast Shadows", &cast_shadows);*/
+
+			if (ImGui::Button("Add light"))
+			{
+				m_PointLights.push_back(std::make_unique<Rove::PointLight>());
+			}
+
+			for (int i = 0; i < m_PointLights.size(); ++i)
+			{
+				const auto& point_light = m_PointLights[i];
+
+				float* light_position = reinterpret_cast<float*>(&point_light->Position);
+
+				if (ImGui::DragFloat3(("Position##" + std::to_string(i)).c_str(), light_position))
+				{
+					UpdateLightBuffer();
+				}
+
+				float* light_diffuse = reinterpret_cast<float*>(&point_light->DiffuseColour);
+				if (ImGui::ColorEdit3(("Diffuse##" + std::to_string(i)).c_str(), light_diffuse))
+				{
+					UpdateLightBuffer();
+				}
+
+				float* light_ambient = reinterpret_cast<float*>(&point_light->AmbientColour);
+				if (ImGui::ColorEdit3(("Ambient##" + std::to_string(i)).c_str(), light_ambient))
+				{
+					UpdateLightBuffer();
+				}
+
+				float* light_specular = reinterpret_cast<float*>(&point_light->SpecularColour);
+				if (ImGui::ColorEdit3(("Specular##" + std::to_string(i)).c_str(), light_specular))
+				{
+					UpdateLightBuffer();
+				}
+
+				// Add line seperate between each light section
+				if (i != m_PointLights.size() - 1)
+				{
+					ImGui::Separator();
+				}
+			}
+		}
+
+		ImGui::End();
+	}
+
+	// Menu
+	{
+		ImGui::BeginMainMenuBar();
+
+		if (ImGui::BeginMenu("File"))
+		{
+			if (ImGui::MenuItem("Open"))
+			{
+				MenuItem_Load();
+			}
+
+			ImGui::EndMenu();
+		}
+
+		if (ImGui::BeginMenu("View"))
+		{
+			ImGui::MenuItem("Debug", nullptr, &m_ShowDebugDetails);
+			ImGui::MenuItem("Renderer", nullptr, &m_ShowRendererDetails);
+			ImGui::MenuItem("Camera", nullptr, &m_ShowCameraDetails);
+			ImGui::MenuItem("Model", nullptr, &m_ShowModelDetails);
+			ImGui::MenuItem("Environment", nullptr, &m_ShowEnvironmentDetails);
+			ImGui::EndMenu();
+		}
+
+		ImGui::EndMainMenuBar();
 	}
 }
