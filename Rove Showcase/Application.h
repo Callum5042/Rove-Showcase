@@ -88,5 +88,8 @@ namespace Rove
 
 		// V-Sync
 		bool m_EnableVSync = true;
+
+		// Render GUI
+		void RenderGui();
 	};
 }
