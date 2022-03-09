@@ -25,6 +25,13 @@ namespace Rove
 		float normal_z = 0;
 	};
 
+	struct MeshDetails
+	{
+		UINT indices_count = 0;
+		UINT indices_start = 0;
+		int vertex_start = 0;
+	};
+
 	class DxRenderer;
 
 	class Model
@@ -56,6 +63,9 @@ namespace Rove
 
 		// Number of vertices
 		UINT m_VertexCount = 0;
+
+		// Details on how to draw the vertices/indices
+		std::vector<MeshDetails> m_MeshDetails;
 
 		// Vertex buffer
 		ComPtr<ID3D11Buffer> m_VertexBuffer = nullptr;

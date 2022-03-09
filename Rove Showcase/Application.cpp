@@ -115,7 +115,7 @@ int Rove::Application::Run()
 	m_Timer->Start();
 
 	// Load pyramid model as default
-	m_Model->LoadFromFile(L"D:\\pyramid.glb");
+	m_Model->LoadFromFile(L"D:\\double-yes.glb");
 
 	// Main loop
 	MSG msg = {};

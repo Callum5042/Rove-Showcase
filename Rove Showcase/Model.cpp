@@ -68,12 +68,18 @@ void Rove::Model::Render()
 	d3dDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	// Render geometry
-	d3dDeviceContext->DrawIndexed(m_IndexCount, 0, 0);
+	for (auto& mesh_details : m_MeshDetails)
+	{
+		d3dDeviceContext->DrawIndexed(mesh_details.indices_count, mesh_details.indices_start, mesh_details.vertex_start);
+	}
 }
 
 void Rove::Model::LoadFromFile(const std::wstring& filepath)
 {
 	// https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#meshes-overview
+
+	// TODO: Make the transformation matrix apply
+	// Might have to split the mesh into a mesh class instead of 1 
 
 	tinygltf::Model model;
 	tinygltf::TinyGLTF loader;
@@ -94,11 +100,28 @@ void Rove::Model::LoadFromFile(const std::wstring& filepath)
 	std::vector<Vertex> vertices;
 	std::vector<UINT> indices;
 
+	int i = 0;
 	for (auto& mesh : model.meshes)
 	{
+		float mesh_x = 0; 
+		float mesh_y = 0; 
+		float mesh_z = 0; 
+
+		if (!model.nodes[i].translation.empty())
+		{
+			mesh_x = static_cast<float>(model.nodes[i].translation[0]);
+			mesh_y = static_cast<float>(model.nodes[i].translation[1]);
+			mesh_z = static_cast<float>(model.nodes[i].translation[2]);
+		}
+
+		++i;
+
+		MeshDetails mesh_details;
 		for (auto& primitive : mesh.primitives)
 		{
 			{
+				mesh_details.vertex_start = vertices.size();
+
 				// Position
 				{
 					const tinygltf::Accessor& accessor = model.accessors[primitive.attributes["POSITION"]];
@@ -114,9 +137,9 @@ void Rove::Model::LoadFromFile(const std::wstring& filepath)
 
 					for (size_t i = 0; i < accessor.count; ++i)
 					{
-						float x = positions[i * 3 + 0];
-						float y = positions[i * 3 + 1];
-						float z = positions[i * 3 + 2];
+						float x = mesh_x + positions[i * 3 + 0];
+						float y = mesh_y + positions[i * 3 + 1];
+						float z = mesh_z + positions[i * 3 + 2];
 
 						float nx = normals[i * 3 + 0];
 						float ny = normals[i * 3 + 1];
@@ -136,16 +159,26 @@ void Rove::Model::LoadFromFile(const std::wstring& filepath)
 				}
 
 				// Indices
+				mesh_details.indices_start = indices.size();
+
 				{
 					const auto& accessor = model.accessors[primitive.indices];
 					const auto& buffer_view = model.bufferViews[accessor.bufferView];
 					const auto& buffer = model.buffers[buffer_view.buffer];
 
 					const short* _indices = reinterpret_cast<const short*>(&buffer.data[buffer_view.byteOffset + accessor.byteOffset]);
-					indices.assign(_indices, _indices + accessor.count);
+					// indices.assign(_indices, _indices + accessor.count);
+					for (size_t i = 0; i < accessor.count; i++)
+					{
+						indices.push_back(_indices[i]);
+					}
+
+					mesh_details.indices_count = accessor.count;
 				}
 			}
 		}
+
+		m_MeshDetails.push_back(mesh_details);
 	}
 
 	// Rebuild Direct3D11 buffers
