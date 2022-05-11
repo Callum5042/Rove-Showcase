@@ -9,6 +9,8 @@
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "TinyGltf\tiny_gltf.h"
 
+#include "simdjson\simdjson.h"
+
 Rove::Model::Model(DxRenderer* renderer) : m_DxRenderer(renderer)
 {
 	World *= DirectX::XMMatrixTranslation(0.0f, 0.0f, 0.0f);
@@ -68,118 +70,216 @@ void Rove::Model::Render()
 	d3dDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	// Render geometry
-	for (auto& mesh_details : m_MeshDetails)
+	d3dDeviceContext->DrawIndexed(m_IndexCount, 0, 0);
+	/*for (auto& mesh_details : m_MeshDetails)
 	{
-		d3dDeviceContext->DrawIndexed(mesh_details.indices_count, mesh_details.indices_start, mesh_details.vertex_start);
-	}
+	}*/
 }
+
+enum class AccessorDataType
+{
+	SIGNED_BYTE = 5120,
+	UNSIGNED_BYTE = 5121,
+	SIGNED_SHORT = 5122,
+	UNSIGNED_SHORT = 5123,
+	UNSIGNED_INT = 5125,
+	FLOAT = 5126
+};
+
+struct BasicVertex
+{
+	float x;
+	float y;
+	float z;
+};
 
 void Rove::Model::LoadFromFile(const std::wstring& filepath)
 {
+	std::string path = ConvertToString(filepath);
+
+	simdjson::dom::parser parser;
+	auto json = parser.load(path);
+
+	std::vector<Vertex> vertices;
+	std::vector<UINT> indices;
+
+	// Load
+	for (auto jsonMesh : json["meshes"])
+	{
+		for (auto jsonPrimitive : jsonMesh["primitives"])
+		{
+			// Load indices
+			{
+				int indicesIndex = jsonPrimitive["indices"].get_int64();
+
+				// Accessor
+				auto indexAccessor = json["accessors"].at(indicesIndex);
+				int bufferViewIndex = indexAccessor["bufferView"].get_int64();
+				AccessorDataType componentType = static_cast<AccessorDataType>(indexAccessor["componentType"].get_int64().value());
+				int indexCount = indexAccessor["count"].get_int64();
+
+				// View
+				auto viewBuffer = json["bufferViews"].at(bufferViewIndex);
+				int bufferIndex = viewBuffer["buffer"].get_int64();
+				int byteLength = viewBuffer["byteLength"].get_int64();
+				int byteOffset = viewBuffer["byteOffset"].get_int64();
+
+				// Buffer
+				auto buffer = json["buffers"].at(bufferIndex);
+				int bufferByteLength = buffer["byteLength"].get_int64();
+				std::string_view bufferUri = buffer["uri"].get_string();
+
+				// Load buffer
+				std::string basePath = "C:\\Users\\Callum\\Desktop\\" + std::string(bufferUri);
+
+				std::ifstream file(basePath, std::fstream::in | std::fstream::binary);
+				file.seekg(byteOffset);
+
+				std::vector<short> _indices(indexCount);
+				file.read(reinterpret_cast<char*>(_indices.data()), byteLength);
+
+				indices.resize(indexCount);
+				indices.assign(_indices.begin(), _indices.end());
+			}
+
+			// Load vertices
+			{
+				int positionIndex = jsonPrimitive["attributes"]["POSITION"].get_int64();
+
+				// Accessor
+				auto indexAccessor = json["accessors"].at(positionIndex);
+				int bufferViewIndex = indexAccessor["bufferView"].get_int64();
+				AccessorDataType componentType = static_cast<AccessorDataType>(indexAccessor["componentType"].get_int64().value());
+				int vertexCount = indexAccessor["count"].get_int64();
+
+				// View
+				auto viewBuffer = json["bufferViews"].at(bufferViewIndex);
+				int bufferIndex = viewBuffer["buffer"].get_int64();
+				int byteLength = viewBuffer["byteLength"].get_int64();
+				int byteOffset = viewBuffer["byteOffset"].get_int64();
+
+				// Buffer
+				auto buffer = json["buffers"].at(bufferIndex);
+				int bufferByteLength = buffer["byteLength"].get_int64();
+				std::string_view bufferUri = buffer["uri"].get_string();
+
+				// Load buffer
+				std::string basePath = "C:\\Users\\Callum\\Desktop\\" + std::string(bufferUri);
+
+				std::ifstream file(basePath, std::fstream::in | std::fstream::binary);
+				file.seekg(byteOffset);
+
+				std::vector<BasicVertex> _vertices(vertexCount);
+				file.read(reinterpret_cast<char*>(_vertices.data()), byteLength);
+				
+				for (auto& v : _vertices)
+				{
+					Vertex v1;
+					v1.x = v.x;
+					v1.y = v.y;
+					v1.z = v.z;
+
+					vertices.push_back(v1);
+				}
+			}
+		}
+	}
+
+
+
+	////////////////////////
+	/// Old ////////////////
+	////////////////////////
+
+
+
+
 	// https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#meshes-overview
 
 	// TODO: Make the transformation matrix apply
 	// Might have to split the mesh into a mesh class instead of 1 
 
-	tinygltf::Model model;
-	tinygltf::TinyGLTF loader;
-	std::string err;
-	std::string warn;
+	//tinygltf::Model model;
+	//tinygltf::TinyGLTF loader;
+	//std::string err;
+	//std::string warn;
 
-	// Convert wstring to string
-	std::string path = Rove::ConvertToString(filepath);
+	//// Convert wstring to string
+	//std::string path = Rove::ConvertToString(filepath);
 
-	// Load file
-	if (!loader.LoadBinaryFromFile(&model, &err, &warn, path))
-	{
-		throw std::exception(err.c_str());
-	}
+	//// Load file
+	//if (!loader.LoadBinaryFromFile(&model, &err, &warn, path))
+	//{
+	//	throw std::exception(err.c_str());
+	//}
 
-	// Parse file
-	std::string name;
-	std::vector<Vertex> vertices;
-	std::vector<UINT> indices;
+	//// Parse file
+	//std::string name;
+	//std::vector<Vertex> vertices;
+	//std::vector<UINT> indices;
 
-	int i = 0;
-	for (auto& mesh : model.meshes)
-	{
-		float mesh_x = 0; 
-		float mesh_y = 0; 
-		float mesh_z = 0; 
+	//// Constants
+	//constexpr int MODE_TRIANGLES = TINYGLTF_MODE_TRIANGLES;
 
-		if (!model.nodes[i].translation.empty())
-		{
-			mesh_x = static_cast<float>(model.nodes[i].translation[0]);
-			mesh_y = static_cast<float>(model.nodes[i].translation[1]);
-			mesh_z = static_cast<float>(model.nodes[i].translation[2]);
-		}
+	//// Parse file
+	//for (const tinygltf::Node& node : model.nodes)
+	//{
+	//	if (node.mesh != -1)
+	//	{
+	//		const tinygltf::Mesh& mesh = model.meshes[node.mesh];
 
-		++i;
+	//		// Transformations
 
-		MeshDetails mesh_details;
-		for (auto& primitive : mesh.primitives)
-		{
-			{
-				mesh_details.vertex_start = vertices.size();
 
-				// Position
-				{
-					const tinygltf::Accessor& accessor = model.accessors[primitive.attributes["POSITION"]];
-					const tinygltf::BufferView& bufferView = model.bufferViews[accessor.bufferView];
-					const tinygltf::Buffer& buffer = model.buffers[bufferView.buffer];
+	//		// Primitives
+	//		for (const tinygltf::Primitive& primitive : mesh.primitives)
+	//		{
+	//			// Vertices
+	//			const tinygltf::Accessor& vertex_accessor = model.accessors[primitive.attributes.at("POSITION")];
+	//			const tinygltf::BufferView& vertex_buffer_view = model.bufferViews[vertex_accessor.bufferView];
+	//			const tinygltf::Buffer& vertex_buffer = model.buffers[vertex_buffer_view.buffer];
 
-					const tinygltf::Accessor& normal_accessor = model.accessors[primitive.attributes["NORMAL"]];
-					const tinygltf::BufferView& normal_bufferView = model.bufferViews[normal_accessor.bufferView];
-					const tinygltf::Buffer& normal_buffer = model.buffers[normal_bufferView.buffer];
+	//			const size_t vertex_buffer_offset = vertex_buffer_view.byteOffset + vertex_accessor.byteOffset;
+	//			const float* vertex_data = reinterpret_cast<const float*>(&vertex_buffer.data[vertex_buffer_offset]);
 
-					const float* positions = reinterpret_cast<const float*>(&buffer.data[bufferView.byteOffset + accessor.byteOffset]);
-					const float* normals = reinterpret_cast<const float*>(&normal_buffer.data[normal_bufferView.byteOffset + normal_accessor.byteOffset]);
+	//			// Normals
+	//			const tinygltf::Accessor& normals_accessor = model.accessors[primitive.attributes.at("NORMAL")];
+	//			const tinygltf::BufferView& normals_buffer_view = model.bufferViews[normals_accessor.bufferView];
+	//			const tinygltf::Buffer& normals_buffer = model.buffers[normals_buffer_view.buffer];
 
-					for (size_t i = 0; i < accessor.count; ++i)
-					{
-						float x = mesh_x + positions[i * 3 + 0];
-						float y = mesh_y + positions[i * 3 + 1];
-						float z = mesh_z + positions[i * 3 + 2];
+	//			const size_t normals_buffer_offset = normals_buffer_view.byteOffset + normals_accessor.byteOffset;
+	//			const float* normals_data = reinterpret_cast<const float*>(&normals_buffer.data[normals_buffer_offset]);
 
-						float nx = normals[i * 3 + 0];
-						float ny = normals[i * 3 + 1];
-						float nz = normals[i * 3 + 2];
+	//			// Transform into our Vertex struct - Unoptimized, would be better to redesign the pipeline to use multiple channels
+	//			for (int i = 0; i < vertex_accessor.count; i++)
+	//			{
+	//				Vertex vertex;
+	//				vertex.x = vertex_data[i * 3 + 0];
+	//				vertex.y = vertex_data[i * 3 + 1];
+	//				vertex.z = vertex_data[i * 3 + 2];
 
-						Vertex vertex;
-						vertex.x = x;
-						vertex.y = y;
-						vertex.z = z;
+	//				vertex.normal_x = normals_data[i * 3 + 0];
+	//				vertex.normal_y = normals_data[i * 3 + 1];
+	//				vertex.normal_z = normals_data[i * 3 + 2];
 
-						vertex.normal_x = nx;
-						vertex.normal_y = ny;
-						vertex.normal_z = nz;
+	//				vertices.push_back(vertex);
+	//			}
 
-						vertices.push_back(vertex);
-					}
-				}
+	//			// Indices
+	//			const tinygltf::Accessor& indices_accessor = model.accessors[primitive.indices];
+	//			const tinygltf::BufferView& indices_buffer_view = model.bufferViews[indices_accessor.bufferView];
+	//			const tinygltf::Buffer& indices_buffer = model.buffers[indices_buffer_view.buffer];
 
-				// Indices
-				mesh_details.indices_start = indices.size();
+	//			const size_t indices_buffer_offset = indices_buffer_view.byteOffset + indices_accessor.byteOffset;
+	//			const short* indices_data = reinterpret_cast<const short*>(&indices_buffer.data[indices_buffer_offset]);
 
-				{
-					const auto& accessor = model.accessors[primitive.indices];
-					const auto& buffer_view = model.bufferViews[accessor.bufferView];
-					const auto& buffer = model.buffers[buffer_view.buffer];
-
-					const short* _indices = reinterpret_cast<const short*>(&buffer.data[buffer_view.byteOffset + accessor.byteOffset]);
-					// indices.assign(_indices, _indices + accessor.count);
-					for (size_t i = 0; i < accessor.count; i++)
-					{
-						indices.push_back(_indices[i]);
-					}
-
-					mesh_details.indices_count = accessor.count;
-				}
-			}
-		}
-
-		m_MeshDetails.push_back(mesh_details);
-	}
+	//			for (size_t i = 0; i < indices_accessor.count; i++)
+	//			{
+	//				indices.push_back(indices_data[i]);
+	//			}
+	//		}
+	//	}
+	//}
 
 	// Rebuild Direct3D11 buffers
 	CreateVertexBuffer(vertices);

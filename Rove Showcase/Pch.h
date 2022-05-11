@@ -33,6 +33,7 @@ using Microsoft::WRL::ComPtr;
 #include <filesystem>
 #include <exception>
 #include <thread>
+#include <map>
 
 #include <locale>
 #include <codecvt>

@@ -4,6 +4,10 @@
 
 namespace Rove
 {
+	// Forward declarations
+	class DxRenderer;
+
+
 	struct Colour
 	{
 		float r = 0;
@@ -25,15 +29,17 @@ namespace Rove
 		float normal_z = 0;
 	};
 
-	struct MeshDetails
+	// Mesh
+	class Mesh
 	{
-		UINT indices_count = 0;
-		UINT indices_start = 0;
-		int vertex_start = 0;
+	public:
+
+
+	private:
+
 	};
 
-	class DxRenderer;
-
+	// Main model class
 	class Model
 	{
 	public:
@@ -65,7 +71,7 @@ namespace Rove
 		UINT m_VertexCount = 0;
 
 		// Details on how to draw the vertices/indices
-		std::vector<MeshDetails> m_MeshDetails;
+		std::vector<Mesh> m_Meshes;
 
 		// Vertex buffer
 		ComPtr<ID3D11Buffer> m_VertexBuffer = nullptr;
