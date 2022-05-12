@@ -86,7 +86,7 @@ enum class AccessorDataType
 	FLOAT = 5126
 };
 
-struct BasicVertex
+struct Vec3
 {
 	float x;
 	float y;
@@ -169,7 +169,7 @@ void Rove::Model::LoadFromFile(const std::wstring& filepath)
 				std::ifstream file(basePath, std::fstream::in | std::fstream::binary);
 				file.seekg(byteOffset);
 
-				std::vector<BasicVertex> _vertices(vertexCount);
+				std::vector<Vec3> _vertices(vertexCount);
 				file.read(reinterpret_cast<char*>(_vertices.data()), byteLength);
 				
 				for (auto& v : _vertices)
@@ -184,102 +184,6 @@ void Rove::Model::LoadFromFile(const std::wstring& filepath)
 			}
 		}
 	}
-
-
-
-	////////////////////////
-	/// Old ////////////////
-	////////////////////////
-
-
-
-
-	// https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#meshes-overview
-
-	// TODO: Make the transformation matrix apply
-	// Might have to split the mesh into a mesh class instead of 1 
-
-	//tinygltf::Model model;
-	//tinygltf::TinyGLTF loader;
-	//std::string err;
-	//std::string warn;
-
-	//// Convert wstring to string
-	//std::string path = Rove::ConvertToString(filepath);
-
-	//// Load file
-	//if (!loader.LoadBinaryFromFile(&model, &err, &warn, path))
-	//{
-	//	throw std::exception(err.c_str());
-	//}
-
-	//// Parse file
-	//std::string name;
-	//std::vector<Vertex> vertices;
-	//std::vector<UINT> indices;
-
-	//// Constants
-	//constexpr int MODE_TRIANGLES = TINYGLTF_MODE_TRIANGLES;
-
-	//// Parse file
-	//for (const tinygltf::Node& node : model.nodes)
-	//{
-	//	if (node.mesh != -1)
-	//	{
-	//		const tinygltf::Mesh& mesh = model.meshes[node.mesh];
-
-	//		// Transformations
-
-
-	//		// Primitives
-	//		for (const tinygltf::Primitive& primitive : mesh.primitives)
-	//		{
-	//			// Vertices
-	//			const tinygltf::Accessor& vertex_accessor = model.accessors[primitive.attributes.at("POSITION")];
-	//			const tinygltf::BufferView& vertex_buffer_view = model.bufferViews[vertex_accessor.bufferView];
-	//			const tinygltf::Buffer& vertex_buffer = model.buffers[vertex_buffer_view.buffer];
-
-	//			const size_t vertex_buffer_offset = vertex_buffer_view.byteOffset + vertex_accessor.byteOffset;
-	//			const float* vertex_data = reinterpret_cast<const float*>(&vertex_buffer.data[vertex_buffer_offset]);
-
-	//			// Normals
-	//			const tinygltf::Accessor& normals_accessor = model.accessors[primitive.attributes.at("NORMAL")];
-	//			const tinygltf::BufferView& normals_buffer_view = model.bufferViews[normals_accessor.bufferView];
-	//			const tinygltf::Buffer& normals_buffer = model.buffers[normals_buffer_view.buffer];
-
-	//			const size_t normals_buffer_offset = normals_buffer_view.byteOffset + normals_accessor.byteOffset;
-	//			const float* normals_data = reinterpret_cast<const float*>(&normals_buffer.data[normals_buffer_offset]);
-
-	//			// Transform into our Vertex struct - Unoptimized, would be better to redesign the pipeline to use multiple channels
-	//			for (int i = 0; i < vertex_accessor.count; i++)
-	//			{
-	//				Vertex vertex;
-	//				vertex.x = vertex_data[i * 3 + 0];
-	//				vertex.y = vertex_data[i * 3 + 1];
-	//				vertex.z = vertex_data[i * 3 + 2];
-
-	//				vertex.normal_x = normals_data[i * 3 + 0];
-	//				vertex.normal_y = normals_data[i * 3 + 1];
-	//				vertex.normal_z = normals_data[i * 3 + 2];
-
-	//				vertices.push_back(vertex);
-	//			}
-
-	//			// Indices
-	//			const tinygltf::Accessor& indices_accessor = model.accessors[primitive.indices];
-	//			const tinygltf::BufferView& indices_buffer_view = model.bufferViews[indices_accessor.bufferView];
-	//			const tinygltf::Buffer& indices_buffer = model.buffers[indices_buffer_view.buffer];
-
-	//			const size_t indices_buffer_offset = indices_buffer_view.byteOffset + indices_accessor.byteOffset;
-	//			const short* indices_data = reinterpret_cast<const short*>(&indices_buffer.data[indices_buffer_offset]);
-
-	//			for (size_t i = 0; i < indices_accessor.count; i++)
-	//			{
-	//				indices.push_back(indices_data[i]);
-	//			}
-	//		}
-	//	}
-	//}
 
 	// Rebuild Direct3D11 buffers
 	CreateVertexBuffer(vertices);
