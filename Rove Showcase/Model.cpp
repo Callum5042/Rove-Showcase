@@ -62,11 +62,11 @@ void Rove::Model::Render()
 	// Bind the geometry topology to the pipeline's Input Assembler stage
 	d3dDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
+	// Apply local transformations
+
+
 	// Render geometry
 	d3dDeviceContext->DrawIndexed(m_IndexCount, 0, 0);
-	/*for (auto& mesh_details : m_MeshDetails)
-	{
-	}*/
 }
 
 enum class AccessorDataType
@@ -113,23 +113,23 @@ void Rove::Model::LoadFromFile(const std::wstring& filepath)
 			{
 				// Load indices
 				{
-					int indicesIndex = jsonPrimitive["indices"].get_int64();
+					auto indicesIndex = jsonPrimitive["indices"].get_int64().value();
 
 					// Accessor
 					auto indexAccessor = json["accessors"].at(indicesIndex);
-					int bufferViewIndex = indexAccessor["bufferView"].get_int64();
+					auto bufferViewIndex = indexAccessor["bufferView"].get_int64().value();
 					AccessorDataType componentType = static_cast<AccessorDataType>(indexAccessor["componentType"].get_int64().value());
-					int indexCount = indexAccessor["count"].get_int64();
+					auto indexCount = indexAccessor["count"].get_int64().value();
 
 					// View
 					auto viewBuffer = json["bufferViews"].at(bufferViewIndex);
-					int bufferIndex = viewBuffer["buffer"].get_int64();
-					int byteLength = viewBuffer["byteLength"].get_int64();
-					int byteOffset = viewBuffer["byteOffset"].get_int64();
+					auto bufferIndex = viewBuffer["buffer"].get_int64().value();
+					auto byteLength = viewBuffer["byteLength"].get_int64().value();
+					auto byteOffset = viewBuffer["byteOffset"].get_int64().value();
 
 					// Buffer
 					auto buffer = json["buffers"].at(bufferIndex);
-					int bufferByteLength = buffer["byteLength"].get_int64();
+					auto bufferByteLength = buffer["byteLength"].get_int64().value();
 					std::string_view bufferUri = buffer["uri"].get_string();
 
 					// Load buffer
@@ -147,23 +147,23 @@ void Rove::Model::LoadFromFile(const std::wstring& filepath)
 
 				// Load vertices
 				{
-					int positionIndex = jsonPrimitive["attributes"]["POSITION"].get_int64();
+					auto positionIndex = jsonPrimitive["attributes"]["POSITION"].get_int64().value();
 
 					// Accessor
 					auto indexAccessor = json["accessors"].at(positionIndex);
-					int bufferViewIndex = indexAccessor["bufferView"].get_int64();
+					auto bufferViewIndex = indexAccessor["bufferView"].get_int64().value();
 					AccessorDataType componentType = static_cast<AccessorDataType>(indexAccessor["componentType"].get_int64().value());
-					int vertexCount = indexAccessor["count"].get_int64();
+					auto vertexCount = indexAccessor["count"].get_int64().value();
 
 					// View
 					auto viewBuffer = json["bufferViews"].at(bufferViewIndex);
-					int bufferIndex = viewBuffer["buffer"].get_int64();
-					int byteLength = viewBuffer["byteLength"].get_int64();
-					int byteOffset = viewBuffer["byteOffset"].get_int64();
+					auto bufferIndex = viewBuffer["buffer"].get_int64().value();
+					auto byteLength = viewBuffer["byteLength"].get_int64().value();
+					auto byteOffset = viewBuffer["byteOffset"].get_int64().value();
 
 					// Buffer
 					auto buffer = json["buffers"].at(bufferIndex);
-					int bufferByteLength = buffer["byteLength"].get_int64();
+					auto bufferByteLength = buffer["byteLength"].get_int64().value();
 					std::string_view bufferUri = buffer["uri"].get_string();
 
 					// Load buffer
@@ -188,23 +188,23 @@ void Rove::Model::LoadFromFile(const std::wstring& filepath)
 
 				// Apply normals
 				{
-					int positionIndex = jsonPrimitive["attributes"]["NORMAL"].get_int64();
+					auto positionIndex = jsonPrimitive["attributes"]["NORMAL"].get_int64().value();
 
 					// Accessor
 					auto indexAccessor = json["accessors"].at(positionIndex);
-					int bufferViewIndex = indexAccessor["bufferView"].get_int64();
+					auto bufferViewIndex = indexAccessor["bufferView"].get_int64().value();
 					AccessorDataType componentType = static_cast<AccessorDataType>(indexAccessor["componentType"].get_int64().value());
-					int vertexCount = indexAccessor["count"].get_int64();
+					auto vertexCount = indexAccessor["count"].get_int64().value();
 
 					// View
 					auto viewBuffer = json["bufferViews"].at(bufferViewIndex);
-					int bufferIndex = viewBuffer["buffer"].get_int64();
-					int byteLength = viewBuffer["byteLength"].get_int64();
-					int byteOffset = viewBuffer["byteOffset"].get_int64();
+					auto bufferIndex = viewBuffer["buffer"].get_int64().value();
+					auto byteLength = viewBuffer["byteLength"].get_int64().value();
+					auto byteOffset = viewBuffer["byteOffset"].get_int64().value();
 
 					// Buffer
 					auto buffer = json["buffers"].at(bufferIndex);
-					int bufferByteLength = buffer["byteLength"].get_int64();
+					auto bufferByteLength = buffer["byteLength"].get_int64().value();
 					std::string_view bufferUri = buffer["uri"].get_string();
 
 					// Load buffer
