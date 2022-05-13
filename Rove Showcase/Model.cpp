@@ -2,13 +2,6 @@
 #include "Model.h"
 #include "Rendering/DxRenderer.h"
 #include "Application.h"
-
-// TinyGltf
-#define TINYGLTF_IMPLEMENTATION
-#define STB_IMAGE_IMPLEMENTATION
-#define STB_IMAGE_WRITE_IMPLEMENTATION
-#include "TinyGltf\tiny_gltf.h"
-
 #include "simdjson\simdjson.h"
 
 Rove::Model::Model(DxRenderer* renderer) : m_DxRenderer(renderer)
@@ -103,121 +96,132 @@ void Rove::Model::LoadFromFile(const std::wstring& filepath)
 	std::vector<Vertex> vertices;
 	std::vector<UINT> indices;
 
-	// Load
-	for (auto jsonMesh : json["meshes"])
+	// Nodes
+	for (auto node : json["nodes"])
 	{
-		for (auto jsonPrimitive : jsonMesh["primitives"])
+		auto meshIndex = node["mesh"].get_int64();
+
+		if (meshIndex.error() == simdjson::SUCCESS)
 		{
-			// Load indices
+			// Apply translation
+			auto translation = node["translation"].get_array();
+
+
+			// Load
+			auto jsonMesh = json["meshes"].at(meshIndex.value());
+			for (auto jsonPrimitive : jsonMesh["primitives"])
 			{
-				int indicesIndex = jsonPrimitive["indices"].get_int64();
-
-				// Accessor
-				auto indexAccessor = json["accessors"].at(indicesIndex);
-				int bufferViewIndex = indexAccessor["bufferView"].get_int64();
-				AccessorDataType componentType = static_cast<AccessorDataType>(indexAccessor["componentType"].get_int64().value());
-				int indexCount = indexAccessor["count"].get_int64();
-
-				// View
-				auto viewBuffer = json["bufferViews"].at(bufferViewIndex);
-				int bufferIndex = viewBuffer["buffer"].get_int64();
-				int byteLength = viewBuffer["byteLength"].get_int64();
-				int byteOffset = viewBuffer["byteOffset"].get_int64();
-
-				// Buffer
-				auto buffer = json["buffers"].at(bufferIndex);
-				int bufferByteLength = buffer["byteLength"].get_int64();
-				std::string_view bufferUri = buffer["uri"].get_string();
-
-				// Load buffer
-				std::string basePath = "C:\\Users\\Callum\\Desktop\\" + std::string(bufferUri);
-
-				std::ifstream file(basePath, std::fstream::in | std::fstream::binary);
-				file.seekg(byteOffset);
-
-				std::vector<short> _indices(indexCount);
-				file.read(reinterpret_cast<char*>(_indices.data()), byteLength);
-
-				indices.resize(indexCount);
-				indices.assign(_indices.begin(), _indices.end());
-			}
-
-			// Load vertices
-			{
-				int positionIndex = jsonPrimitive["attributes"]["POSITION"].get_int64();
-
-				// Accessor
-				auto indexAccessor = json["accessors"].at(positionIndex);
-				int bufferViewIndex = indexAccessor["bufferView"].get_int64();
-				AccessorDataType componentType = static_cast<AccessorDataType>(indexAccessor["componentType"].get_int64().value());
-				int vertexCount = indexAccessor["count"].get_int64();
-
-				// View
-				auto viewBuffer = json["bufferViews"].at(bufferViewIndex);
-				int bufferIndex = viewBuffer["buffer"].get_int64();
-				int byteLength = viewBuffer["byteLength"].get_int64();
-				int byteOffset = viewBuffer["byteOffset"].get_int64();
-
-				// Buffer
-				auto buffer = json["buffers"].at(bufferIndex);
-				int bufferByteLength = buffer["byteLength"].get_int64();
-				std::string_view bufferUri = buffer["uri"].get_string();
-
-				// Load buffer
-				std::string basePath = "C:\\Users\\Callum\\Desktop\\" + std::string(bufferUri);
-
-				std::ifstream file(basePath, std::fstream::in | std::fstream::binary);
-				file.seekg(byteOffset);
-
-				std::vector<Vec3> _vertices(vertexCount);
-				file.read(reinterpret_cast<char*>(_vertices.data()), byteLength);
-				
-				for (auto& v : _vertices)
+				// Load indices
 				{
-					Vertex v1;
-					v1.x = v.x;
-					v1.y = v.y;
-					v1.z = v.z;
-					
-					vertices.push_back(v1);
+					int indicesIndex = jsonPrimitive["indices"].get_int64();
+
+					// Accessor
+					auto indexAccessor = json["accessors"].at(indicesIndex);
+					int bufferViewIndex = indexAccessor["bufferView"].get_int64();
+					AccessorDataType componentType = static_cast<AccessorDataType>(indexAccessor["componentType"].get_int64().value());
+					int indexCount = indexAccessor["count"].get_int64();
+
+					// View
+					auto viewBuffer = json["bufferViews"].at(bufferViewIndex);
+					int bufferIndex = viewBuffer["buffer"].get_int64();
+					int byteLength = viewBuffer["byteLength"].get_int64();
+					int byteOffset = viewBuffer["byteOffset"].get_int64();
+
+					// Buffer
+					auto buffer = json["buffers"].at(bufferIndex);
+					int bufferByteLength = buffer["byteLength"].get_int64();
+					std::string_view bufferUri = buffer["uri"].get_string();
+
+					// Load buffer
+					std::string basePath = "C:\\Users\\Callum\\Desktop\\" + std::string(bufferUri);
+
+					std::ifstream file(basePath, std::fstream::in | std::fstream::binary);
+					file.seekg(byteOffset);
+
+					std::vector<short> _indices(indexCount);
+					file.read(reinterpret_cast<char*>(_indices.data()), byteLength);
+
+					indices.resize(indexCount);
+					indices.assign(_indices.begin(), _indices.end());
 				}
-			}
 
-			// Apply normals
-			{
-				int positionIndex = jsonPrimitive["attributes"]["NORMAL"].get_int64();
-
-				// Accessor
-				auto indexAccessor = json["accessors"].at(positionIndex);
-				int bufferViewIndex = indexAccessor["bufferView"].get_int64();
-				AccessorDataType componentType = static_cast<AccessorDataType>(indexAccessor["componentType"].get_int64().value());
-				int vertexCount = indexAccessor["count"].get_int64();
-
-				// View
-				auto viewBuffer = json["bufferViews"].at(bufferViewIndex);
-				int bufferIndex = viewBuffer["buffer"].get_int64();
-				int byteLength = viewBuffer["byteLength"].get_int64();
-				int byteOffset = viewBuffer["byteOffset"].get_int64();
-
-				// Buffer
-				auto buffer = json["buffers"].at(bufferIndex);
-				int bufferByteLength = buffer["byteLength"].get_int64();
-				std::string_view bufferUri = buffer["uri"].get_string();
-
-				// Load buffer
-				std::string basePath = "C:\\Users\\Callum\\Desktop\\" + std::string(bufferUri);
-
-				std::ifstream file(basePath, std::fstream::in | std::fstream::binary);
-				file.seekg(byteOffset);
-
-				std::vector<Vec3> _vertices(vertexCount);
-				file.read(reinterpret_cast<char*>(_vertices.data()), byteLength);
-				
-				for (size_t i = 0; i < _vertices.size(); ++i)
+				// Load vertices
 				{
-					vertices[i].normal_x = _vertices[i].x;
-					vertices[i].normal_y = _vertices[i].y;
-					vertices[i].normal_z = _vertices[i].z;
+					int positionIndex = jsonPrimitive["attributes"]["POSITION"].get_int64();
+
+					// Accessor
+					auto indexAccessor = json["accessors"].at(positionIndex);
+					int bufferViewIndex = indexAccessor["bufferView"].get_int64();
+					AccessorDataType componentType = static_cast<AccessorDataType>(indexAccessor["componentType"].get_int64().value());
+					int vertexCount = indexAccessor["count"].get_int64();
+
+					// View
+					auto viewBuffer = json["bufferViews"].at(bufferViewIndex);
+					int bufferIndex = viewBuffer["buffer"].get_int64();
+					int byteLength = viewBuffer["byteLength"].get_int64();
+					int byteOffset = viewBuffer["byteOffset"].get_int64();
+
+					// Buffer
+					auto buffer = json["buffers"].at(bufferIndex);
+					int bufferByteLength = buffer["byteLength"].get_int64();
+					std::string_view bufferUri = buffer["uri"].get_string();
+
+					// Load buffer
+					std::string basePath = "C:\\Users\\Callum\\Desktop\\" + std::string(bufferUri);
+
+					std::ifstream file(basePath, std::fstream::in | std::fstream::binary);
+					file.seekg(byteOffset);
+
+					std::vector<Vec3> _vertices(vertexCount);
+					file.read(reinterpret_cast<char*>(_vertices.data()), byteLength);
+
+					for (auto& v : _vertices)
+					{
+						Vertex v1;
+						v1.x = v.x;
+						v1.y = v.y;
+						v1.z = v.z;
+
+						vertices.push_back(v1);
+					}
+				}
+
+				// Apply normals
+				{
+					int positionIndex = jsonPrimitive["attributes"]["NORMAL"].get_int64();
+
+					// Accessor
+					auto indexAccessor = json["accessors"].at(positionIndex);
+					int bufferViewIndex = indexAccessor["bufferView"].get_int64();
+					AccessorDataType componentType = static_cast<AccessorDataType>(indexAccessor["componentType"].get_int64().value());
+					int vertexCount = indexAccessor["count"].get_int64();
+
+					// View
+					auto viewBuffer = json["bufferViews"].at(bufferViewIndex);
+					int bufferIndex = viewBuffer["buffer"].get_int64();
+					int byteLength = viewBuffer["byteLength"].get_int64();
+					int byteOffset = viewBuffer["byteOffset"].get_int64();
+
+					// Buffer
+					auto buffer = json["buffers"].at(bufferIndex);
+					int bufferByteLength = buffer["byteLength"].get_int64();
+					std::string_view bufferUri = buffer["uri"].get_string();
+
+					// Load buffer
+					std::string basePath = "C:\\Users\\Callum\\Desktop\\" + std::string(bufferUri);
+
+					std::ifstream file(basePath, std::fstream::in | std::fstream::binary);
+					file.seekg(byteOffset);
+
+					std::vector<Vec3> _vertices(vertexCount);
+					file.read(reinterpret_cast<char*>(_vertices.data()), byteLength);
+
+					for (size_t i = 0; i < _vertices.size(); ++i)
+					{
+						vertices[i].normal_x = _vertices[i].x;
+						vertices[i].normal_y = _vertices[i].y;
+						vertices[i].normal_z = _vertices[i].z;
+					}
 				}
 			}
 		}
