@@ -178,8 +178,46 @@ void Rove::Model::LoadFromFile(const std::wstring& filepath)
 					v1.x = v.x;
 					v1.y = v.y;
 					v1.z = v.z;
-
+					
 					vertices.push_back(v1);
+				}
+			}
+
+			// Apply normals
+			{
+				int positionIndex = jsonPrimitive["attributes"]["NORMAL"].get_int64();
+
+				// Accessor
+				auto indexAccessor = json["accessors"].at(positionIndex);
+				int bufferViewIndex = indexAccessor["bufferView"].get_int64();
+				AccessorDataType componentType = static_cast<AccessorDataType>(indexAccessor["componentType"].get_int64().value());
+				int vertexCount = indexAccessor["count"].get_int64();
+
+				// View
+				auto viewBuffer = json["bufferViews"].at(bufferViewIndex);
+				int bufferIndex = viewBuffer["buffer"].get_int64();
+				int byteLength = viewBuffer["byteLength"].get_int64();
+				int byteOffset = viewBuffer["byteOffset"].get_int64();
+
+				// Buffer
+				auto buffer = json["buffers"].at(bufferIndex);
+				int bufferByteLength = buffer["byteLength"].get_int64();
+				std::string_view bufferUri = buffer["uri"].get_string();
+
+				// Load buffer
+				std::string basePath = "C:\\Users\\Callum\\Desktop\\" + std::string(bufferUri);
+
+				std::ifstream file(basePath, std::fstream::in | std::fstream::binary);
+				file.seekg(byteOffset);
+
+				std::vector<Vec3> _vertices(vertexCount);
+				file.read(reinterpret_cast<char*>(_vertices.data()), byteLength);
+				
+				for (size_t i = 0; i < _vertices.size(); ++i)
+				{
+					vertices[i].normal_x = _vertices[i].x;
+					vertices[i].normal_y = _vertices[i].y;
+					vertices[i].normal_z = _vertices[i].z;
 				}
 			}
 		}
