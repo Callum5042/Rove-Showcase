@@ -6,7 +6,7 @@ namespace Rove
 {
 	// Forward declarations
 	class DxRenderer;
-
+	class DxShader;
 
 	struct Colour
 	{
@@ -43,7 +43,7 @@ namespace Rove
 	class Model
 	{
 	public:
-		Model(DxRenderer* renderer);
+		Model(DxRenderer* renderer, DxShader* shader);
 		virtual ~Model() = default;
 
 		// Render the model
@@ -63,6 +63,7 @@ namespace Rove
 
 	private:
 		DxRenderer* m_DxRenderer = nullptr;
+		DxShader* m_DxShader = nullptr;
 
 		// Number of indices to draw
 		UINT m_IndexCount = 0;

@@ -280,7 +280,7 @@ void Rove::Application::Create()
 	m_Camera = std::make_unique<Rove::Camera>(width, height);
 
 	// Model
-	m_Model = std::make_unique<Rove::Model>(m_DxRenderer.get());
+	m_Model = std::make_unique<Rove::Model>(m_DxRenderer.get(), m_DxShader.get());
 	UpdateCamera();
 
 	// Dear ImGui

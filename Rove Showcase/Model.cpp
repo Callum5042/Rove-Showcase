@@ -1,10 +1,11 @@
 #include "Pch.h"
 #include "Model.h"
 #include "Rendering/DxRenderer.h"
+#include "Rendering/DxShader.h"
 #include "Application.h"
 #include "simdjson\simdjson.h"
 
-Rove::Model::Model(DxRenderer* renderer) : m_DxRenderer(renderer)
+Rove::Model::Model(DxRenderer* renderer, DxShader* shader) : m_DxRenderer(renderer), m_DxShader(shader)
 {
 	World *= DirectX::XMMatrixTranslation(0.0f, 0.0f, 0.0f);
 }
@@ -63,7 +64,9 @@ void Rove::Model::Render()
 	d3dDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	// Apply local transformations
-
+	Rove::LocalWorldBuffer world_buffer = {};
+	world_buffer.world = DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0.0f, 0.0f, 0.0f));
+	m_DxShader->UpdateLocalWorldConstantBuffer(world_buffer);
 
 	// Render geometry
 	d3dDeviceContext->DrawIndexed(m_IndexCount, 0, 0);
