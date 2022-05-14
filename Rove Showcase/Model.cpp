@@ -82,11 +82,12 @@ enum class AccessorDataType
 	FLOAT = 5126
 };
 
+template <typename TDataType>
 struct Vec3
 {
-	float x;
-	float y;
-	float z;
+	TDataType x;
+	TDataType y;
+	TDataType z;
 };
 
 void Rove::Model::LoadFromFile(const std::wstring& filepath)
@@ -191,7 +192,7 @@ void Rove::Model::LoadFromFile(const std::wstring& filepath)
 					std::ifstream file(basePath, std::fstream::in | std::fstream::binary);
 					file.seekg(byteOffset);
 
-					std::vector<Vec3> _vertices(vertexCount);
+					std::vector<Vec3<float>> _vertices(vertexCount);
 					file.read(reinterpret_cast<char*>(_vertices.data()), byteLength);
 
 					for (auto& v : _vertices)
@@ -232,10 +233,10 @@ void Rove::Model::LoadFromFile(const std::wstring& filepath)
 					std::ifstream file(basePath, std::fstream::in | std::fstream::binary);
 					file.seekg(byteOffset);
 
-					std::vector<Vec3> _vertices(vertexCount);
+					std::vector<Vec3<float>> _vertices(vertexCount);
 					file.read(reinterpret_cast<char*>(_vertices.data()), byteLength);
 
-					for (size_t i = 0; i < _vertices.size(); ++i)
+					for (size_t i = 0; i < _vertices.size(); ++i) 
 					{
 						vertices[i].normal_x = _vertices[i].x;
 						vertices[i].normal_y = _vertices[i].y;

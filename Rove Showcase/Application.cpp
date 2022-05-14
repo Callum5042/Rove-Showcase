@@ -115,7 +115,7 @@ int Rove::Application::Run()
 	m_Timer->Start();
 
 	// Load pyramid model as default
-	m_Model->LoadFromFile(L"C:\\Users\\Callum\\Desktop\\cube_light.gltf");
+	m_Model->LoadFromFile(L"C:\\Users\\Callum\\Desktop\\double_cube.gltf");
 
 	// Main loop
 	MSG msg = {};
