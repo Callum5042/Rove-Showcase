@@ -65,7 +65,7 @@ void Rove::Model::Render()
 
 	// Apply local transformations
 	Rove::LocalWorldBuffer world_buffer = {};
-	world_buffer.world = DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0.0f, 0.0f, 0.0f));
+	world_buffer.world = DirectX::XMMatrixTranspose(m_LocalWorld);
 	m_DxShader->UpdateLocalWorldConstantBuffer(world_buffer);
 
 	// Render geometry
@@ -108,7 +108,23 @@ void Rove::Model::LoadFromFile(const std::wstring& filepath)
 		{
 			// Apply translation
 			auto translation = node["translation"].get_array();
-
+			if (translation.error() == simdjson::SUCCESS)
+			{
+				float x = static_cast<float>(translation.at(0).get_double().value());
+				float y = static_cast<float>(translation.at(1).get_double().value());
+				float z = static_cast<float>(translation.at(2).get_double().value());
+				m_LocalWorld *= DirectX::XMMatrixTranslation(x, y, z);
+			}
+			
+			auto rotation = node["rotation"].get_array();
+			if (rotation.error() == simdjson::SUCCESS)
+			{
+				float x = static_cast<float>(rotation.at(0).get_double().value());
+				float y = static_cast<float>(rotation.at(1).get_double().value());
+				float z = static_cast<float>(rotation.at(2).get_double().value());
+				float w = static_cast<float>(rotation.at(3).get_double().value());
+				m_LocalWorld *= DirectX::XMMatrixRotationQuaternion(DirectX::XMVectorSet(x, y, z, w));
+			}
 
 			// Load
 			auto jsonMesh = json["meshes"].at(meshIndex.value());

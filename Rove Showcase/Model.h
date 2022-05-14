@@ -81,5 +81,8 @@ namespace Rove
 		// Index buffer
 		ComPtr<ID3D11Buffer> m_IndexBuffer = nullptr;
 		void CreateIndexBuffer(const std::vector<UINT>& indices);
+
+		// Local translation
+		DirectX::XMMATRIX m_LocalWorld = DirectX::XMMatrixIdentity();
 	};
 }
