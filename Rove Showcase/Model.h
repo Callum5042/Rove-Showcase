@@ -29,14 +29,56 @@ namespace Rove
 		float normal_z = 0;
 	};
 
-	// Mesh
-	class Mesh
+	// Rendering Model
+	class ModelV2
 	{
 	public:
+		ModelV2(DxRenderer* renderer, DxShader* shader);
+		virtual ~ModelV2() = default;
 
+		void Render();
+
+		// World transformation
+		DirectX::XMMATRIX LocalWorld = DirectX::XMMatrixIdentity();
+
+		// Number of indices to draw
+		UINT m_IndexCount = 0;
+
+		// Vertex buffer
+		ComPtr<ID3D11Buffer> m_VertexBuffer = nullptr;
+		void CreateVertexBuffer(const std::vector<Vertex>& vertices);
+
+		// Index buffer
+		ComPtr<ID3D11Buffer> m_IndexBuffer = nullptr;
+		void CreateIndexBuffer(const std::vector<UINT>& indices);
 
 	private:
+		DxRenderer* m_DxRenderer = nullptr;
+		DxShader* m_DxShader = nullptr;
+	};
 
+	// Object
+	class Object
+	{
+	public:
+		Object(DxRenderer* renderer, DxShader* shader);
+		virtual ~Object() = default;
+
+		// Loads a GLTF file
+		void LoadFile(const std::string& path);
+
+		// Renders the object
+		void Render();
+
+		// World 
+		DirectX::XMMATRIX World = DirectX::XMMatrixIdentity();
+
+	private:
+		DxRenderer* m_DxRenderer = nullptr;
+		DxShader* m_DxShader = nullptr;
+
+		// Models
+		std::vector<ModelV2*> m_Models;
 	};
 
 	// Main model class
@@ -70,9 +112,6 @@ namespace Rove
 
 		// Number of vertices
 		UINT m_VertexCount = 0;
-
-		// Details on how to draw the vertices/indices
-		std::vector<Mesh> m_Meshes;
 
 		// Vertex buffer
 		ComPtr<ID3D11Buffer> m_VertexBuffer = nullptr;
