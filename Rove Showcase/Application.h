@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Pch.h"
-#include "Windows\Window.h"
+#include "Window.h"
 #include "Rendering\DxRenderer.h"
 #include "Rendering\DxShader.h"
 

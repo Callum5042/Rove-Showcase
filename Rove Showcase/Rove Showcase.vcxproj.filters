@@ -3,7 +3,7 @@
   <ItemGroup>
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Pch.cpp" />
-    <ClCompile Include="Windows\Window.cpp" />
+    <ClCompile Include="Window.cpp" />
     <ClCompile Include="Application.cpp" />
     <ClCompile Include="Rendering\DxRenderer.cpp" />
     <ClCompile Include="ImGui\imgui.cpp" />
@@ -27,7 +27,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Pch.h" />
-    <ClInclude Include="Windows\Window.h" />
+    <ClInclude Include="Window.h" />
     <ClInclude Include="Application.h" />
     <ClInclude Include="Rendering\DxRenderer.h" />
     <ClInclude Include="ImGui\imgui.h" />
@@ -51,8 +51,8 @@
     <ClInclude Include="simdjson\simdjson.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="imgui.ini" />
     <None Include="Rendering\Shaders\ShaderData.hlsli" />
+    <None Include="imgui.ini" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Rendering\Shaders\PixelShader.hlsl" />

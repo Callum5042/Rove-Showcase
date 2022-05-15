@@ -149,6 +149,9 @@
       <Command>
       </Command>
     </PostBuildEvent>
+    <FxCompile>
+      <ShaderModel>5.0</ShaderModel>
+    </FxCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -220,7 +223,7 @@
     <ClCompile Include="Rendering\DxShader.cpp" />
     <ClCompile Include="simdjson\simdjson.cpp" />
     <ClCompile Include="Timer.cpp" />
-    <ClCompile Include="Windows\Window.cpp" />
+    <ClCompile Include="Window.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h" />
@@ -245,7 +248,7 @@
     <ClInclude Include="Rendering\DxShader.h" />
     <ClInclude Include="simdjson\simdjson.h" />
     <ClInclude Include="Timer.h" />
-    <ClInclude Include="Windows\Window.h" />
+    <ClInclude Include="Window.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="imgui.ini" />

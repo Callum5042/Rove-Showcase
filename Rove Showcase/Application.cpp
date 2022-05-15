@@ -76,6 +76,8 @@ std::string Rove::ConvertToString(std::wstring wide_str)
 
 Rove::Application::Application()
 {
+	auto folder = std::filesystem::current_path();
+
 	// Initialise data
 	m_Window = std::make_unique<Rove::Window>(this);
 	m_DxRenderer = std::make_unique<Rove::DxRenderer>(m_Window.get());
@@ -234,7 +236,7 @@ void Rove::Application::SetupDearImGui()
 	ImGuiIO& io = ImGui::GetIO();
 
 	ImPlot::GetStyle().AntiAliasedLines = true;
-	io.Fonts->AddFontFromFileTTF("ImGui\\fonts\\DroidSans.ttf", 13);
+	io.Fonts->AddFontFromFileTTF("fonts\\DroidSans.ttf", 13);
 
 	ImGui::StyleColorsDark();
 	ImGui_ImplWin32_Init(m_Window->GetHwnd());
