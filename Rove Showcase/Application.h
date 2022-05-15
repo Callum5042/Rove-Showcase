@@ -48,7 +48,6 @@ namespace Rove
 		std::unique_ptr<DxRenderer> m_DxRenderer = nullptr;
 		std::unique_ptr<DxShader> m_DxShader = nullptr;
 		std::unique_ptr<Camera> m_Camera = nullptr;
-		// std::unique_ptr<Model> m_Model = nullptr;
 		std::unique_ptr<Timer> m_Timer = nullptr;
 		std::unique_ptr<Object> m_Object = nullptr;
 

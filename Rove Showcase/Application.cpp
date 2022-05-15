@@ -24,7 +24,7 @@ namespace
 		// File type filters
 		COMDLG_FILTERSPEC file_filters[] =
 		{
-			{ L"glTF binary", L"*.glb"},
+			{ L"glTF JSON", L"*.gltf"},
 		};
 
 		fileOpen->SetFileTypes(1, file_filters);
@@ -115,7 +115,6 @@ int Rove::Application::Run()
 	m_Timer->Start();
 
 	// Load pyramid model as default
-	// m_Model->LoadFromFile(L"C:\\Users\\Callum\\Desktop\\double_cube.gltf");
 	m_Object->LoadFile("C:\\Users\\Callum\\Desktop\\double_cube.gltf");
 
 	// Main loop
@@ -160,7 +159,6 @@ int Rove::Application::Run()
 			}
 
 			// Render model
-			// m_Model->Render();
 			m_Object->Render();
 
 			// Enable solid rendering
@@ -261,11 +259,6 @@ void Rove::Application::UpdateCamera()
 	m_DxShader->UpdateCameraBuffer(camera_buffer);
 
 	// Update world buffer
-	/*Rove::WorldBuffer world_buffer = {};
-	world_buffer.world = DirectX::XMMatrixTranspose(m_Model->World);
-	world_buffer.worldInverse = DirectX::XMMatrixInverse(nullptr, m_Model->World);
-	m_DxShader->UpdateWorldConstantBuffer(world_buffer);*/
-
 	Rove::WorldBuffer world_buffer = {};
 	world_buffer.world = DirectX::XMMatrixTranspose(m_Object->World);
 	world_buffer.worldInverse = DirectX::XMMatrixInverse(nullptr, m_Object->World);
@@ -287,7 +280,6 @@ void Rove::Application::Create()
 	m_Camera = std::make_unique<Rove::Camera>(width, height);
 
 	// Model
-	// m_Model = std::make_unique<Rove::Model>(m_DxRenderer.get(), m_DxShader.get());
 	m_Object = std::make_unique<Rove::Object>(m_DxRenderer.get(), m_DxShader.get());
 
 	UpdateCamera();
@@ -306,7 +298,8 @@ void Rove::Application::MenuItem_Load()
 	{
 		try
 		{
-			// m_Model->LoadFromFile(filepath);
+			std::string path = ConvertToString(filepath);
+			m_Object->LoadFile(path);
 		}
 		catch (std::exception& e)
 		{

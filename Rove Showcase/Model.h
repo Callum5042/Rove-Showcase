@@ -80,48 +80,4 @@ namespace Rove
 		// Models
 		std::vector<ModelV2*> m_Models;
 	};
-
-	// Main model class
-	class Model
-	{
-	public:
-		Model(DxRenderer* renderer, DxShader* shader);
-		virtual ~Model() = default;
-
-		// Render the model
-		void Render();
-
-		// World 
-		DirectX::XMMATRIX World = DirectX::XMMatrixIdentity();
-
-		// Load model
-		void LoadFromFile(const std::wstring& filepath);
-
-		// Get vertices
-		constexpr UINT GetVertices() { return m_VertexCount; }
-
-		// Get indices
-		constexpr UINT GetIndices() { return m_IndexCount; }
-
-	private:
-		DxRenderer* m_DxRenderer = nullptr;
-		DxShader* m_DxShader = nullptr;
-
-		// Number of indices to draw
-		UINT m_IndexCount = 0;
-
-		// Number of vertices
-		UINT m_VertexCount = 0;
-
-		// Vertex buffer
-		ComPtr<ID3D11Buffer> m_VertexBuffer = nullptr;
-		void CreateVertexBuffer(const std::vector<Vertex>& vertices);
-
-		// Index buffer
-		ComPtr<ID3D11Buffer> m_IndexBuffer = nullptr;
-		void CreateIndexBuffer(const std::vector<UINT>& indices);
-
-		// Local translation
-		DirectX::XMMATRIX m_LocalWorld = DirectX::XMMatrixIdentity();
-	};
 }
