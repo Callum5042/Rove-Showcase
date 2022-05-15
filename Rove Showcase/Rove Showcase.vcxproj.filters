@@ -52,7 +52,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Rendering\Shaders\ShaderData.hlsli" />
-    <None Include="imgui.ini" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Rendering\Shaders\PixelShader.hlsl" />

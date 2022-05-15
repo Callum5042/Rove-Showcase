@@ -251,7 +251,6 @@
     <ClInclude Include="Window.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="imgui.ini" />
     <None Include="Rendering\Shaders\ShaderData.hlsli" />
   </ItemGroup>
   <ItemGroup>
