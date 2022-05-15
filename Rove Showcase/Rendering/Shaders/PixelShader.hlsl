@@ -36,8 +36,8 @@ float4 main(PixelInput input) : SV_TARGET
 	// Interpolating normal can unnormalize it, so normalize it.
 	input.normal = normalize(input.normal);
 
-// Calculate directional light
-float4 light_colour = CalculatePointLighting(input.position, input.normal);
+	// Calculate directional light
+	float4 light_colour = CalculatePointLighting(input.position, input.normal);
 
-return light_colour;
+	return light_colour;
 }

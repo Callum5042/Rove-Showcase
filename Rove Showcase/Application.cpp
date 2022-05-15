@@ -24,7 +24,7 @@ namespace
 		// File type filters
 		COMDLG_FILTERSPEC file_filters[] =
 		{
-			{ L"glTF binary", L"*.glb"},
+			{ L"glTF JSON", L"*.gltf"},
 		};
 
 		fileOpen->SetFileTypes(1, file_filters);
@@ -115,7 +115,7 @@ int Rove::Application::Run()
 	m_Timer->Start();
 
 	// Load pyramid model as default
-	m_Model->LoadFromFile(L"D:\\pyramid.glb");
+	m_Object->LoadFile("C:\\Users\\Callum\\Desktop\\double_cube.gltf");
 
 	// Main loop
 	MSG msg = {};
@@ -159,7 +159,7 @@ int Rove::Application::Run()
 			}
 
 			// Render model
-			m_Model->Render();
+			m_Object->Render();
 
 			// Enable solid rendering
 			m_DxRenderer->SetSolidRasterState();
@@ -260,8 +260,8 @@ void Rove::Application::UpdateCamera()
 
 	// Update world buffer
 	Rove::WorldBuffer world_buffer = {};
-	world_buffer.world = DirectX::XMMatrixTranspose(m_Model->World);
-	world_buffer.worldInverse = DirectX::XMMatrixInverse(nullptr, m_Model->World);
+	world_buffer.world = DirectX::XMMatrixTranspose(m_Object->World);
+	world_buffer.worldInverse = DirectX::XMMatrixInverse(nullptr, m_Object->World);
 	m_DxShader->UpdateWorldConstantBuffer(world_buffer);
 }
 
@@ -280,7 +280,8 @@ void Rove::Application::Create()
 	m_Camera = std::make_unique<Rove::Camera>(width, height);
 
 	// Model
-	m_Model = std::make_unique<Rove::Model>(m_DxRenderer.get());
+	m_Object = std::make_unique<Rove::Object>(m_DxRenderer.get(), m_DxShader.get());
+
 	UpdateCamera();
 
 	// Dear ImGui
@@ -297,7 +298,8 @@ void Rove::Application::MenuItem_Load()
 	{
 		try
 		{
-			m_Model->LoadFromFile(filepath);
+			std::string path = ConvertToString(filepath);
+			m_Object->LoadFile(path);
 		}
 		catch (std::exception& e)
 		{
@@ -428,8 +430,8 @@ void Rove::Application::RenderGui()
 	{
 		if (ImGui::Begin("Model", &m_ShowModelDetails, ImGuiWindowFlags_AlwaysAutoResize))
 		{
-			ImGui::Text("Vertices: %i", m_Model->GetVertices());
-			ImGui::Text("Indices: %i", m_Model->GetIndices());
+			// ImGui::Text("Vertices: %i", m_Model->GetVertices());
+			// ImGui::Text("Indices: %i", m_Model->GetIndices());
 			ImGui::Checkbox("Enable Wireframe", &m_RenderWireframe);
 		}
 

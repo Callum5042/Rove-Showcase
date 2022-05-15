@@ -134,7 +134,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard>stdcpp20</LanguageStandard>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>Pch.h</PrecompiledHeaderFile>
       <AdditionalIncludeDirectories>$(SolutionDir)$(ProjectName);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -218,6 +218,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="Rendering\DxShader.cpp" />
+    <ClCompile Include="simdjson\simdjson.cpp" />
     <ClCompile Include="Timer.cpp" />
     <ClCompile Include="Windows\Window.cpp" />
   </ItemGroup>
@@ -242,11 +243,8 @@
     <ClInclude Include="PointLight.h" />
     <ClInclude Include="Rendering\DxRenderer.h" />
     <ClInclude Include="Rendering\DxShader.h" />
+    <ClInclude Include="simdjson\simdjson.h" />
     <ClInclude Include="Timer.h" />
-    <ClInclude Include="TinyGltf\json.hpp" />
-    <ClInclude Include="TinyGltf\stb_image.h" />
-    <ClInclude Include="TinyGltf\stb_image_write.h" />
-    <ClInclude Include="TinyGltf\tiny_gltf.h" />
     <ClInclude Include="Windows\Window.h" />
   </ItemGroup>
   <ItemGroup>

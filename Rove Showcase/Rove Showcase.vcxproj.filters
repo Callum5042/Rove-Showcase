@@ -23,6 +23,7 @@
     <ClCompile Include="ImGui\implot.cpp" />
     <ClCompile Include="ImGui\implot_items.cpp" />
     <ClCompile Include="ImGui\implot_demo.cpp" />
+    <ClCompile Include="simdjson\simdjson.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Pch.h" />
@@ -43,14 +44,11 @@
     <ClInclude Include="Rendering\DxShader.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Model.h" />
-    <ClInclude Include="TinyGltf\json.hpp" />
-    <ClInclude Include="TinyGltf\stb_image.h" />
-    <ClInclude Include="TinyGltf\stb_image_write.h" />
-    <ClInclude Include="TinyGltf\tiny_gltf.h" />
     <ClInclude Include="PointLight.h" />
     <ClInclude Include="Timer.h" />
     <ClInclude Include="ImGui\implot.h" />
     <ClInclude Include="ImGui\implot_internal.h" />
+    <ClInclude Include="simdjson\simdjson.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="imgui.ini" />

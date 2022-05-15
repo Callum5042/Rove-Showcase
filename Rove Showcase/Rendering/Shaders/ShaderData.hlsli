@@ -28,6 +28,11 @@ cbuffer WorldBuffer : register(b1)
 	matrix cWorldInverse;
 }
 
+// World constant buffer
+cbuffer LocalWorldBuffer : register(b3)
+{
+	matrix cLocalWorld;
+}
 
 // Point light structure
 struct PointLight
