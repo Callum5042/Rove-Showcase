@@ -30,11 +30,11 @@ namespace Rove
 	};
 
 	// Rendering Model
-	class ModelV2
+	class Model
 	{
 	public:
-		ModelV2(DxRenderer* renderer, DxShader* shader);
-		virtual ~ModelV2() = default;
+		Model(DxRenderer* renderer, DxShader* shader);
+		virtual ~Model() = default;
 
 		void Render();
 
@@ -78,6 +78,6 @@ namespace Rove
 		DxShader* m_DxShader = nullptr;
 
 		// Models
-		std::vector<ModelV2*> m_Models;
+		std::vector<Model*> m_Models;
 	};
 }

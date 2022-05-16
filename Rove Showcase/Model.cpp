@@ -140,7 +140,7 @@ void Rove::Object::LoadFile(const std::string& path)
 			DirectX::XMMATRIX LocalWorld = DirectX::XMMatrixIdentity();
 			std::vector<Vertex> vertices;
 			std::vector<UINT> indices;
-			ModelV2* model = new ModelV2(m_DxRenderer, m_DxShader);
+			Model* model = new Model(m_DxRenderer, m_DxShader);
 
 			// Apply translation
 			LocalWorld *= MeshTranslation(node);
@@ -211,11 +211,11 @@ void Rove::Object::Render()
 	}
 }
 
-Rove::ModelV2::ModelV2(DxRenderer* renderer, DxShader* shader) : m_DxRenderer(renderer), m_DxShader(shader)
+Rove::Model::Model(DxRenderer* renderer, DxShader* shader) : m_DxRenderer(renderer), m_DxShader(shader)
 {
 }
 
-void Rove::ModelV2::Render()
+void Rove::Model::Render()
 {
 	auto d3dDeviceContext = m_DxRenderer->GetDeviceContext();
 
@@ -241,7 +241,7 @@ void Rove::ModelV2::Render()
 	d3dDeviceContext->DrawIndexed(m_IndexCount, 0, 0);
 }
 
-void Rove::ModelV2::CreateVertexBuffer(const std::vector<Vertex>& vertices)
+void Rove::Model::CreateVertexBuffer(const std::vector<Vertex>& vertices)
 {
 	auto d3dDevice = m_DxRenderer->GetDevice();
 
@@ -259,7 +259,7 @@ void Rove::ModelV2::CreateVertexBuffer(const std::vector<Vertex>& vertices)
 	DX::Check(d3dDevice->CreateBuffer(&vertex_buffer_desc, &vertex_subdata, m_VertexBuffer.ReleaseAndGetAddressOf()));
 }
 
-void Rove::ModelV2::CreateIndexBuffer(const std::vector<UINT>& indices)
+void Rove::Model::CreateIndexBuffer(const std::vector<UINT>& indices)
 {
 	auto d3dDevice = m_DxRenderer->GetDevice();
 
