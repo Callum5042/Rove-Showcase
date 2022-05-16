@@ -2,8 +2,8 @@
 
 #include "Pch.h"
 #include "Window.h"
-#include "Rendering\DxRenderer.h"
-#include "Rendering\DxShader.h"
+#include "DxRenderer.h"
+#include "DxShader.h"
 
 #include "Model.h"
 #include "Camera.h"
@@ -11,8 +11,8 @@
 #include "Timer.h"
 
 // Components
-#include "Components\ViewportComponent.h"
-#include "Components\InfoComponent.h"
+#include "ViewportComponent.h"
+#include "InfoComponent.h"
 
 namespace Rove
 {

@@ -1,7 +1,7 @@
 #include "Pch.h"
 #include "Model.h"
-#include "Rendering/DxRenderer.h"
-#include "Rendering/DxShader.h"
+#include "DxRenderer.h"
+#include "DxShader.h"
 #include "Application.h"
 #include "simdjson\simdjson.h"
 
