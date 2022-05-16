@@ -5,23 +5,117 @@
 #include "Application.h"
 #include "simdjson\simdjson.h"
 
-enum class AccessorDataType
+namespace
 {
-	SIGNED_BYTE = 5120,
-	UNSIGNED_BYTE = 5121,
-	SIGNED_SHORT = 5122,
-	UNSIGNED_SHORT = 5123,
-	UNSIGNED_INT = 5125,
-	FLOAT = 5126
-};
+	enum class AccessorDataType
+	{
+		SIGNED_BYTE = 5120,
+		UNSIGNED_BYTE = 5121,
+		SIGNED_SHORT = 5122,
+		UNSIGNED_SHORT = 5123,
+		UNSIGNED_INT = 5125,
+		FLOAT = 5126
+	};
 
-template <typename TDataType>
-struct Vec3
-{
-	TDataType x;
-	TDataType y;
-	TDataType z;
-};
+	template <typename TDataType>
+	struct Vec3
+	{
+		TDataType x;
+		TDataType y;
+		TDataType z;
+	};
+
+	DirectX::XMMATRIX MeshTranslation(simdjson::dom::element node)
+	{
+		auto translation = node["translation"].get_array();
+		if (translation.error() == simdjson::SUCCESS)
+		{
+			float x = static_cast<float>(translation.at(0).get_double().value());
+			float y = static_cast<float>(translation.at(1).get_double().value());
+			float z = static_cast<float>(translation.at(2).get_double().value());
+			return DirectX::XMMatrixTranslation(x, y, z);
+		}
+
+		return DirectX::XMMatrixIdentity();
+	}
+
+	DirectX::XMMATRIX MeshRotation(simdjson::dom::element node)
+	{
+		auto rotation = node["rotation"].get_array();
+		if (rotation.error() == simdjson::SUCCESS)
+		{
+			float x = static_cast<float>(rotation.at(0).get_double().value());
+			float y = static_cast<float>(rotation.at(1).get_double().value());
+			float z = static_cast<float>(rotation.at(2).get_double().value());
+			float w = static_cast<float>(rotation.at(3).get_double().value());
+			return DirectX::XMMatrixRotationQuaternion(DirectX::XMVectorSet(x, y, z, w));
+		}
+
+		return DirectX::XMMatrixIdentity();
+	}
+
+	template <typename TDataType>
+	void LoadMeshIndices(const simdjson::simdjson_result<simdjson::dom::element>& json, const simdjson::dom::element& node, std::vector<TDataType>& data)
+	{
+		auto indicesIndex = node["indices"].get_int64().value();
+
+		// Accessor
+		auto indexAccessor = json["accessors"].at(indicesIndex);
+		auto bufferViewIndex = indexAccessor["bufferView"].get_int64().value();
+		AccessorDataType componentType = static_cast<AccessorDataType>(indexAccessor["componentType"].get_int64().value());
+		auto indexCount = indexAccessor["count"].get_int64().value();
+
+		// View
+		auto viewBuffer = json["bufferViews"].at(bufferViewIndex);
+		auto bufferIndex = viewBuffer["buffer"].get_int64().value();
+		auto byteLength = viewBuffer["byteLength"].get_int64().value();
+		auto byteOffset = viewBuffer["byteOffset"].get_int64().value();
+
+		// Buffer
+		auto buffer = json["buffers"].at(bufferIndex);
+		auto bufferByteLength = buffer["byteLength"].get_int64().value();
+		std::string_view bufferUri = buffer["uri"].get_string();
+
+		// Load buffer
+		std::string basePath = "C:\\Users\\Callum\\Desktop\\" + std::string(bufferUri);
+
+		std::ifstream file(basePath, std::fstream::in | std::fstream::binary);
+		file.seekg(byteOffset);
+
+		data.resize(indexCount);
+		file.read(reinterpret_cast<char*>(data.data()), byteLength);
+	}
+
+	template <typename TDataType>
+	void LoadMeshVerticesAttribute(const simdjson::simdjson_result<simdjson::dom::element>& json, simdjson::simdjson_result<int64_t> attribute, std::vector<TDataType>& data)
+	{
+		// Accessor
+		auto indexAccessor = json["accessors"].at(attribute.value());
+		auto bufferViewIndex = indexAccessor["bufferView"].get_int64().value();
+		AccessorDataType componentType = static_cast<AccessorDataType>(indexAccessor["componentType"].get_int64().value());
+		int64_t vertexCount = indexAccessor["count"].get_int64().value();
+
+		// View
+		auto viewBuffer = json["bufferViews"].at(bufferViewIndex);
+		auto bufferIndex = viewBuffer["buffer"].get_int64().value();
+		auto byteLength = viewBuffer["byteLength"].get_int64().value();
+		auto byteOffset = viewBuffer["byteOffset"].get_int64().value();
+
+		// Buffer
+		auto buffer = json["buffers"].at(bufferIndex);
+		auto bufferByteLength = buffer["byteLength"].get_int64().value();
+		std::string_view bufferUri = buffer["uri"].get_string();
+
+		// Load buffer
+		std::string basePath = "C:\\Users\\Callum\\Desktop\\" + std::string(bufferUri);
+
+		std::ifstream file(basePath, std::fstream::in | std::fstream::binary);
+		file.seekg(byteOffset);
+
+		data.resize(vertexCount);
+		file.read(reinterpret_cast<char*>(data.data()), byteLength);
+	}
+}
 
 Rove::Object::Object(DxRenderer* renderer, DxShader* shader) : m_DxRenderer(renderer), m_DxShader(shader)
 {
@@ -34,7 +128,7 @@ void Rove::Object::LoadFile(const std::string& path)
 
 	// Load file
 	simdjson::dom::parser parser;
-	auto json = parser.load(path);
+	simdjson::simdjson_result<simdjson::dom::element> json = parser.load(path);
 
 	// Nodes
 	for (auto node : json["nodes"])
@@ -49,24 +143,10 @@ void Rove::Object::LoadFile(const std::string& path)
 			ModelV2* model = new ModelV2(m_DxRenderer, m_DxShader);
 
 			// Apply translation
-			auto translation = node["translation"].get_array();
-			if (translation.error() == simdjson::SUCCESS)
-			{
-				float x = static_cast<float>(translation.at(0).get_double().value());
-				float y = static_cast<float>(translation.at(1).get_double().value());
-				float z = static_cast<float>(translation.at(2).get_double().value());
-				LocalWorld *= DirectX::XMMatrixTranslation(x, y, z);
-			}
+			LocalWorld *= MeshTranslation(node);
 
-			auto rotation = node["rotation"].get_array();
-			if (rotation.error() == simdjson::SUCCESS)
-			{
-				float x = static_cast<float>(rotation.at(0).get_double().value());
-				float y = static_cast<float>(rotation.at(1).get_double().value());
-				float z = static_cast<float>(rotation.at(2).get_double().value());
-				float w = static_cast<float>(rotation.at(3).get_double().value());
-				LocalWorld *= DirectX::XMMatrixRotationQuaternion(DirectX::XMVectorSet(x, y, z, w));
-			}
+			// Apply rotation
+			LocalWorld *= MeshRotation(node);
 
 			// Load
 			auto jsonMesh = json["meshes"].at(meshIndex.value());
@@ -74,69 +154,20 @@ void Rove::Object::LoadFile(const std::string& path)
 			{
 				// Load indices
 				{
-					auto indicesIndex = jsonPrimitive["indices"].get_int64().value();
-
-					// Accessor
-					auto indexAccessor = json["accessors"].at(indicesIndex);
-					auto bufferViewIndex = indexAccessor["bufferView"].get_int64().value();
-					AccessorDataType componentType = static_cast<AccessorDataType>(indexAccessor["componentType"].get_int64().value());
-					auto indexCount = indexAccessor["count"].get_int64().value();
-
-					// View
-					auto viewBuffer = json["bufferViews"].at(bufferViewIndex);
-					auto bufferIndex = viewBuffer["buffer"].get_int64().value();
-					auto byteLength = viewBuffer["byteLength"].get_int64().value();
-					auto byteOffset = viewBuffer["byteOffset"].get_int64().value();
-
-					// Buffer
-					auto buffer = json["buffers"].at(bufferIndex);
-					auto bufferByteLength = buffer["byteLength"].get_int64().value();
-					std::string_view bufferUri = buffer["uri"].get_string();
-
-					// Load buffer
-					std::string basePath = "C:\\Users\\Callum\\Desktop\\" + std::string(bufferUri);
-
-					std::ifstream file(basePath, std::fstream::in | std::fstream::binary);
-					file.seekg(byteOffset);
-
-					std::vector<short> _indices(indexCount);
-					file.read(reinterpret_cast<char*>(_indices.data()), byteLength);
-
-					indices.resize(indexCount);
-					indices.assign(_indices.begin(), _indices.end());
+					std::vector<short> data;
+					LoadMeshIndices<short>(json, jsonPrimitive, data);
+					indices.resize(data.size());
+					indices.assign(data.begin(), data.end());
 				}
 
 				// Load vertices
+				simdjson::simdjson_result<int64_t> position_attribute = jsonPrimitive["attributes"]["POSITION"].get_int64();
+				if (position_attribute.error() == simdjson::SUCCESS)
 				{
-					auto positionIndex = jsonPrimitive["attributes"]["POSITION"].get_int64().value();
+					std::vector<Vec3<float>> data;
+					LoadMeshVerticesAttribute(json, position_attribute, data);
 
-					// Accessor
-					auto indexAccessor = json["accessors"].at(positionIndex);
-					auto bufferViewIndex = indexAccessor["bufferView"].get_int64().value();
-					AccessorDataType componentType = static_cast<AccessorDataType>(indexAccessor["componentType"].get_int64().value());
-					auto vertexCount = indexAccessor["count"].get_int64().value();
-
-					// View
-					auto viewBuffer = json["bufferViews"].at(bufferViewIndex);
-					auto bufferIndex = viewBuffer["buffer"].get_int64().value();
-					auto byteLength = viewBuffer["byteLength"].get_int64().value();
-					auto byteOffset = viewBuffer["byteOffset"].get_int64().value();
-
-					// Buffer
-					auto buffer = json["buffers"].at(bufferIndex);
-					auto bufferByteLength = buffer["byteLength"].get_int64().value();
-					std::string_view bufferUri = buffer["uri"].get_string();
-
-					// Load buffer
-					std::string basePath = "C:\\Users\\Callum\\Desktop\\" + std::string(bufferUri);
-
-					std::ifstream file(basePath, std::fstream::in | std::fstream::binary);
-					file.seekg(byteOffset);
-
-					std::vector<Vec3<float>> _vertices(vertexCount);
-					file.read(reinterpret_cast<char*>(_vertices.data()), byteLength);
-
-					for (auto& v : _vertices)
+					for (auto& v : data)
 					{
 						Vertex v1;
 						v1.x = v.x;
@@ -148,40 +179,17 @@ void Rove::Object::LoadFile(const std::string& path)
 				}
 
 				// Apply normals
+				simdjson::simdjson_result<int64_t> normal_attribute = jsonPrimitive["attributes"]["NORMAL"].get_int64();
+				if (normal_attribute.error() == simdjson::SUCCESS)
 				{
-					auto positionIndex = jsonPrimitive["attributes"]["NORMAL"].get_int64().value();
+					std::vector<Vec3<float>> data;
+					LoadMeshVerticesAttribute(json, normal_attribute, data);
 
-					// Accessor
-					auto indexAccessor = json["accessors"].at(positionIndex);
-					auto bufferViewIndex = indexAccessor["bufferView"].get_int64().value();
-					AccessorDataType componentType = static_cast<AccessorDataType>(indexAccessor["componentType"].get_int64().value());
-					auto vertexCount = indexAccessor["count"].get_int64().value();
-
-					// View
-					auto viewBuffer = json["bufferViews"].at(bufferViewIndex);
-					auto bufferIndex = viewBuffer["buffer"].get_int64().value();
-					auto byteLength = viewBuffer["byteLength"].get_int64().value();
-					auto byteOffset = viewBuffer["byteOffset"].get_int64().value();
-
-					// Buffer
-					auto buffer = json["buffers"].at(bufferIndex);
-					auto bufferByteLength = buffer["byteLength"].get_int64().value();
-					std::string_view bufferUri = buffer["uri"].get_string();
-
-					// Load buffer
-					std::string basePath = "C:\\Users\\Callum\\Desktop\\" + std::string(bufferUri);
-
-					std::ifstream file(basePath, std::fstream::in | std::fstream::binary);
-					file.seekg(byteOffset);
-
-					std::vector<Vec3<float>> _vertices(vertexCount);
-					file.read(reinterpret_cast<char*>(_vertices.data()), byteLength);
-
-					for (size_t i = 0; i < _vertices.size(); ++i)
+					for (size_t i = 0; i < data.size(); ++i)
 					{
-						vertices[i].normal_x = _vertices[i].x;
-						vertices[i].normal_y = _vertices[i].y;
-						vertices[i].normal_z = _vertices[i].z;
+						vertices[i].normal_x = data[i].x;
+						vertices[i].normal_y = data[i].y;
+						vertices[i].normal_z = data[i].z;
 					}
 				}
 			}
