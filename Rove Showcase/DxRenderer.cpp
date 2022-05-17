@@ -12,7 +12,7 @@ void Rove::DxRenderer::Create()
 {
 	int window_width = 0;
 	int window_height = 0;
-	m_Window->GetSize(&window_width, & window_height);
+	m_Window->GetSize(&window_width, &window_height);
 
 	CreateDeviceAndContext();
 	CreateSwapChain(window_width, window_height);
@@ -30,6 +30,8 @@ void Rove::DxRenderer::Create()
 	// Render to texture
 	CreateMsaaRenderTargetView(window_width, window_height);
 	CreateMsaaDepthStencilView(window_width, window_height);
+
+	CreateAnisotropicFiltering();
 }
 
 void Rove::DxRenderer::Clear(const float* colour)
@@ -123,7 +125,7 @@ void Rove::DxRenderer::CreateDeviceAndContext()
 	// Create device and device context
 	D3D_FEATURE_LEVEL featureLevel;
 	DX::Check(D3D11CreateDevice(nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, deviceFlag, featureLevels, numFeatureLevels,
-		D3D11_SDK_VERSION, m_Device.ReleaseAndGetAddressOf(), &featureLevel, m_DeviceContext.ReleaseAndGetAddressOf()));
+			  D3D11_SDK_VERSION, m_Device.ReleaseAndGetAddressOf(), &featureLevel, m_DeviceContext.ReleaseAndGetAddressOf()));
 
 	// Check if Direct3D 11.1 is supported, if not fall back to Direct3D 11
 	if (featureLevel != D3D_FEATURE_LEVEL_11_1)
@@ -270,6 +272,25 @@ void Rove::DxRenderer::CreateMsaaDepthStencilView(int width, int height)
 	ComPtr<ID3D11Texture2D> texture = nullptr;
 	DX::Check(m_Device->CreateTexture2D(&texture_desc, nullptr, texture.ReleaseAndGetAddressOf()));
 	DX::Check(m_Device->CreateDepthStencilView(texture.Get(), nullptr, m_MsaaDepthStencilView.ReleaseAndGetAddressOf()));
+}
+
+void Rove::DxRenderer::CreateAnisotropicFiltering()
+{
+	D3D11_SAMPLER_DESC samplerDesc = {};
+	samplerDesc.Filter = D3D11_FILTER_ANISOTROPIC;
+	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+	samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+	samplerDesc.MipLODBias = 0;
+	samplerDesc.MaxAnisotropy = D3D11_REQ_MAXANISOTROPY;
+	samplerDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
+	samplerDesc.MinLOD = 0;
+	samplerDesc.MaxLOD = 1000.0f;
+
+	DX::Check(m_Device->CreateSamplerState(&samplerDesc, &m_AnisotropicSampler));
+
+	// Bind to pipeline
+	m_DeviceContext->PSSetSamplers(0, 1, m_AnisotropicSampler.GetAddressOf());
 }
 
 void Rove::DxRenderer::CreateWireframeRasterState()

@@ -110,5 +110,9 @@ namespace Rove
 
 		void CreateMsaaDepthStencilView(int width, int height);
 		ComPtr<ID3D11DepthStencilView> m_MsaaDepthStencilView = nullptr;
+
+		// Texture sampling
+		ComPtr<ID3D11SamplerState> m_AnisotropicSampler = nullptr;
+		void CreateAnisotropicFiltering();
 	};
 }
