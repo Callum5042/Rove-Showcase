@@ -176,7 +176,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\External\DDSTextureLoader\DDSTextureLoader.cpp" />
     <ClCompile Include="..\External\ImGui\imgui.cpp" />
     <ClCompile Include="..\External\ImGui\imgui_demo.cpp" />
     <ClCompile Include="..\External\ImGui\imgui_draw.cpp" />
@@ -189,6 +188,8 @@
     <ClCompile Include="..\External\ImGui\implot_demo.cpp" />
     <ClCompile Include="..\External\ImGui\implot_items.cpp" />
     <ClCompile Include="..\External\simdjson\simdjson.cpp" />
+    <ClCompile Include="..\External\TextureLoader\DDSTextureLoader.cpp" />
+    <ClCompile Include="..\External\TextureLoader\WICTextureLoader.cpp" />
     <ClCompile Include="Application.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="DxRenderer.cpp" />
@@ -207,7 +208,6 @@
     <ClCompile Include="Window.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\External\DDSTextureLoader\DDSTextureLoader.h" />
     <ClInclude Include="..\External\ImGui\imconfig.h" />
     <ClInclude Include="..\External\ImGui\imgui.h" />
     <ClInclude Include="..\External\ImGui\imgui_impl_dx11.h" />
@@ -220,6 +220,8 @@
     <ClInclude Include="..\External\ImGui\imstb_textedit.h" />
     <ClInclude Include="..\External\ImGui\imstb_truetype.h" />
     <ClInclude Include="..\External\simdjson\simdjson.h" />
+    <ClInclude Include="..\External\TextureLoader\DDSTextureLoader.h" />
+    <ClInclude Include="..\External\TextureLoader\WICTextureLoader.h" />
     <ClInclude Include="Application.h" />
     <ClInclude Include="DxRenderer.h" />
     <ClInclude Include="DxShader.h" />

@@ -4,7 +4,8 @@
 #include "DxShader.h"
 #include "Application.h"
 #include "simdjson\simdjson.h"
-#include "DDSTextureLoader\DDSTextureLoader.h"
+#include "TextureLoader\DDSTextureLoader.h"
+#include "TextureLoader\WICTextureLoader.h"
 
 namespace
 {
@@ -226,7 +227,8 @@ void Rove::Object::LoadFile(const std::string& path)
 			auto d3dDevice = m_DxRenderer->GetDevice();
 
 			ComPtr<ID3D11Resource> resource = nullptr;
-			DX::Check(DirectX::CreateDDSTextureFromFile(d3dDevice, L"D:\\3d models\\crate\\crate_diffuse.dds", resource.ReleaseAndGetAddressOf(), model->m_DiffuseTexture.ReleaseAndGetAddressOf()));
+			//DX::Check(DirectX::CreateDDSTextureFromFile(d3dDevice, L"D:\\3d models\\crate\\crate_diffuse.dds", resource.ReleaseAndGetAddressOf(), model->m_DiffuseTexture.ReleaseAndGetAddressOf()));
+			DX::Check(DirectX::CreateWICTextureFromFile(d3dDevice, L"C:\\Users\\Callum\\Desktop\\crate_diffuse.png", resource.ReleaseAndGetAddressOf(), model->m_DiffuseTexture.ReleaseAndGetAddressOf()));
 		}
 	}
 }
