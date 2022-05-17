@@ -42,5 +42,5 @@ float4 main(PixelInput input) : SV_TARGET
 	// Apply diffuse texture
 	float4 diffuse_texture = TextureDiffuse.Sample(SamplerStateAnisotropic, input.tex_diffuse);
 
-	return diffuse_texture;
+	return light_colour * diffuse_texture;
 }
