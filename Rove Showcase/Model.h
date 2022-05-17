@@ -56,6 +56,9 @@ namespace Rove
 		ComPtr<ID3D11Buffer> m_IndexBuffer = nullptr;
 		void CreateIndexBuffer(const std::vector<UINT>& indices);
 
+		// Texture
+		ComPtr<ID3D11ShaderResourceView> m_DiffuseTexture = nullptr;
+
 	private:
 		DxRenderer* m_DxRenderer = nullptr;
 		DxShader* m_DxShader = nullptr;

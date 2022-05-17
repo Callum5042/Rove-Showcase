@@ -4,6 +4,7 @@
 #include "DxShader.h"
 #include "Application.h"
 #include "simdjson\simdjson.h"
+#include "DDSTextureLoader\DDSTextureLoader.h"
 
 namespace
 {
@@ -220,6 +221,12 @@ void Rove::Object::LoadFile(const std::string& path)
 			model->CreateVertexBuffer(vertices);
 			model->CreateIndexBuffer(indices);
 			m_Models.push_back(model);
+
+			// Load texture
+			auto d3dDevice = m_DxRenderer->GetDevice();
+
+			ComPtr<ID3D11Resource> resource = nullptr;
+			DX::Check(DirectX::CreateDDSTextureFromFile(d3dDevice, L"D:\\3d models\\crate\\crate_diffuse.dds", resource.ReleaseAndGetAddressOf(), model->m_DiffuseTexture.ReleaseAndGetAddressOf()));
 		}
 	}
 }
@@ -252,6 +259,9 @@ void Rove::Model::Render()
 
 	// Bind the geometry topology to the pipeline's Input Assembler stage
 	d3dDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	// Bind texture to the pixel shader
+	m_DxRenderer->GetDeviceContext()->PSSetShaderResources(0, 1, m_DiffuseTexture.GetAddressOf());
 
 	// Apply local transformations
 	Rove::LocalWorldBuffer world_buffer = {};

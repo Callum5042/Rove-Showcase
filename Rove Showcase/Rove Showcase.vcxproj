@@ -144,7 +144,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EntryPointSymbol>mainCRTStartup</EntryPointSymbol>
-      <AdditionalDependencies>d3d11.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3d11.lib;dxguid.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>
@@ -176,6 +176,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\External\DDSTextureLoader\DDSTextureLoader.cpp" />
     <ClCompile Include="..\External\ImGui\imgui.cpp" />
     <ClCompile Include="..\External\ImGui\imgui_demo.cpp" />
     <ClCompile Include="..\External\ImGui\imgui_draw.cpp" />
@@ -206,6 +207,7 @@
     <ClCompile Include="Window.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\External\DDSTextureLoader\DDSTextureLoader.h" />
     <ClInclude Include="..\External\ImGui\imconfig.h" />
     <ClInclude Include="..\External\ImGui\imgui.h" />
     <ClInclude Include="..\External\ImGui\imgui_impl_dx11.h" />

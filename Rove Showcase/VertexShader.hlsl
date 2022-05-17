@@ -18,5 +18,8 @@ PixelInput main(VertexInput input)
 	// Transform the normals by the inverse world space
 	output.normal = mul(input.normal, (float3x3)cWorldInverse).xyz;
 
+	// Pass the texture UV coordinates to pixel shader
+	output.tex_diffuse = input.tex_diffuse;
+
 	return output;
 }

@@ -48,6 +48,9 @@
     <ClCompile Include="ViewportComponent.cpp" />
     <ClCompile Include="DxRenderer.cpp" />
     <ClCompile Include="DxShader.cpp" />
+    <ClCompile Include="..\External\DDSTextureLoader\DDSTextureLoader.cpp">
+      <Filter>External\DDSTextureLoader</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Pch.h" />
@@ -97,6 +100,9 @@
     <ClInclude Include="ViewportComponent.h" />
     <ClInclude Include="DxRenderer.h" />
     <ClInclude Include="DxShader.h" />
+    <ClInclude Include="..\External\DDSTextureLoader\DDSTextureLoader.h">
+      <Filter>External\DDSTextureLoader</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="External">
@@ -110,6 +116,9 @@
     </Filter>
     <Filter Include="Shaders">
       <UniqueIdentifier>{1a9a9198-7391-4406-8ccf-34f9875dadb6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="External\DDSTextureLoader">
+      <UniqueIdentifier>{d7576ea3-c921-42e2-820e-8e3419985585}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

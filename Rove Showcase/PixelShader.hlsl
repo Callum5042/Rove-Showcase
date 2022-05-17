@@ -39,5 +39,8 @@ float4 main(PixelInput input) : SV_TARGET
 	// Calculate directional light
 	float4 light_colour = CalculatePointLighting(input.position, input.normal);
 
-	return light_colour;
+	// Apply diffuse texture
+	float4 diffuse_texture = TextureDiffuse.Sample(SamplerStateAnisotropic, input.tex_diffuse);
+
+	return diffuse_texture;
 }
