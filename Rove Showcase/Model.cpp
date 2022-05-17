@@ -25,6 +25,13 @@ namespace
 		TDataType z;
 	};
 
+	template <typename TDataType>
+	struct Vec2
+	{
+		TDataType x;
+		TDataType y;
+	};
+
 	DirectX::XMMATRIX MeshTranslation(simdjson::dom::element node)
 	{
 		auto translation = node["translation"].get_array();
@@ -192,6 +199,20 @@ void Rove::Object::LoadFile(const std::string& path)
 						vertices[i].normal_z = data[i].z;
 					}
 				}
+
+				// Apply texture coords
+				simdjson::simdjson_result<int64_t> texcoord0_attribute = jsonPrimitive["attributes"]["TEXCOORD_0"].get_int64();
+				if (texcoord0_attribute.error() == simdjson::SUCCESS)
+				{
+					std::vector<Vec2<float>> data1;
+					LoadMeshVerticesAttribute<Vec2<float>>(json, texcoord0_attribute, data1);
+
+					for (size_t i = 0; i < data1.size(); ++i)
+					{
+						vertices[i].texture_u = data1[i].x;
+						vertices[i].texture_v = data1[i].y;
+					}
+				}
 			}
 
 			// Build model
@@ -244,8 +265,6 @@ void Rove::Model::Render()
 void Rove::Model::CreateVertexBuffer(const std::vector<Vertex>& vertices)
 {
 	auto d3dDevice = m_DxRenderer->GetDevice();
-
-	// m_VertexCount = static_cast<UINT>(vertices.size());
 
 	// Create vertex buffer
 	D3D11_BUFFER_DESC vertex_buffer_desc = {};

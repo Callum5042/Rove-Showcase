@@ -27,12 +27,16 @@ namespace Rove
 		float normal_x = 0;
 		float normal_y = 0;
 		float normal_z = 0;
+
+		// Texture UV's
+		float texture_u = 0;
+		float texture_v = 0;
 	};
 
 	// Rendering Model
 	class Model
 	{
-	public:
+	public: 
 		Model(DxRenderer* renderer, DxShader* shader);
 		virtual ~Model() = default;
 
