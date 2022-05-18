@@ -18,6 +18,9 @@
 #include <wrl\client.h>
 using Microsoft::WRL::ComPtr;
 
+// Required to use RoInitializeWrapper to load the COM library
+#include <wrl\wrappers\corewrappers.h>
+
 // Dear ImGui
 #include "ImGui\imgui.h"
 #include "ImGui\imgui_impl_win32.h"
