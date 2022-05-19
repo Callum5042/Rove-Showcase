@@ -20,6 +20,15 @@ namespace
 	};
 
 	template <typename TDataType>
+	struct Vec4
+	{
+		TDataType x;
+		TDataType y;
+		TDataType z;
+		TDataType w;
+	};
+
+	template <typename TDataType>
 	struct Vec3
 	{
 		TDataType x;
@@ -202,17 +211,33 @@ void Rove::Object::LoadFile(const std::string& path)
 					}
 				}
 
+				// Apply tangent
+				simdjson::simdjson_result<int64_t> tangent_attribute = jsonPrimitive["attributes"]["TANGENT"].get_int64();
+				if (tangent_attribute.error() == simdjson::SUCCESS)
+				{
+					std::vector<Vec4<float>> data;
+					LoadMeshVerticesAttribute<Vec4<float>>(json, tangent_attribute, data);
+
+					for (size_t i = 0; i < data.size(); ++i)
+					{
+						vertices[i].tangent_x = data[i].x;
+						vertices[i].tangent_y = data[i].y;
+						vertices[i].tangent_z = data[i].z;
+						vertices[i].tangent_w = data[i].w;
+					}
+				}
+
 				// Apply texture coords
 				simdjson::simdjson_result<int64_t> texcoord0_attribute = jsonPrimitive["attributes"]["TEXCOORD_0"].get_int64();
 				if (texcoord0_attribute.error() == simdjson::SUCCESS)
 				{
-					std::vector<Vec2<float>> data1;
-					LoadMeshVerticesAttribute<Vec2<float>>(json, texcoord0_attribute, data1);
+					std::vector<Vec2<float>> data;
+					LoadMeshVerticesAttribute<Vec2<float>>(json, texcoord0_attribute, data);
 
-					for (size_t i = 0; i < data1.size(); ++i)
+					for (size_t i = 0; i < data.size(); ++i)
 					{
-						vertices[i].texture_u = data1[i].x;
-						vertices[i].texture_v = data1[i].y;
+						vertices[i].texture_u = data[i].x;
+						vertices[i].texture_v = data[i].y;
 					}
 				}
 			}
@@ -224,13 +249,12 @@ void Rove::Object::LoadFile(const std::string& path)
 			m_Models.push_back(model);
 
 			// Load texture
-			auto d3dDevice = m_DxRenderer->GetDevice();
+			HRESULT hr = CoInitializeEx(nullptr, COINIT_MULTITHREADED);
 
 			ComPtr<ID3D11Resource> resource = nullptr;
-			//DX::Check(DirectX::CreateDDSTextureFromFile(d3dDevice, L"D:\\3d models\\crate\\crate_diffuse.dds", resource.ReleaseAndGetAddressOf(), model->m_DiffuseTexture.ReleaseAndGetAddressOf()));
+			DX::Check(DirectX::CreateWICTextureFromFile(m_DxRenderer->GetDevice(), L"C:\\Users\\Callum\\Desktop\\crate_diffuse.png", resource.ReleaseAndGetAddressOf(), model->m_DiffuseTexture.ReleaseAndGetAddressOf()));
+			DX::Check(DirectX::CreateWICTextureFromFile(m_DxRenderer->GetDevice(), L"C:\\Users\\Callum\\Desktop\\crate_normal.png", resource.ReleaseAndGetAddressOf(), model->m_NormalTexture.ReleaseAndGetAddressOf()));
 
-			HRESULT hr = CoInitializeEx(nullptr, COINIT_MULTITHREADED);
-			DX::Check(DirectX::CreateWICTextureFromFile(d3dDevice, L"C:\\Users\\Callum\\Desktop\\crate_diffuse.png", resource.ReleaseAndGetAddressOf(), model->m_DiffuseTexture.ReleaseAndGetAddressOf()));
 			CoUninitialize();
 		}
 	}
@@ -267,6 +291,7 @@ void Rove::Model::Render()
 
 	// Bind texture to the pixel shader
 	m_DxRenderer->GetDeviceContext()->PSSetShaderResources(0, 1, m_DiffuseTexture.GetAddressOf());
+	m_DxRenderer->GetDeviceContext()->PSSetShaderResources(1, 1, m_NormalTexture.GetAddressOf());
 
 	// Apply local transformations
 	Rove::LocalWorldBuffer world_buffer = {};

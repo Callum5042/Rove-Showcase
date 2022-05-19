@@ -31,6 +31,12 @@ namespace Rove
 		// Texture UV's
 		float texture_u = 0;
 		float texture_v = 0;
+
+		// Tangents
+		float tangent_x = 0;
+		float tangent_y = 0;
+		float tangent_z = 0;
+		float tangent_w = 0;
 	};
 
 	// Rendering Model
@@ -58,6 +64,7 @@ namespace Rove
 
 		// Texture
 		ComPtr<ID3D11ShaderResourceView> m_DiffuseTexture = nullptr;
+		ComPtr<ID3D11ShaderResourceView> m_NormalTexture = nullptr;
 
 	private:
 		DxRenderer* m_DxRenderer = nullptr;
