@@ -36,7 +36,6 @@ namespace Rove
 		float tangent_x = 0;
 		float tangent_y = 0;
 		float tangent_z = 0;
-		float tangent_w = 0;
 	};
 
 	// Rendering Model

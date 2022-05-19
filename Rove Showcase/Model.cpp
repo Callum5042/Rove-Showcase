@@ -223,7 +223,6 @@ void Rove::Object::LoadFile(const std::string& path)
 						vertices[i].tangent_x = data[i].x;
 						vertices[i].tangent_y = data[i].y;
 						vertices[i].tangent_z = data[i].z;
-						vertices[i].tangent_w = data[i].w;
 					}
 				}
 

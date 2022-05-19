@@ -4,7 +4,7 @@ struct VertexInput
 	float3 position : POSITION;
 	float3 normal : NORMAL;
 	float2 tex_coord : TEXCOORD0;
-	float4 tangent : TANGENT;
+	float3 tangent : TANGENT;
 };
 
 // Vertex output / pixel input structure
@@ -14,7 +14,7 @@ struct PixelInput
 	float3 position : POSITION;
 	float3 normal : NORMAL;
 	float2 tex_coord : TEXCOORD0;
-	float4 tangent : TANGENT;
+	float3 tangent : TANGENT;
 };
 
 // Camera buffer

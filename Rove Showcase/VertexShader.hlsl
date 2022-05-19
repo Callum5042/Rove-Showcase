@@ -17,7 +17,7 @@ PixelInput main(VertexInput input)
 
 	// Transform the normals by the inverse world space
 	output.normal = mul(input.normal, (float3x3)cWorldInverse).xyz;
-	output.tangent = mul(input.tangent, cWorld);
+	output.tangent = mul(input.tangent, (float3x3)cWorld);
 
 	// Pass the texture UV coordinates to pixel shader
 	output.tex_coord = input.tex_coord;
