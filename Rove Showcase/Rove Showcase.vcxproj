@@ -144,7 +144,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EntryPointSymbol>mainCRTStartup</EntryPointSymbol>
-      <AdditionalDependencies>d3d11.lib;dxguid.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3d11.lib;dxguid.lib;dxgi.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>

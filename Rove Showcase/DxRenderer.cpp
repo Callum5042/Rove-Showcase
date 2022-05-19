@@ -52,7 +52,7 @@ void Rove::DxRenderer::Clear(const float* colour)
 void Rove::DxRenderer::Present(bool enable_vsync)
 {
 	DXGI_PRESENT_PARAMETERS presentParameters = {};
-	DX::Check(m_SwapChain->Present1(enable_vsync ? 1 : 0, 0, &presentParameters));
+	DX::Check(m_SwapChain->Present1(enable_vsync ? 1 : 0, enable_vsync ? 0 : DXGI_PRESENT_ALLOW_TEARING, &presentParameters));
 }
 
 void Rove::DxRenderer::Resize(int width, int height)
@@ -171,6 +171,21 @@ void Rove::DxRenderer::CreateSwapChain(int width, int height)
 
 	m_GpuName = Rove::ConvertToString(std::wstring(desc.Description));
 	m_GpuVramMb = static_cast<int>(desc.DedicatedVideoMemory / 1024 / 1024);
+
+	// Check tearing support
+	ComPtr<IDXGIFactory4> dxgiFactory4 = nullptr;
+	DX::Check(dxgiFactory.As(&dxgiFactory4));
+
+	ComPtr<IDXGIFactory5> dxgiFactory5;
+	DX::Check(dxgiFactory4.As(&dxgiFactory5));
+
+	BOOL allowTearing = FALSE;
+	dxgiFactory5->CheckFeatureSupport(DXGI_FEATURE_PRESENT_ALLOW_TEARING, &allowTearing, sizeof(allowTearing));
+
+	if (allowTearing == false)
+	{
+		throw std::exception("DXGI_FEATURE_PRESENT_ALLOW_TEARING is not supported");
+	}
 }
 
 void Rove::DxRenderer::CreateRenderTargetAndDepthStencilView(int width, int height)

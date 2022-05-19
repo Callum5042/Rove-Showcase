@@ -10,7 +10,7 @@
 #include <shobjidl.h>
 
 // DirectX
-#include <d3d11_1.h>
+#include <d3d11_4.h>
 #include <DirectXColors.h>
 #include <DirectXMath.h>
 
