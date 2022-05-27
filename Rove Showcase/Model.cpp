@@ -260,6 +260,7 @@ void Rove::Object::LoadFile(const std::string& path)
 					std::string directory = path.substr(0, path.find_last_of('\\'));
 					std::string terxture_path = directory + "\\" + std::string(uri);
 					DX::Check(DirectX::CreateWICTextureFromFile(m_DxRenderer->GetDevice(), ConvertToWideString(terxture_path).c_str(), resource.ReleaseAndGetAddressOf(), model->m_DiffuseTexture.ReleaseAndGetAddressOf()));
+					model->Material.diffuse_texture = true;
 				}
 
 				// Normal texture
@@ -274,6 +275,7 @@ void Rove::Object::LoadFile(const std::string& path)
 					std::string directory = path.substr(0, path.find_last_of('\\'));
 					std::string terxture_path = directory + "\\" + std::string(uri);
 					DX::Check(DirectX::CreateWICTextureFromFile(m_DxRenderer->GetDevice(), ConvertToWideString(terxture_path).c_str(), resource.ReleaseAndGetAddressOf(), model->m_NormalTexture.ReleaseAndGetAddressOf()));
+					model->Material.normal_texture = true;
 				}
 
 				CoUninitialize();
@@ -285,11 +287,7 @@ void Rove::Object::LoadFile(const std::string& path)
 			model->CreateIndexBuffer(indices);
 			m_Models.push_back(model);
 
-
 			// Read material
-
-
-
 			// Load texture
 			/*HRESULT hr = CoInitializeEx(nullptr, COINIT_MULTITHREADED);
 
@@ -339,6 +337,12 @@ void Rove::Model::Render()
 	Rove::LocalWorldBuffer world_buffer = {};
 	world_buffer.world = DirectX::XMMatrixTranspose(LocalWorld);
 	m_DxShader->UpdateLocalWorldConstantBuffer(world_buffer);
+
+	// Apply materials
+	Rove::MaterialBuffer material_buffer = {};
+	material_buffer.diffuse_texture = static_cast<int>(Material.diffuse_texture);
+	material_buffer.normal_texture = static_cast<int>(Material.normal_texture);
+	m_DxShader->UpdateMaterialBuffer(material_buffer);
 
 	// Render geometry
 	d3dDeviceContext->DrawIndexed(m_IndexCount, 0, 0);

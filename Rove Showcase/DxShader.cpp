@@ -12,6 +12,7 @@ void Rove::DxShader::Load()
 	CreateWorldConstantBuffer();
 	CreatePointLightConstantBuffer();
 	CreateLocalWorldConstantBuffer();
+	CreateMaterialConstantBuffer();
 
 	LoadVertexShader("VertexShader.cso");
 	LoadPixelShader("PixelShader.cso");
@@ -38,6 +39,9 @@ void Rove::DxShader::Apply()
 	// Bind the light constant buffer to pixel shader
 	deviceContext->PSSetConstantBuffers(0, 1, m_CameraConstantBuffer.GetAddressOf());
 	deviceContext->PSSetConstantBuffers(2, 1, m_PointLightConstantBuffer.GetAddressOf());
+
+	// Bind material buffer to pixel shader
+	deviceContext->PSSetConstantBuffers(3, 1, m_MaterialConstantBuffer.GetAddressOf());
 }
 
 void Rove::DxShader::UpdateCameraBuffer(const CameraBuffer& buffer)
@@ -62,6 +66,12 @@ void Rove::DxShader::UpdatePointLightBuffer(const PointLightBuffer& buffer)
 {
 	auto deviceContext = m_DxRenderer->GetDeviceContext();
 	deviceContext->UpdateSubresource(m_PointLightConstantBuffer.Get(), 0, nullptr, &buffer, 0, 0);
+}
+
+void Rove::DxShader::UpdateMaterialBuffer(const MaterialBuffer& buffer)
+{
+	auto deviceContext = m_DxRenderer->GetDeviceContext();
+	deviceContext->UpdateSubresource(m_MaterialConstantBuffer.Get(), 0, nullptr, &buffer, 0, 0);
 }
 
 void Rove::DxShader::LoadVertexShader(std::string&& vertex_shader_path)
@@ -165,4 +175,17 @@ void Rove::DxShader::CreateLocalWorldConstantBuffer()
 	bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 
 	DX::Check(device->CreateBuffer(&bd, nullptr, m_LocalWorldConstantBuffer.ReleaseAndGetAddressOf()));
+}
+
+void Rove::DxShader::CreateMaterialConstantBuffer()
+{
+	auto device = m_DxRenderer->GetDevice();
+
+	// Create point light constant buffer
+	D3D11_BUFFER_DESC bd = {};
+	bd.Usage = D3D11_USAGE_DEFAULT;
+	bd.ByteWidth = sizeof(MaterialBuffer);
+	bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+
+	DX::Check(device->CreateBuffer(&bd, nullptr, m_MaterialConstantBuffer.ReleaseAndGetAddressOf()));
 }

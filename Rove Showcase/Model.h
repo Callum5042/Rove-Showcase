@@ -38,6 +38,13 @@ namespace Rove
 		float tangent_z = 0;
 	};
 
+	// Material
+	struct Material
+	{
+		bool diffuse_texture = false;
+		bool normal_texture = false;
+	};
+
 	// Rendering Model
 	class Model
 	{
@@ -49,6 +56,9 @@ namespace Rove
 
 		// World transformation
 		DirectX::XMMATRIX LocalWorld = DirectX::XMMatrixIdentity();
+
+		// Material
+		Material Material;
 
 		// Number of indices to draw
 		UINT m_IndexCount = 0;

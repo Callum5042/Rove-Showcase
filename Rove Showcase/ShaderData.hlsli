@@ -56,6 +56,14 @@ cbuffer PointLightBuffer : register(b2)
 	PointLight cPointLight[255];
 }
 
+// Material buffer
+cbuffer MaterialBuffer : register(b3)
+{
+	int cMaterialDiffuseTetxure;
+	int cMaterialNormalTexture;
+	float2 _materialBufferPadding;
+}
+
 // Texture sampler
 SamplerState SamplerStateAnisotropic : register(s0);
 

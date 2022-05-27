@@ -41,6 +41,14 @@ namespace Rove
 		PointLightStruct pointLight[255];
 	};
 
+	// Material
+	struct MaterialBuffer
+	{
+		int diffuse_texture;
+		int normal_texture;
+		float _padding1, _padding2;
+	};
+
 	class DxRenderer;
 
 	class DxShader
@@ -63,6 +71,9 @@ namespace Rove
 
 		// Update camera buffer
 		void UpdatePointLightBuffer(const PointLightBuffer& buffer);
+
+		// Update material buffer
+		void UpdateMaterialBuffer(const MaterialBuffer& buffer);
 		
 	private:
 		DxRenderer* m_DxRenderer = nullptr;
@@ -93,5 +104,9 @@ namespace Rove
 		// Local world buffer
 		ComPtr<ID3D11Buffer> m_LocalWorldConstantBuffer = nullptr;
 		void CreateLocalWorldConstantBuffer();
+
+		// Material buffer
+		ComPtr<ID3D11Buffer> m_MaterialConstantBuffer = nullptr;
+		void CreateMaterialConstantBuffer();
 	};
 }

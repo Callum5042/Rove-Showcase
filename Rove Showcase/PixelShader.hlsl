@@ -59,7 +59,11 @@ float4 main(PixelInput input) : SV_TARGET
 	input.normal = normalize(input.normal);
 
 	// Calculate normals from sampling the normal map
-	float3 bumped_normal = CalculateNormalsFromNormalMap(input);
+	float3 bumped_normal = input.normal;
+	if (cMaterialNormalTexture == 1)
+	{
+		bumped_normal = CalculateNormalsFromNormalMap(input);
+	}
 
 	// Calculate directional light
 	float4 light_colour = CalculatePointLighting(input.position, bumped_normal);
