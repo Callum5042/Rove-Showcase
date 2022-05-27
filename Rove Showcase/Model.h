@@ -98,6 +98,9 @@ namespace Rove
 		// World 
 		DirectX::XMMATRIX World = DirectX::XMMatrixIdentity();
 
+		// Materials
+		std::vector<Material*> GetMaterials();
+
 	private:
 		DxRenderer* m_DxRenderer = nullptr;
 		DxShader* m_DxShader = nullptr;

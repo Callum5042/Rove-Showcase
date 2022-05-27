@@ -249,8 +249,8 @@ void Rove::Object::LoadFile(const std::string& path)
 				auto name = material["name"].get_string();
 
 				// Properties
-				model->Material.metallicFactor = material["pbrMetallicRoughness"]["metallicFactor"].get_double();
-				model->Material.roughnessFactor = material["pbrMetallicRoughness"]["roughnessFactor"].get_double();
+				model->Material.metallicFactor = static_cast<float>(material["pbrMetallicRoughness"]["metallicFactor"].get_double());
+				model->Material.roughnessFactor = static_cast<float>(material["pbrMetallicRoughness"]["roughnessFactor"].get_double());
 
 				// Diffuse texture
 				{
@@ -308,8 +308,20 @@ void Rove::Object::Render()
 {
 	for (auto& model : m_Models)
 	{
+
 		model->Render();
 	}
+}
+
+std::vector<Rove::Material*> Rove::Object::GetMaterials()
+{
+	std::vector<Material*> materials;
+	for (auto& model : m_Models)
+	{
+		materials.push_back(&model->Material);
+	}
+
+	return materials;
 }
 
 Rove::Model::Model(DxRenderer* renderer, DxShader* shader) : m_DxRenderer(renderer), m_DxShader(shader)

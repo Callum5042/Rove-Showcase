@@ -437,6 +437,15 @@ void Rove::Application::RenderGui()
 			ImGui::Checkbox("Enable Wireframe", &m_RenderWireframe);
 		}
 
+		// Show materials
+		std::vector<Rove::Material*> materials = m_Object->GetMaterials();
+		for (auto material : materials)
+		{
+			ImGui::Separator();
+			ImGui::Text("Materials");
+			ImGui::SliderFloat("Roughness", &material->roughnessFactor, 0.0f, 1.0f);
+		}
+
 		ImGui::End();
 	}
 
