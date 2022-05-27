@@ -62,6 +62,10 @@ cbuffer MaterialBuffer : register(b3)
 	int cMaterialDiffuseTetxure;
 	int cMaterialNormalTexture;
 	float2 _materialBufferPadding;
+
+	float cMetallicFactor;
+	float cRoughnessFactor;
+	float2 _materialBufferPadding2;
 }
 
 // Texture sampler

@@ -248,6 +248,10 @@ void Rove::Object::LoadFile(const std::string& path)
 
 				auto name = material["name"].get_string();
 
+				// Properties
+				model->Material.metallicFactor = material["pbrMetallicRoughness"]["metallicFactor"].get_double();
+				model->Material.roughnessFactor = material["pbrMetallicRoughness"]["roughnessFactor"].get_double();
+
 				// Diffuse texture
 				{
 					simdjson::simdjson_result<int64_t> diffuse_texture_index = material["pbrMetallicRoughness"]["baseColorTexture"]["index"].get_int64();
@@ -342,6 +346,8 @@ void Rove::Model::Render()
 	Rove::MaterialBuffer material_buffer = {};
 	material_buffer.diffuse_texture = static_cast<int>(Material.diffuse_texture);
 	material_buffer.normal_texture = static_cast<int>(Material.normal_texture);
+	material_buffer.metallicFactor = Material.metallicFactor;
+	material_buffer.roughnessFactor = Material.roughnessFactor;
 	m_DxShader->UpdateMaterialBuffer(material_buffer);
 
 	// Render geometry

@@ -47,6 +47,10 @@ namespace Rove
 		int diffuse_texture;
 		int normal_texture;
 		float _padding1, _padding2;
+
+		float metallicFactor;
+		float roughnessFactor;
+		float _padding3, _padding4;
 	};
 
 	class DxRenderer;

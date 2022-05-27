@@ -43,6 +43,8 @@ namespace Rove
 	{
 		bool diffuse_texture = false;
 		bool normal_texture = false;
+		float metallicFactor = 0.0f;
+		float roughnessFactor = 0.5f;
 	};
 
 	// Rendering Model
