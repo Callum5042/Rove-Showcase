@@ -439,11 +439,15 @@ void Rove::Application::RenderGui()
 
 		// Show materials
 		std::vector<Rove::Material*> materials = m_Object->GetMaterials();
-		for (auto material : materials)
+		for (size_t i = 0; i < materials.size(); ++i)
 		{
 			ImGui::Separator();
-			ImGui::Text("Materials");
-			ImGui::SliderFloat("Roughness", &material->roughnessFactor, 0.0f, 1.0f);
+
+			std::string name = "Materials: " + std::to_string(i);
+			ImGui::Text(name.c_str());
+
+			std::string roughness_label = "Roughness## " + std::to_string(i);
+			ImGui::SliderFloat(roughness_label.c_str(), &materials[i]->roughnessFactor, 0.0f, 1.0f);
 		}
 
 		ImGui::End();
