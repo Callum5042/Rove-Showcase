@@ -239,6 +239,44 @@ void Rove::Object::LoadFile(const std::string& path)
 						vertices[i].texture_v = data[i].y;
 					}
 				}
+
+				// Apply material
+				HRESULT hr = CoInitializeEx(nullptr, COINIT_MULTITHREADED);
+
+				simdjson::simdjson_result<int64_t> material_index = jsonPrimitive["material"].get_int64();
+				auto material = json["materials"].at(material_index.value());
+
+				auto name = material["name"].get_string();
+
+				// Diffuse texture
+				{
+					simdjson::simdjson_result<int64_t> diffuse_texture_index = material["pbrMetallicRoughness"]["baseColorTexture"]["index"].get_int64();
+					simdjson::simdjson_result<int64_t> diffuse_image_index = json["textures"].at(diffuse_texture_index.value())["source"].get_int64();
+					auto diffuse_image = json["images"].at(diffuse_image_index.value());
+					std::string_view uri = diffuse_image["uri"].get_string().value();
+
+					ComPtr<ID3D11Resource> resource = nullptr;
+
+					std::string directory = path.substr(0, path.find_last_of('\\'));
+					std::string terxture_path = directory + "\\" + std::string(uri);
+					DX::Check(DirectX::CreateWICTextureFromFile(m_DxRenderer->GetDevice(), ConvertToWideString(terxture_path).c_str(), resource.ReleaseAndGetAddressOf(), model->m_DiffuseTexture.ReleaseAndGetAddressOf()));
+				}
+
+				// Normal texture
+				{
+					simdjson::simdjson_result<int64_t> normal_texture_index = material["normalTexture"]["index"].get_int64();
+					simdjson::simdjson_result<int64_t> normal_image_index = json["textures"].at(normal_texture_index.value())["source"].get_int64();
+					auto diffuse_image = json["images"].at(normal_image_index.value());
+					std::string_view uri = diffuse_image["uri"].get_string().value();
+
+					ComPtr<ID3D11Resource> resource = nullptr;
+
+					std::string directory = path.substr(0, path.find_last_of('\\'));
+					std::string terxture_path = directory + "\\" + std::string(uri);
+					DX::Check(DirectX::CreateWICTextureFromFile(m_DxRenderer->GetDevice(), ConvertToWideString(terxture_path).c_str(), resource.ReleaseAndGetAddressOf(), model->m_NormalTexture.ReleaseAndGetAddressOf()));
+				}
+
+				CoUninitialize();
 			}
 
 			// Build model
@@ -247,14 +285,19 @@ void Rove::Object::LoadFile(const std::string& path)
 			model->CreateIndexBuffer(indices);
 			m_Models.push_back(model);
 
+
+			// Read material
+
+
+
 			// Load texture
-			HRESULT hr = CoInitializeEx(nullptr, COINIT_MULTITHREADED);
+			/*HRESULT hr = CoInitializeEx(nullptr, COINIT_MULTITHREADED);
 
 			ComPtr<ID3D11Resource> resource = nullptr;
 			DX::Check(DirectX::CreateWICTextureFromFile(m_DxRenderer->GetDevice(), L"C:\\Users\\Callum\\Desktop\\crate_diffuse.png", resource.ReleaseAndGetAddressOf(), model->m_DiffuseTexture.ReleaseAndGetAddressOf()));
 			DX::Check(DirectX::CreateWICTextureFromFile(m_DxRenderer->GetDevice(), L"C:\\Users\\Callum\\Desktop\\crate_normal.png", resource.ReleaseAndGetAddressOf(), model->m_NormalTexture.ReleaseAndGetAddressOf()));
 
-			CoUninitialize();
+			CoUninitialize();*/
 		}
 	}
 }

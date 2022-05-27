@@ -21,9 +21,10 @@ float4 CalculatePointLighting(float3 position, float3 normal)
 		ambient_light += ambient_light_colour;
 
 		// Specular lighting
+		float roughness = 0.5f;
 		float3 view_direction = normalize(cCameraPosition.xyz - position);
 		float3 reflect_direction = reflect(-light_vector, normal);
-		float specular_factor = pow(max(dot(view_direction, reflect_direction), 0.0), 16.0f);
+		float specular_factor = mul(pow(max(dot(view_direction, reflect_direction), 0.0), 16.0f), roughness);
 		specular_light += float4(specular_factor * specular_light_colour.xyz, 1.0f);
 	}
 
