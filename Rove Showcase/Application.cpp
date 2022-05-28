@@ -343,7 +343,6 @@ void Rove::Application::CalculateFramesPerSecond()
 		frameCount = 0;
 
 		m_FramesPerSecond = fps;
-		m_FrameTime.push_back(1000.0f / fps);
 	}
 }
 
@@ -384,20 +383,6 @@ void Rove::Application::RenderGui()
 
 			ImGui::Checkbox("MSAA", &m_EnableMsaa);
 			ImGui::Checkbox("V-Sync", &m_EnableVSync);
-
-			static bool show_frame_statistics = false;
-			ImGui::Checkbox("Show frame statistics", &show_frame_statistics);
-
-			if (show_frame_statistics)
-			{
-				if (ImPlot::BeginPlot("Frame time (ms)"))
-				{
-					ImPlot::SetupAxes("frame", "time (ms)", ImPlotAxisFlags_AutoFit, ImPlotAxisFlags_AutoFit);
-					ImPlot::PlotLine("time", m_FrameTime.data(), static_cast<int>(m_FrameTime.size()), 0.1);
-
-					ImPlot::EndPlot();
-				}
-			}
 		}
 
 		ImGui::End();

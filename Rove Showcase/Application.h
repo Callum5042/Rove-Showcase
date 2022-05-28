@@ -80,7 +80,6 @@ namespace Rove
 
 		// Calculate frames
 		void CalculateFramesPerSecond();
-		std::vector<float> m_FrameTime;
 		int m_FramesPerSecond = 0;
 
 		// Multisample anti-aliasing
