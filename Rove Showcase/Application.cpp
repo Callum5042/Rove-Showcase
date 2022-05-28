@@ -116,9 +116,6 @@ int Rove::Application::Run()
 	m_Timer = std::make_unique<Rove::Timer>();
 	m_Timer->Start();
 
-	// Load pyramid model as default
-	m_Object->LoadFile("C:\\Users\\Callum\\Desktop\\material_cube.gltf");
-
 	// Main loop
 	MSG msg = {};
 	while (msg.message != WM_QUIT)
