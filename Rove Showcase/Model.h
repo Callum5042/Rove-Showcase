@@ -59,6 +59,9 @@ namespace Rove
 		// World transformation
 		DirectX::XMMATRIX LocalWorld = DirectX::XMMatrixIdentity();
 
+		// Model name
+		std::string Name;
+
 		// Material
 		Material Material;
 
@@ -90,7 +93,7 @@ namespace Rove
 		virtual ~Object() = default;
 
 		// Loads a GLTF file
-		void LoadFile(const std::string& path);
+		void LoadFile(const std::filesystem::path& path);
 
 		// Renders the object
 		void Render();
