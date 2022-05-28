@@ -27,12 +27,30 @@ namespace Rove
 		float normal_x = 0;
 		float normal_y = 0;
 		float normal_z = 0;
+
+		// Texture UV's
+		float texture_u = 0;
+		float texture_v = 0;
+
+		// Tangents
+		float tangent_x = 0;
+		float tangent_y = 0;
+		float tangent_z = 0;
+	};
+
+	// Material
+	struct Material
+	{
+		bool diffuse_texture = false;
+		bool normal_texture = false;
+		float metallicFactor = 0.0f;
+		float roughnessFactor = 0.5f;
 	};
 
 	// Rendering Model
 	class Model
 	{
-	public:
+	public: 
 		Model(DxRenderer* renderer, DxShader* shader);
 		virtual ~Model() = default;
 
@@ -40,6 +58,12 @@ namespace Rove
 
 		// World transformation
 		DirectX::XMMATRIX LocalWorld = DirectX::XMMatrixIdentity();
+
+		// Model name
+		std::string Name;
+
+		// Material
+		Material Material;
 
 		// Number of indices to draw
 		UINT m_IndexCount = 0;
@@ -51,6 +75,10 @@ namespace Rove
 		// Index buffer
 		ComPtr<ID3D11Buffer> m_IndexBuffer = nullptr;
 		void CreateIndexBuffer(const std::vector<UINT>& indices);
+
+		// Texture
+		ComPtr<ID3D11ShaderResourceView> m_DiffuseTexture = nullptr;
+		ComPtr<ID3D11ShaderResourceView> m_NormalTexture = nullptr;
 
 	private:
 		DxRenderer* m_DxRenderer = nullptr;
@@ -65,13 +93,16 @@ namespace Rove
 		virtual ~Object() = default;
 
 		// Loads a GLTF file
-		void LoadFile(const std::string& path);
+		void LoadFile(const std::filesystem::path& path);
 
 		// Renders the object
 		void Render();
 
 		// World 
 		DirectX::XMMATRIX World = DirectX::XMMatrixIdentity();
+
+		// Materials
+		std::vector<Material*> GetMaterials();
 
 	private:
 		DxRenderer* m_DxRenderer = nullptr;

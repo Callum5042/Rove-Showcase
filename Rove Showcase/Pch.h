@@ -10,13 +10,16 @@
 #include <shobjidl.h>
 
 // DirectX
-#include <d3d11_1.h>
+#include <d3d11_4.h>
 #include <DirectXColors.h>
 #include <DirectXMath.h>
 
 // This include is requires for using DirectX smart pointers (ComPtr)
 #include <wrl\client.h>
 using Microsoft::WRL::ComPtr;
+
+// Required to use RoInitializeWrapper to load the COM library
+#include <wrl\wrappers\corewrappers.h>
 
 // Dear ImGui
 #include "ImGui\imgui.h"

@@ -4,6 +4,8 @@
 #include "DxShader.h"
 #include "Application.h"
 #include "simdjson\simdjson.h"
+#include "TextureLoader\DDSTextureLoader.h"
+#include "TextureLoader\WICTextureLoader.h"
 
 namespace
 {
@@ -18,11 +20,27 @@ namespace
 	};
 
 	template <typename TDataType>
+	struct Vec4
+	{
+		TDataType x;
+		TDataType y;
+		TDataType z;
+		TDataType w;
+	};
+
+	template <typename TDataType>
 	struct Vec3
 	{
 		TDataType x;
 		TDataType y;
 		TDataType z;
+	};
+
+	template <typename TDataType>
+	struct Vec2
+	{
+		TDataType x;
+		TDataType y;
 	};
 
 	DirectX::XMMATRIX MeshTranslation(simdjson::dom::element node)
@@ -55,7 +73,7 @@ namespace
 	}
 
 	template <typename TDataType>
-	void LoadMeshIndices(const simdjson::simdjson_result<simdjson::dom::element>& json, const simdjson::dom::element& node, std::vector<TDataType>& data)
+	void LoadMeshIndices(const simdjson::simdjson_result<simdjson::dom::element>& json, const simdjson::dom::element& node, std::vector<TDataType>& data, const std::filesystem::path& path)
 	{
 		auto indicesIndex = node["indices"].get_int64().value();
 
@@ -77,9 +95,10 @@ namespace
 		std::string_view bufferUri = buffer["uri"].get_string();
 
 		// Load buffer
-		std::string basePath = "C:\\Users\\Callum\\Desktop\\" + std::string(bufferUri);
+		std::filesystem::path binary_path = path.parent_path();
+		binary_path.append(bufferUri);
 
-		std::ifstream file(basePath, std::fstream::in | std::fstream::binary);
+		std::ifstream file(binary_path.string(), std::fstream::in | std::fstream::binary);
 		file.seekg(byteOffset);
 
 		data.resize(indexCount);
@@ -87,7 +106,7 @@ namespace
 	}
 
 	template <typename TDataType>
-	void LoadMeshVerticesAttribute(const simdjson::simdjson_result<simdjson::dom::element>& json, simdjson::simdjson_result<int64_t> attribute, std::vector<TDataType>& data)
+	void LoadMeshVerticesAttribute(const simdjson::simdjson_result<simdjson::dom::element>& json, simdjson::simdjson_result<int64_t> attribute, std::vector<TDataType>& data, const std::filesystem::path& path)
 	{
 		// Accessor
 		auto indexAccessor = json["accessors"].at(attribute.value());
@@ -107,9 +126,10 @@ namespace
 		std::string_view bufferUri = buffer["uri"].get_string();
 
 		// Load buffer
-		std::string basePath = "C:\\Users\\Callum\\Desktop\\" + std::string(bufferUri);
+		std::filesystem::path binary_path = path.parent_path();
+		binary_path.append(bufferUri);
 
-		std::ifstream file(basePath, std::fstream::in | std::fstream::binary);
+		std::ifstream file(binary_path.string(), std::fstream::in | std::fstream::binary);
 		file.seekg(byteOffset);
 
 		data.resize(vertexCount);
@@ -121,14 +141,14 @@ Rove::Object::Object(DxRenderer* renderer, DxShader* shader) : m_DxRenderer(rend
 {
 }
 
-void Rove::Object::LoadFile(const std::string& path)
+void Rove::Object::LoadFile(const std::filesystem::path& path)
 {
 	// Clear old data
 	m_Models.clear();
 
 	// Load file
 	simdjson::dom::parser parser;
-	simdjson::simdjson_result<simdjson::dom::element> json = parser.load(path);
+	simdjson::simdjson_result<simdjson::dom::element> json = parser.load(path.string());
 
 	// Nodes
 	for (auto node : json["nodes"])
@@ -155,7 +175,7 @@ void Rove::Object::LoadFile(const std::string& path)
 				// Load indices
 				{
 					std::vector<short> data;
-					LoadMeshIndices<short>(json, jsonPrimitive, data);
+					LoadMeshIndices<short>(json, jsonPrimitive, data, path);
 					indices.resize(data.size());
 					indices.assign(data.begin(), data.end());
 				}
@@ -165,7 +185,7 @@ void Rove::Object::LoadFile(const std::string& path)
 				if (position_attribute.error() == simdjson::SUCCESS)
 				{
 					std::vector<Vec3<float>> data;
-					LoadMeshVerticesAttribute(json, position_attribute, data);
+					LoadMeshVerticesAttribute(json, position_attribute, data, path);
 
 					for (auto& v : data)
 					{
@@ -183,7 +203,7 @@ void Rove::Object::LoadFile(const std::string& path)
 				if (normal_attribute.error() == simdjson::SUCCESS)
 				{
 					std::vector<Vec3<float>> data;
-					LoadMeshVerticesAttribute(json, normal_attribute, data);
+					LoadMeshVerticesAttribute(json, normal_attribute, data, path);
 
 					for (size_t i = 0; i < data.size(); ++i)
 					{
@@ -192,6 +212,79 @@ void Rove::Object::LoadFile(const std::string& path)
 						vertices[i].normal_z = data[i].z;
 					}
 				}
+
+				// Apply tangent
+				simdjson::simdjson_result<int64_t> tangent_attribute = jsonPrimitive["attributes"]["TANGENT"].get_int64();
+				if (tangent_attribute.error() == simdjson::SUCCESS)
+				{
+					std::vector<Vec4<float>> data;
+					LoadMeshVerticesAttribute<Vec4<float>>(json, tangent_attribute, data, path);
+
+					for (size_t i = 0; i < data.size(); ++i)
+					{
+						vertices[i].tangent_x = data[i].x;
+						vertices[i].tangent_y = data[i].y;
+						vertices[i].tangent_z = data[i].z;
+					}
+				}
+
+				// Apply texture coords
+				simdjson::simdjson_result<int64_t> texcoord0_attribute = jsonPrimitive["attributes"]["TEXCOORD_0"].get_int64();
+				if (texcoord0_attribute.error() == simdjson::SUCCESS)
+				{
+					std::vector<Vec2<float>> data;
+					LoadMeshVerticesAttribute<Vec2<float>>(json, texcoord0_attribute, data, path);
+
+					for (size_t i = 0; i < data.size(); ++i)
+					{
+						vertices[i].texture_u = data[i].x;
+						vertices[i].texture_v = data[i].y;
+					}
+				}
+
+				// Apply material
+				HRESULT hr = CoInitializeEx(nullptr, COINIT_MULTITHREADED);
+
+				simdjson::simdjson_result<int64_t> material_index = jsonPrimitive["material"].get_int64();
+				auto material = json["materials"].at(material_index.value());
+
+				auto name = material["name"].get_string();
+
+				// Properties
+				model->Material.metallicFactor = static_cast<float>(material["pbrMetallicRoughness"]["metallicFactor"].get_double());
+				model->Material.roughnessFactor = static_cast<float>(material["pbrMetallicRoughness"]["roughnessFactor"].get_double());
+
+				// Diffuse texture
+				{
+					simdjson::simdjson_result<int64_t> diffuse_texture_index = material["pbrMetallicRoughness"]["baseColorTexture"]["index"].get_int64();
+					simdjson::simdjson_result<int64_t> diffuse_image_index = json["textures"].at(diffuse_texture_index.value())["source"].get_int64();
+					auto diffuse_image = json["images"].at(diffuse_image_index.value());
+					std::string_view uri = diffuse_image["uri"].get_string().value();
+
+					std::filesystem::path texture_path = path.parent_path();
+					texture_path.append(uri);
+
+					ComPtr<ID3D11Resource> resource = nullptr;
+					DX::Check(DirectX::CreateWICTextureFromFile(m_DxRenderer->GetDevice(), texture_path.wstring().c_str(), resource.ReleaseAndGetAddressOf(), model->m_DiffuseTexture.ReleaseAndGetAddressOf()));
+					model->Material.diffuse_texture = true;
+				}
+
+				// Normal texture
+				{
+					simdjson::simdjson_result<int64_t> normal_texture_index = material["normalTexture"]["index"].get_int64();
+					simdjson::simdjson_result<int64_t> normal_image_index = json["textures"].at(normal_texture_index.value())["source"].get_int64();
+					auto diffuse_image = json["images"].at(normal_image_index.value());
+					std::string_view uri = diffuse_image["uri"].get_string().value();
+
+					std::filesystem::path texture_path = path.parent_path();
+					texture_path.append(uri);
+
+					ComPtr<ID3D11Resource> resource = nullptr;
+					DX::Check(DirectX::CreateWICTextureFromFile(m_DxRenderer->GetDevice(), texture_path.wstring().c_str(), resource.ReleaseAndGetAddressOf(), model->m_NormalTexture.ReleaseAndGetAddressOf()));
+					model->Material.normal_texture = true;
+				}
+
+				CoUninitialize();
 			}
 
 			// Build model
@@ -207,8 +300,20 @@ void Rove::Object::Render()
 {
 	for (auto& model : m_Models)
 	{
+
 		model->Render();
 	}
+}
+
+std::vector<Rove::Material*> Rove::Object::GetMaterials()
+{
+	std::vector<Material*> materials;
+	for (auto& model : m_Models)
+	{
+		materials.push_back(&model->Material);
+	}
+
+	return materials;
 }
 
 Rove::Model::Model(DxRenderer* renderer, DxShader* shader) : m_DxRenderer(renderer), m_DxShader(shader)
@@ -232,10 +337,22 @@ void Rove::Model::Render()
 	// Bind the geometry topology to the pipeline's Input Assembler stage
 	d3dDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
+	// Bind texture to the pixel shader
+	m_DxRenderer->GetDeviceContext()->PSSetShaderResources(0, 1, m_DiffuseTexture.GetAddressOf());
+	m_DxRenderer->GetDeviceContext()->PSSetShaderResources(1, 1, m_NormalTexture.GetAddressOf());
+
 	// Apply local transformations
 	Rove::LocalWorldBuffer world_buffer = {};
 	world_buffer.world = DirectX::XMMatrixTranspose(LocalWorld);
 	m_DxShader->UpdateLocalWorldConstantBuffer(world_buffer);
+
+	// Apply materials
+	Rove::MaterialBuffer material_buffer = {};
+	material_buffer.diffuse_texture = static_cast<int>(Material.diffuse_texture);
+	material_buffer.normal_texture = static_cast<int>(Material.normal_texture);
+	material_buffer.metallicFactor = Material.metallicFactor;
+	material_buffer.roughnessFactor = Material.roughnessFactor;
+	m_DxShader->UpdateMaterialBuffer(material_buffer);
 
 	// Render geometry
 	d3dDeviceContext->DrawIndexed(m_IndexCount, 0, 0);
@@ -244,8 +361,6 @@ void Rove::Model::Render()
 void Rove::Model::CreateVertexBuffer(const std::vector<Vertex>& vertices)
 {
 	auto d3dDevice = m_DxRenderer->GetDevice();
-
-	// m_VertexCount = static_cast<UINT>(vertices.size());
 
 	// Create vertex buffer
 	D3D11_BUFFER_DESC vertex_buffer_desc = {};

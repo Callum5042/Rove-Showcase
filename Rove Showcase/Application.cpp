@@ -116,9 +116,6 @@ int Rove::Application::Run()
 	m_Timer = std::make_unique<Rove::Timer>();
 	m_Timer->Start();
 
-	// Load pyramid model as default
-	m_Object->LoadFile("C:\\Users\\Callum\\Desktop\\double_cube.gltf");
-
 	// Main loop
 	MSG msg = {};
 	while (msg.message != WM_QUIT)
@@ -305,6 +302,7 @@ void Rove::Application::MenuItem_Load()
 		}
 		catch (std::exception& e)
 		{
+			CoUninitialize();
 			std::wstring error = Rove::ConvertToWideString(e.what());
 			MessageBox(NULL, error.c_str(), L"Error", MB_OK | MB_ICONERROR);
 		}
@@ -346,7 +344,6 @@ void Rove::Application::CalculateFramesPerSecond()
 		frameCount = 0;
 
 		m_FramesPerSecond = fps;
-		m_FrameTime.push_back(1000.0f / fps);
 	}
 }
 
@@ -387,20 +384,6 @@ void Rove::Application::RenderGui()
 
 			ImGui::Checkbox("MSAA", &m_EnableMsaa);
 			ImGui::Checkbox("V-Sync", &m_EnableVSync);
-
-			static bool show_frame_statistics = false;
-			ImGui::Checkbox("Show frame statistics", &show_frame_statistics);
-
-			if (show_frame_statistics)
-			{
-				if (ImPlot::BeginPlot("Frame time (ms)"))
-				{
-					ImPlot::SetupAxes("frame", "time (ms)", ImPlotAxisFlags_AutoFit, ImPlotAxisFlags_AutoFit);
-					ImPlot::PlotLine("time", m_FrameTime.data(), static_cast<int>(m_FrameTime.size()), 0.1);
-
-					ImPlot::EndPlot();
-				}
-			}
 		}
 
 		ImGui::End();
@@ -435,6 +418,19 @@ void Rove::Application::RenderGui()
 			// ImGui::Text("Vertices: %i", m_Model->GetVertices());
 			// ImGui::Text("Indices: %i", m_Model->GetIndices());
 			ImGui::Checkbox("Enable Wireframe", &m_RenderWireframe);
+		}
+
+		// Show materials
+		std::vector<Rove::Material*> materials = m_Object->GetMaterials();
+		for (size_t i = 0; i < materials.size(); ++i)
+		{
+			ImGui::Separator();
+
+			std::string name = "Materials: " + std::to_string(i);
+			ImGui::Text(name.c_str());
+
+			std::string roughness_label = "Roughness## " + std::to_string(i);
+			ImGui::SliderFloat(roughness_label.c_str(), &materials[i]->roughnessFactor, 0.0f, 1.0f);
 		}
 
 		ImGui::End();

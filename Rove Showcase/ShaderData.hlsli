@@ -3,6 +3,8 @@ struct VertexInput
 {
 	float3 position : POSITION;
 	float3 normal : NORMAL;
+	float2 tex_coord : TEXCOORD0;
+	float3 tangent : TANGENT;
 };
 
 // Vertex output / pixel input structure
@@ -11,6 +13,8 @@ struct PixelInput
 	float4 positionClipSpace : SV_POSITION;
 	float3 position : POSITION;
 	float3 normal : NORMAL;
+	float2 tex_coord : TEXCOORD0;
+	float3 tangent : TANGENT;
 };
 
 // Camera buffer
@@ -51,3 +55,22 @@ cbuffer PointLightBuffer : register(b2)
 
 	PointLight cPointLight[255];
 }
+
+// Material buffer
+cbuffer MaterialBuffer : register(b3)
+{
+	int cMaterialDiffuseTetxure;
+	int cMaterialNormalTexture;
+	float2 _materialBufferPadding;
+
+	float cMetallicFactor;
+	float cRoughnessFactor;
+	float2 _materialBufferPadding2;
+}
+
+// Texture sampler
+SamplerState SamplerStateAnisotropic : register(s0);
+
+// Textures
+Texture2D TextureDiffuse : register(t0);
+Texture2D TextureNormal : register(t1);
