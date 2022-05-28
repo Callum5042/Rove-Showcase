@@ -302,6 +302,7 @@ void Rove::Application::MenuItem_Load()
 		}
 		catch (std::exception& e)
 		{
+			CoUninitialize();
 			std::wstring error = Rove::ConvertToWideString(e.what());
 			MessageBox(NULL, error.c_str(), L"Error", MB_OK | MB_ICONERROR);
 		}
