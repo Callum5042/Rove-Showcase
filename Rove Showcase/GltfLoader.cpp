@@ -116,8 +116,6 @@ std::vector<Rove::Model*> Rove::GltfLoader::Load(const std::filesystem::path& pa
 		LoadIndices(document.value(), index_accessor.value(), model);
 
 		// Material
-		HRESULT hr = CoInitializeEx(nullptr, COINIT_MULTITHREADED);
-
 		simdjson_result<int64_t> material_index = primitive[Json::Material].get_int64();
 		simdjson_result<element> material = document[Json::Materials].at(material_index.value());
 
@@ -125,11 +123,15 @@ std::vector<Rove::Model*> Rove::GltfLoader::Load(const std::filesystem::path& pa
 		model->Material.metallicFactor = static_cast<float>(material[Json::PbrMetallicRoughness][Json::MetallicFactor].get_double());
 		model->Material.roughnessFactor = static_cast<float>(material[Json::PbrMetallicRoughness][Json::RoughnessFactor].get_double());
 
+		HRESULT hr = CoInitializeEx(nullptr, COINIT_MULTITHREADED);
+
 		// Diffuse texture
 		LoadDiffuseTexture(document.value(), material.value(), model);
 
 		// Normal texture
 		LoadNormalTexture(document.value(), material.value(), model);
+
+		CoUninitialize();
 
 		// Assign model
 		model->LocalWorld = world;
@@ -282,7 +284,7 @@ void Rove::GltfLoader::LoadDiffuseTexture(simdjson::dom::element& document, simd
 	texture_path.append(uri);
 
 	ComPtr<ID3D11Resource> resource = nullptr;
-	DirectX::CreateWICTextureFromFile(m_DxRenderer->GetDevice(), texture_path.wstring().c_str(), resource.ReleaseAndGetAddressOf(), model->m_DiffuseTexture.ReleaseAndGetAddressOf());
+	DX::Check(DirectX::CreateWICTextureFromFile(m_DxRenderer->GetDevice(), texture_path.wstring().c_str(), resource.ReleaseAndGetAddressOf(), model->m_DiffuseTexture.ReleaseAndGetAddressOf()));
 	model->Material.diffuse_texture = true;
 }
 
@@ -297,7 +299,7 @@ void Rove::GltfLoader::LoadNormalTexture(simdjson::dom::element& document, simdj
 	texture_path.append(uri);
 
 	ComPtr<ID3D11Resource> resource = nullptr;
-	DirectX::CreateWICTextureFromFile(m_DxRenderer->GetDevice(), texture_path.wstring().c_str(), resource.ReleaseAndGetAddressOf(), model->m_NormalTexture.ReleaseAndGetAddressOf());
+	DX::Check(DirectX::CreateWICTextureFromFile(m_DxRenderer->GetDevice(), texture_path.wstring().c_str(), resource.ReleaseAndGetAddressOf(), model->m_NormalTexture.ReleaseAndGetAddressOf()));
 	model->Material.normal_texture = true;
 }
 

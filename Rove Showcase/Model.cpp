@@ -21,7 +21,6 @@ void Rove::Object::LoadFile(const std::filesystem::path& path)
 
 	// Load new data
 	GltfLoader loader(m_DxRenderer, m_DxShader);
-	std::vector<Model*> models = loader.Load(path);
 	m_Models = loader.Load(path);
 
 	// Set filename
