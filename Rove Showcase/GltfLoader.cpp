@@ -4,6 +4,25 @@
 using namespace simdjson;
 using namespace simdjson::dom;
 
+namespace
+{
+	Rove::AccessorDataType GetAccessorType(std::string_view type)
+	{
+		std::map<std::string_view, Rove::AccessorDataType> dataTypes;
+		dataTypes["SCALAR"] = Rove::AccessorDataType::SCALAR;
+		dataTypes["VEC2"] = Rove::AccessorDataType::VEC2;
+		dataTypes["VEC3"] = Rove::AccessorDataType::VEC3;
+		dataTypes["VEC4"] = Rove::AccessorDataType::VEC4;
+
+		if (dataTypes.find(type) != dataTypes.end())
+		{
+			return dataTypes[type];
+		}
+
+		return Rove::AccessorDataType::UNKNOWN;
+	}
+}
+
 namespace Json
 {
 	constexpr std::string_view Nodes = "nodes";
@@ -14,7 +33,10 @@ namespace Json
 	constexpr std::string_view Primitives = "primitives";
 	constexpr std::string_view Attributes = "attributes";
 	constexpr std::string_view Name = "name";
-	constexpr std::string_view Position = "position";
+	constexpr std::string_view Position = "POSITION";
+	constexpr std::string_view Normal = "NORMAL";
+	constexpr std::string_view Tangent = "TANGENT";
+	constexpr std::string_view Texcoord0 = "TEXCOORD_0";
 	constexpr std::string_view Indices = "indices";
 	constexpr std::string_view Accessors = "accessors";
 	constexpr std::string_view BufferView = "bufferView";
@@ -26,6 +48,7 @@ namespace Json
 	constexpr std::string_view ByteLength = "byteLength";
 	constexpr std::string_view ByteOffset = "byteOffset";
 	constexpr std::string_view Uri = "uri";
+	constexpr std::string_view Type = "type";
 }
 
 Rove::GltfLoader::GltfLoader(DxRenderer* renderer, DxShader* shader) : m_DxRenderer(renderer), m_DxShader(shader)
@@ -34,9 +57,11 @@ Rove::GltfLoader::GltfLoader(DxRenderer* renderer, DxShader* shader) : m_DxRende
 
 std::vector<Rove::Model*> Rove::GltfLoader::Load(const std::filesystem::path& path)
 {
+	m_Path = path;
+
 	// Load file
 	parser parser;
-	simdjson_result<element> document = parser.load(path.string());
+	simdjson_result<element> document = parser.load(m_Path.string());
 
 	// Populate models
 	std::vector<Model*> models;
@@ -69,40 +94,14 @@ std::vector<Rove::Model*> Rove::GltfLoader::Load(const std::filesystem::path& pa
 		simdjson_result<element> attribute = primitive[Json::Attributes];
 
 		// Position vertices
-		simdjson_result<int64_t> position_index = attribute[Json::Position].get_int64();
+		LoadVertices(document.value(), attribute.value(), model);
 
 		// Indices
 		simdjson_result<int64_t> indices_index = primitive[Json::Indices].get_int64();
 		simdjson_result<element> index_accessor = document[Json::Accessors].at(indices_index.value());
-
-		int64_t index_count = index_accessor[Json::Count].get_int64();
-		AccessorDataType component_type = static_cast<AccessorDataType>(index_accessor[Json::ComponentType].get_int64().value());
-		int64_t buffer_view_index = index_accessor[Json::BufferView].get_int64();
-
-		// View
-		simdjson_result<element> view_buffer = document[Json::BufferViews].at(buffer_view_index);
-		int64_t buffer_index = view_buffer[Json::Buffer].get_int64().value();
-		int64_t byte_length = view_buffer[Json::ByteLength].get_int64().value();
-		int64_t byte_offset = view_buffer[Json::ByteOffset].get_int64().value();
-
-		// Buffer
-		simdjson_result<element> buffer = document[Json::Buffers].at(buffer_index);
-		int64_t buffer_byte_length = buffer[Json::ByteLength].get_int64().value();
-		std::string_view buffer_uri = buffer[Json::Uri].get_string();
-
-		// Load buffer
-		std::filesystem::path binary_path = path.parent_path();
-		binary_path.append(buffer_uri);
-
-		std::ifstream file(binary_path.string(), std::fstream::in | std::fstream::binary);
-		file.seekg(byte_offset);
-
-		std::vector<short> indices;
-		indices.resize(index_count);
-		file.read(reinterpret_cast<char*>(indices.data()), byte_length);
+		LoadIndices(document.value(), index_accessor.value(), model);
 
 		// Assign model
-		
 		model->LocalWorld = world;
 		model->Name = name.value();
 		models.push_back(model);
@@ -137,4 +136,139 @@ DirectX::XMMATRIX Rove::GltfLoader::ApplyWorldTransformation(simdjson::dom::elem
 	}
 
 	return world;
+}
+
+void Rove::GltfLoader::LoadVertices(simdjson::dom::element& document, simdjson::dom::element& attribute, Model* model)
+{
+	std::vector<Vertex> vertices;
+
+	// Position
+	{
+		simdjson_result<int64_t> accessor_index = attribute[Json::Position].get_int64();
+		simdjson_result<element> accessor = document[Json::Accessors].at(accessor_index.value());
+
+		ComponentDataType component_data_type;
+		AccessorDataType accessor_data_type;
+		int64_t count = 0;
+		char* buffer = BufferAccessor(document, accessor.value(), &component_data_type, &accessor_data_type, &count);
+		Vec3<float>* positions = reinterpret_cast<Vec3<float>*>(buffer);
+
+		vertices.resize(count);
+		for (int64_t i = 0; i < count; ++i)
+		{
+			Vec3<float> position = positions[i];
+			vertices[i].x = position.x;
+			vertices[i].y = position.y;
+			vertices[i].z = position.z;
+		}
+	}
+
+	// Normal
+	{
+		simdjson_result<int64_t> accessor_index = attribute[Json::Normal].get_int64();
+		simdjson_result<element> accessor = document[Json::Accessors].at(accessor_index.value());
+
+		ComponentDataType component_data_type;
+		AccessorDataType accessor_data_type;
+		int64_t count = 0;
+		char* buffer = BufferAccessor(document, accessor.value(), &component_data_type, &accessor_data_type, &count);
+		Vec3<float>* normals = reinterpret_cast<Vec3<float>*>(buffer);
+
+		for (int64_t i = 0; i < count; ++i)
+		{
+			Vec3<float> normal = normals[i];
+			vertices[i].normal_x = normal.x;
+			vertices[i].normal_y = normal.y;
+			vertices[i].normal_z = normal.z;
+		}
+	}
+
+	// Tangent
+	{
+		simdjson_result<int64_t> accessor_index = attribute[Json::Tangent].get_int64();
+		simdjson_result<element> accessor = document[Json::Accessors].at(accessor_index.value());
+
+		ComponentDataType component_data_type;
+		AccessorDataType accessor_data_type;
+		int64_t count = 0;
+		char* buffer = BufferAccessor(document, accessor.value(), &component_data_type, &accessor_data_type, &count);
+		Vec3<float>* data = reinterpret_cast<Vec3<float>*>(buffer);
+
+		for (int64_t i = 0; i < count; ++i)
+		{
+			Vec3<float> tangent = data[i];
+			vertices[i].tangent_x = tangent.x;
+			vertices[i].tangent_y = tangent.y;
+			vertices[i].tangent_z = tangent.z;
+		}
+	}
+
+	// Texcoord
+	{
+		simdjson_result<int64_t> accessor_index = attribute[Json::Texcoord0].get_int64();
+		simdjson_result<element> accessor = document[Json::Accessors].at(accessor_index.value());
+
+		ComponentDataType component_data_type;
+		AccessorDataType accessor_data_type;
+		int64_t count = 0;
+		char* buffer = BufferAccessor(document, accessor.value(), &component_data_type, &accessor_data_type, &count);
+		Vec2<float>* data = reinterpret_cast<Vec2<float>*>(buffer);
+
+		for (int64_t i = 0; i < count; ++i)
+		{
+			Vec2<float> texcoord = data[i];
+			vertices[i].texture_u = texcoord.x;
+			vertices[i].texture_v = texcoord.y;
+		}
+	}
+
+	model->CreateVertexBuffer(vertices);
+}
+
+void Rove::GltfLoader::LoadIndices(simdjson::dom::element& document, simdjson::dom::element& accessor, Model* model)
+{
+	ComponentDataType component_data_type;
+	AccessorDataType accessor_data_type;
+	int64_t count = 0;
+	char* indices_buffer = BufferAccessor(document, accessor, &component_data_type, &accessor_data_type, &count);
+
+	std::vector<short> indices_data1;
+	short* indices_data = reinterpret_cast<short*>(indices_buffer);
+	indices_data1.assign(indices_data, indices_data + count);
+
+	std::vector<UINT> indices;
+	indices.assign(indices_data1.begin(), indices_data1.end());
+	model->CreateIndexBuffer(indices);
+}
+
+char* Rove::GltfLoader::BufferAccessor(simdjson::dom::element& document, simdjson::dom::element& accessor, ComponentDataType* componentDataType, AccessorDataType* accessorDataType, int64_t* count)
+{
+	// Accessor
+	*count = accessor[Json::Count].get_int64();
+	*componentDataType = static_cast<ComponentDataType>(accessor[Json::ComponentType].get_int64().value());
+	*accessorDataType = GetAccessorType(accessor[Json::Type].get_string());
+	int64_t buffer_view_index = accessor[Json::BufferView].get_int64();
+
+	// View
+	simdjson_result<element> view_buffer = document[Json::BufferViews].at(buffer_view_index);
+	int64_t buffer_index = view_buffer[Json::Buffer].get_int64().value();
+	int64_t byte_length = view_buffer[Json::ByteLength].get_int64().value();
+	int64_t byte_offset = view_buffer[Json::ByteOffset].get_int64().value();
+
+	// Buffer
+	simdjson_result<element> buffer = document[Json::Buffers].at(buffer_index);
+	int64_t buffer_byte_length = buffer[Json::ByteLength].get_int64().value();
+	std::string_view buffer_uri = buffer[Json::Uri].get_string();
+
+	// Load buffer
+	std::filesystem::path binary_path = m_Path.parent_path();
+	binary_path.append(buffer_uri);
+
+	std::ifstream file(binary_path.string(), std::fstream::in | std::fstream::binary);
+	file.seekg(byte_offset);
+
+	char* data = new char[byte_length];
+	file.read(data, byte_length);
+
+	return data;
 }

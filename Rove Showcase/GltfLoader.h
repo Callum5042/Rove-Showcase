@@ -9,7 +9,7 @@ namespace Rove
 	class DxRenderer;
 	class DxShader;
 
-	enum class AccessorDataType
+	enum class ComponentDataType
 	{
 		SIGNED_BYTE = 5120,
 		UNSIGNED_BYTE = 5121,
@@ -17,6 +17,15 @@ namespace Rove
 		UNSIGNED_SHORT = 5123,
 		UNSIGNED_INT = 5125,
 		FLOAT = 5126
+	};
+
+	enum class AccessorDataType
+	{
+		UNKNOWN,
+		SCALAR,
+		VEC2,
+		VEC3,
+		VEC4
 	};
 
 	template <typename TDataType>
@@ -57,7 +66,12 @@ namespace Rove
 		std::vector<Model*> Load(const std::filesystem::path& path);
 
 	private:
+		std::filesystem::path m_Path;
+
 		DirectX::XMMATRIX ApplyWorldTransformation(simdjson::dom::element& node);
 
+		void LoadVertices(simdjson::dom::element& document, simdjson::dom::element& attribute, Model* model);
+		void LoadIndices(simdjson::dom::element& document, simdjson::dom::element& accessor, Model* model);
+		char* BufferAccessor(simdjson::dom::element& document, simdjson::dom::element& accessor, ComponentDataType* componentDataType, AccessorDataType* accessorDataType, int64_t* count);
 	};
 }
