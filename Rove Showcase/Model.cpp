@@ -6,6 +6,7 @@
 #include "simdjson\simdjson.h"
 #include "TextureLoader\DDSTextureLoader.h"
 #include "TextureLoader\WICTextureLoader.h"
+#include "GltfLoader.h"
 
 namespace
 {
@@ -144,163 +145,175 @@ Rove::Object::Object(DxRenderer* renderer, DxShader* shader) : m_DxRenderer(rend
 void Rove::Object::LoadFile(const std::filesystem::path& path)
 {
 	// Clear old data
+	for (Model* model : m_Models)
+	{
+		delete model;
+	}
+
 	m_Models.clear();
 
+	// Load new data
+	GltfLoader loader(m_DxRenderer, m_DxShader);
+	std::vector<Model*> models = loader.Load(path);
+	m_Models = loader.Load(path);
+
+	// Set filename
+	Filename = path.filename().string();
+
 	// Load file
-	simdjson::dom::parser parser;
-	simdjson::simdjson_result<simdjson::dom::element> json = parser.load(path.string());
+	//simdjson::dom::parser parser;
+	//simdjson::simdjson_result<simdjson::dom::element> json = parser.load(path.string());
 
-	// Nodes
-	for (auto node : json["nodes"])
-	{
-		auto meshIndex = node["mesh"].get_int64();
+	//// Nodes
+	//for (auto node : json["nodes"])
+	//{
+	//	auto meshIndex = node["mesh"].get_int64();
 
-		if (meshIndex.error() == simdjson::SUCCESS)
-		{
-			DirectX::XMMATRIX LocalWorld = DirectX::XMMatrixIdentity();
-			std::vector<Vertex> vertices;
-			std::vector<UINT> indices;
-			Model* model = new Model(m_DxRenderer, m_DxShader);
+	//	if (meshIndex.error() == simdjson::SUCCESS)
+	//	{
+	//		DirectX::XMMATRIX LocalWorld = DirectX::XMMatrixIdentity();
+	//		std::vector<Vertex> vertices;
+	//		std::vector<UINT> indices;
+	//		Model* model = new Model(m_DxRenderer, m_DxShader);
 
-			// Apply translation
-			LocalWorld *= MeshTranslation(node);
+	//		// Apply translation
+	//		LocalWorld *= MeshTranslation(node);
 
-			// Apply rotation
-			LocalWorld *= MeshRotation(node);
+	//		// Apply rotation
+	//		LocalWorld *= MeshRotation(node);
 
-			// Load
-			auto jsonMesh = json["meshes"].at(meshIndex.value());
-			for (auto jsonPrimitive : jsonMesh["primitives"])
-			{
-				// Load indices
-				{
-					std::vector<short> data;
-					LoadMeshIndices<short>(json, jsonPrimitive, data, path);
-					indices.resize(data.size());
-					indices.assign(data.begin(), data.end());
-				}
+	//		// Load
+	//		auto jsonMesh = json["meshes"].at(meshIndex.value());
+	//		for (auto jsonPrimitive : jsonMesh["primitives"])
+	//		{
+	//			// Load indices
+	//			{
+	//				std::vector<short> data;
+	//				LoadMeshIndices<short>(json, jsonPrimitive, data, path);
+	//				indices.resize(data.size());
+	//				indices.assign(data.begin(), data.end());
+	//			}
 
-				// Load vertices
-				simdjson::simdjson_result<int64_t> position_attribute = jsonPrimitive["attributes"]["POSITION"].get_int64();
-				if (position_attribute.error() == simdjson::SUCCESS)
-				{
-					std::vector<Vec3<float>> data;
-					LoadMeshVerticesAttribute(json, position_attribute, data, path);
+	//			// Load vertices
+	//			simdjson::simdjson_result<int64_t> position_attribute = jsonPrimitive["attributes"]["POSITION"].get_int64();
+	//			if (position_attribute.error() == simdjson::SUCCESS)
+	//			{
+	//				std::vector<Vec3<float>> data;
+	//				LoadMeshVerticesAttribute(json, position_attribute, data, path);
 
-					for (auto& v : data)
-					{
-						Vertex v1;
-						v1.x = v.x;
-						v1.y = v.y;
-						v1.z = v.z;
+	//				for (auto& v : data)
+	//				{
+	//					Vertex v1;
+	//					v1.x = v.x;
+	//					v1.y = v.y;
+	//					v1.z = v.z;
 
-						vertices.push_back(v1);
-					}
-				}
+	//					vertices.push_back(v1);
+	//				}
+	//			}
 
-				// Apply normals
-				simdjson::simdjson_result<int64_t> normal_attribute = jsonPrimitive["attributes"]["NORMAL"].get_int64();
-				if (normal_attribute.error() == simdjson::SUCCESS)
-				{
-					std::vector<Vec3<float>> data;
-					LoadMeshVerticesAttribute(json, normal_attribute, data, path);
+	//			// Apply normals
+	//			simdjson::simdjson_result<int64_t> normal_attribute = jsonPrimitive["attributes"]["NORMAL"].get_int64();
+	//			if (normal_attribute.error() == simdjson::SUCCESS)
+	//			{
+	//				std::vector<Vec3<float>> data;
+	//				LoadMeshVerticesAttribute(json, normal_attribute, data, path);
 
-					for (size_t i = 0; i < data.size(); ++i)
-					{
-						vertices[i].normal_x = data[i].x;
-						vertices[i].normal_y = data[i].y;
-						vertices[i].normal_z = data[i].z;
-					}
-				}
+	//				for (size_t i = 0; i < data.size(); ++i)
+	//				{
+	//					vertices[i].normal_x = data[i].x;
+	//					vertices[i].normal_y = data[i].y;
+	//					vertices[i].normal_z = data[i].z;
+	//				}
+	//			}
 
-				// Apply tangent
-				simdjson::simdjson_result<int64_t> tangent_attribute = jsonPrimitive["attributes"]["TANGENT"].get_int64();
-				if (tangent_attribute.error() == simdjson::SUCCESS)
-				{
-					std::vector<Vec4<float>> data;
-					LoadMeshVerticesAttribute<Vec4<float>>(json, tangent_attribute, data, path);
+	//			// Apply tangent
+	//			simdjson::simdjson_result<int64_t> tangent_attribute = jsonPrimitive["attributes"]["TANGENT"].get_int64();
+	//			if (tangent_attribute.error() == simdjson::SUCCESS)
+	//			{
+	//				std::vector<Vec4<float>> data;
+	//				LoadMeshVerticesAttribute<Vec4<float>>(json, tangent_attribute, data, path);
 
-					for (size_t i = 0; i < data.size(); ++i)
-					{
-						vertices[i].tangent_x = data[i].x;
-						vertices[i].tangent_y = data[i].y;
-						vertices[i].tangent_z = data[i].z;
-					}
-				}
+	//				for (size_t i = 0; i < data.size(); ++i)
+	//				{
+	//					vertices[i].tangent_x = data[i].x;
+	//					vertices[i].tangent_y = data[i].y;
+	//					vertices[i].tangent_z = data[i].z;
+	//				}
+	//			}
 
-				// Apply texture coords
-				simdjson::simdjson_result<int64_t> texcoord0_attribute = jsonPrimitive["attributes"]["TEXCOORD_0"].get_int64();
-				if (texcoord0_attribute.error() == simdjson::SUCCESS)
-				{
-					std::vector<Vec2<float>> data;
-					LoadMeshVerticesAttribute<Vec2<float>>(json, texcoord0_attribute, data, path);
+	//			// Apply texture coords
+	//			simdjson::simdjson_result<int64_t> texcoord0_attribute = jsonPrimitive["attributes"]["TEXCOORD_0"].get_int64();
+	//			if (texcoord0_attribute.error() == simdjson::SUCCESS)
+	//			{
+	//				std::vector<Vec2<float>> data;
+	//				LoadMeshVerticesAttribute<Vec2<float>>(json, texcoord0_attribute, data, path);
 
-					for (size_t i = 0; i < data.size(); ++i)
-					{
-						vertices[i].texture_u = data[i].x;
-						vertices[i].texture_v = data[i].y;
-					}
-				}
+	//				for (size_t i = 0; i < data.size(); ++i)
+	//				{
+	//					vertices[i].texture_u = data[i].x;
+	//					vertices[i].texture_v = data[i].y;
+	//				}
+	//			}
 
-				// Apply material
-				HRESULT hr = CoInitializeEx(nullptr, COINIT_MULTITHREADED);
+	//			// Apply material
+	//			HRESULT hr = CoInitializeEx(nullptr, COINIT_MULTITHREADED);
 
-				simdjson::simdjson_result<int64_t> material_index = jsonPrimitive["material"].get_int64();
-				auto material = json["materials"].at(material_index.value());
+	//			simdjson::simdjson_result<int64_t> material_index = jsonPrimitive["material"].get_int64();
+	//			auto material = json["materials"].at(material_index.value());
 
-				auto name = material["name"].get_string();
+	//			auto name = material["name"].get_string();
 
-				// Properties
-				model->Material.metallicFactor = static_cast<float>(material["pbrMetallicRoughness"]["metallicFactor"].get_double());
-				model->Material.roughnessFactor = static_cast<float>(material["pbrMetallicRoughness"]["roughnessFactor"].get_double());
+	//			// Properties
+	//			model->Material.metallicFactor = static_cast<float>(material["pbrMetallicRoughness"]["metallicFactor"].get_double());
+	//			model->Material.roughnessFactor = static_cast<float>(material["pbrMetallicRoughness"]["roughnessFactor"].get_double());
 
-				// Diffuse texture
-				{
-					simdjson::simdjson_result<int64_t> diffuse_texture_index = material["pbrMetallicRoughness"]["baseColorTexture"]["index"].get_int64();
-					simdjson::simdjson_result<int64_t> diffuse_image_index = json["textures"].at(diffuse_texture_index.value())["source"].get_int64();
-					auto diffuse_image = json["images"].at(diffuse_image_index.value());
-					std::string_view uri = diffuse_image["uri"].get_string().value();
+	//			// Diffuse texture
+	//			{
+	//				simdjson::simdjson_result<int64_t> diffuse_texture_index = material["pbrMetallicRoughness"]["baseColorTexture"]["index"].get_int64();
+	//				simdjson::simdjson_result<int64_t> diffuse_image_index = json["textures"].at(diffuse_texture_index.value())["source"].get_int64();
+	//				auto diffuse_image = json["images"].at(diffuse_image_index.value());
+	//				std::string_view uri = diffuse_image["uri"].get_string().value();
 
-					std::filesystem::path texture_path = path.parent_path();
-					texture_path.append(uri);
+	//				std::filesystem::path texture_path = path.parent_path();
+	//				texture_path.append(uri);
 
-					ComPtr<ID3D11Resource> resource = nullptr;
-					DX::Check(DirectX::CreateWICTextureFromFile(m_DxRenderer->GetDevice(), texture_path.wstring().c_str(), resource.ReleaseAndGetAddressOf(), model->m_DiffuseTexture.ReleaseAndGetAddressOf()));
-					model->Material.diffuse_texture = true;
-				}
+	//				ComPtr<ID3D11Resource> resource = nullptr;
+	//				DX::Check(DirectX::CreateWICTextureFromFile(m_DxRenderer->GetDevice(), texture_path.wstring().c_str(), resource.ReleaseAndGetAddressOf(), model->m_DiffuseTexture.ReleaseAndGetAddressOf()));
+	//				model->Material.diffuse_texture = true;
+	//			}
 
-				// Normal texture
-				{
-					simdjson::simdjson_result<int64_t> normal_texture_index = material["normalTexture"]["index"].get_int64();
-					simdjson::simdjson_result<int64_t> normal_image_index = json["textures"].at(normal_texture_index.value())["source"].get_int64();
-					auto diffuse_image = json["images"].at(normal_image_index.value());
-					std::string_view uri = diffuse_image["uri"].get_string().value();
+	//			// Normal texture
+	//			{
+	//				simdjson::simdjson_result<int64_t> normal_texture_index = material["normalTexture"]["index"].get_int64();
+	//				simdjson::simdjson_result<int64_t> normal_image_index = json["textures"].at(normal_texture_index.value())["source"].get_int64();
+	//				auto diffuse_image = json["images"].at(normal_image_index.value());
+	//				std::string_view uri = diffuse_image["uri"].get_string().value();
 
-					std::filesystem::path texture_path = path.parent_path();
-					texture_path.append(uri);
+	//				std::filesystem::path texture_path = path.parent_path();
+	//				texture_path.append(uri);
 
-					ComPtr<ID3D11Resource> resource = nullptr;
-					DX::Check(DirectX::CreateWICTextureFromFile(m_DxRenderer->GetDevice(), texture_path.wstring().c_str(), resource.ReleaseAndGetAddressOf(), model->m_NormalTexture.ReleaseAndGetAddressOf()));
-					model->Material.normal_texture = true;
-				}
+	//				ComPtr<ID3D11Resource> resource = nullptr;
+	//				DX::Check(DirectX::CreateWICTextureFromFile(m_DxRenderer->GetDevice(), texture_path.wstring().c_str(), resource.ReleaseAndGetAddressOf(), model->m_NormalTexture.ReleaseAndGetAddressOf()));
+	//				model->Material.normal_texture = true;
+	//			}
 
-				CoUninitialize();
-			}
+	//			CoUninitialize();
+	//		}
 
-			// Build model
-			model->LocalWorld = LocalWorld;
-			model->CreateVertexBuffer(vertices);
-			model->CreateIndexBuffer(indices);
-			m_Models.push_back(model);
-		}
-	}
+	//		// Build model
+	//		model->LocalWorld = LocalWorld;
+	//		model->CreateVertexBuffer(vertices);
+	//		model->CreateIndexBuffer(indices);
+	//		m_Models.push_back(model);
+	//	}
+	//}
 }
 
 void Rove::Object::Render()
 {
 	for (auto& model : m_Models)
 	{
-
 		model->Render();
 	}
 }

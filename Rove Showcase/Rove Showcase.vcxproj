@@ -194,6 +194,7 @@
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="DxRenderer.cpp" />
     <ClCompile Include="DxShader.cpp" />
+    <ClCompile Include="GltfLoader.cpp" />
     <ClCompile Include="InfoComponent.cpp" />
     <ClCompile Include="Model.cpp" />
     <ClCompile Include="Main.cpp" />
@@ -225,6 +226,7 @@
     <ClInclude Include="Application.h" />
     <ClInclude Include="DxRenderer.h" />
     <ClInclude Include="DxShader.h" />
+    <ClInclude Include="GltfLoader.h" />
     <ClInclude Include="InfoComponent.h" />
     <ClInclude Include="Pch.h" />
     <ClInclude Include="Camera.h" />

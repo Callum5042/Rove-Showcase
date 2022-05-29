@@ -7,7 +7,7 @@ namespace
 	{
 		// https://docs.microsoft.com/en-us/windows/win32/learnwin32/example--the-open-dialog-box
 
-		HRESULT hr = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE); 
+		HRESULT hr = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
 		if (hr != S_OK)
 		{
 			throw std::exception("CoInitializeEx failed");
@@ -82,7 +82,7 @@ Rove::Application::Application()
 	m_Window = std::make_unique<Rove::Window>(this);
 	m_DxRenderer = std::make_unique<Rove::DxRenderer>(m_Window.get());
 	m_DxShader = std::make_unique<Rove::DxShader>(m_DxRenderer.get());
-	
+
 	// Default light
 	auto light = std::make_unique<Rove::PointLight>();
 	light->Position = DirectX::XMFLOAT3(5.0f, 8.0f, -10.0f);
@@ -116,6 +116,8 @@ int Rove::Application::Run()
 	m_Timer = std::make_unique<Rove::Timer>();
 	m_Timer->Start();
 
+	m_Object->LoadFile("D:\\GLTF Models\\material_cube.gltf");
+
 	// Main loop
 	MSG msg = {};
 	while (msg.message != WM_QUIT)
@@ -148,7 +150,7 @@ int Rove::Application::Run()
 				m_DxRenderer->SetRenderToBackBuffer();
 			}
 
-			// Render model into viewport
+			// Apply shader
 			m_DxShader->Apply();
 
 			// Enable wireframe rendering
@@ -297,8 +299,7 @@ void Rove::Application::MenuItem_Load()
 	{
 		try
 		{
-			std::string path = ConvertToString(filepath);
-			m_Object->LoadFile(path);
+			m_Object->LoadFile(filepath);
 		}
 		catch (std::exception& e)
 		{
@@ -384,6 +385,7 @@ void Rove::Application::RenderGui()
 
 			ImGui::Checkbox("MSAA", &m_EnableMsaa);
 			ImGui::Checkbox("V-Sync", &m_EnableVSync);
+			ImGui::Checkbox("Enable Wireframe", &m_RenderWireframe);
 		}
 
 		ImGui::End();
@@ -410,18 +412,23 @@ void Rove::Application::RenderGui()
 		ImGui::End();
 	}
 
-	// Model details
+	// Object details
 	if (m_ShowModelDetails)
 	{
 		if (ImGui::Begin("Model", &m_ShowModelDetails, ImGuiWindowFlags_AlwaysAutoResize))
 		{
-			// ImGui::Text("Vertices: %i", m_Model->GetVertices());
-			// ImGui::Text("Indices: %i", m_Model->GetIndices());
-			ImGui::Checkbox("Enable Wireframe", &m_RenderWireframe);
+			ImGui::Text(m_Object->Filename.c_str());
+
+			// Model details
+			for (auto& model : m_Object->GetModels())
+			{
+				ImGui::Separator();
+				ImGui::Text(model->Name.c_str());
+			}
 		}
 
 		// Show materials
-		std::vector<Rove::Material*> materials = m_Object->GetMaterials();
+		/*std::vector<Rove::Material*> materials = m_Object->GetMaterials();
 		for (size_t i = 0; i < materials.size(); ++i)
 		{
 			ImGui::Separator();
@@ -431,7 +438,7 @@ void Rove::Application::RenderGui()
 
 			std::string roughness_label = "Roughness## " + std::to_string(i);
 			ImGui::SliderFloat(roughness_label.c_str(), &materials[i]->roughnessFactor, 0.0f, 1.0f);
-		}
+		}*/
 
 		ImGui::End();
 	}

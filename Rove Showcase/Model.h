@@ -104,6 +104,12 @@ namespace Rove
 		// Materials
 		std::vector<Material*> GetMaterials();
 
+		// Models
+		constexpr std::vector<Model*> GetModels() { return m_Models; }
+
+		// Object name
+		std::string Filename;
+
 	private:
 		DxRenderer* m_DxRenderer = nullptr;
 		DxShader* m_DxShader = nullptr;
