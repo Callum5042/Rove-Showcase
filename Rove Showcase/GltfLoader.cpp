@@ -1,6 +1,8 @@
 #include "Pch.h"
 #include "GltfLoader.h"
 #include "Model.h"
+#include "TextureLoader\WICTextureLoader.h"
+#include "DxRenderer.h"
 using namespace simdjson;
 using namespace simdjson::dom;
 
@@ -49,6 +51,18 @@ namespace Json
 	constexpr std::string_view ByteOffset = "byteOffset";
 	constexpr std::string_view Uri = "uri";
 	constexpr std::string_view Type = "type";
+	constexpr std::string_view Material = "material";
+	constexpr std::string_view Materials = "materials";
+	constexpr std::string_view PbrMetallicRoughness = "pbrMetallicRoughness";
+	constexpr std::string_view MetallicFactor = "metallicFactor";
+	constexpr std::string_view RoughnessFactor = "roughnessFactor";
+	constexpr std::string_view BaseColorTexture = "baseColorTexture";
+	constexpr std::string_view NormalTexture = "normalTexture";
+	constexpr std::string_view Index = "index";
+	constexpr std::string_view TexCoord = "texCoord";
+	constexpr std::string_view Textures = "textures";
+	constexpr std::string_view Images = "images";
+	constexpr std::string_view Source = "source";
 }
 
 Rove::GltfLoader::GltfLoader(DxRenderer* renderer, DxShader* shader) : m_DxRenderer(renderer), m_DxShader(shader)
@@ -100,6 +114,22 @@ std::vector<Rove::Model*> Rove::GltfLoader::Load(const std::filesystem::path& pa
 		simdjson_result<int64_t> indices_index = primitive[Json::Indices].get_int64();
 		simdjson_result<element> index_accessor = document[Json::Accessors].at(indices_index.value());
 		LoadIndices(document.value(), index_accessor.value(), model);
+
+		// Material
+		HRESULT hr = CoInitializeEx(nullptr, COINIT_MULTITHREADED);
+
+		simdjson_result<int64_t> material_index = primitive[Json::Material].get_int64();
+		simdjson_result<element> material = document[Json::Materials].at(material_index.value());
+
+		// Properties
+		model->Material.metallicFactor = static_cast<float>(material[Json::PbrMetallicRoughness][Json::MetallicFactor].get_double());
+		model->Material.roughnessFactor = static_cast<float>(material[Json::PbrMetallicRoughness][Json::RoughnessFactor].get_double());
+
+		// Diffuse texture
+		LoadDiffuseTexture(document.value(), material.value(), model);
+
+		// Normal texture
+		LoadNormalTexture(document.value(), material.value(), model);
 
 		// Assign model
 		model->LocalWorld = world;
@@ -192,11 +222,11 @@ void Rove::GltfLoader::LoadVertices(simdjson::dom::element& document, simdjson::
 		AccessorDataType accessor_data_type;
 		int64_t count = 0;
 		char* buffer = BufferAccessor(document, accessor.value(), &component_data_type, &accessor_data_type, &count);
-		Vec3<float>* data = reinterpret_cast<Vec3<float>*>(buffer);
+		Vec4<float>* data = reinterpret_cast<Vec4<float>*>(buffer);
 
 		for (int64_t i = 0; i < count; ++i)
 		{
-			Vec3<float> tangent = data[i];
+			Vec4<float> tangent = data[i];
 			vertices[i].tangent_x = tangent.x;
 			vertices[i].tangent_y = tangent.y;
 			vertices[i].tangent_z = tangent.z;
@@ -241,6 +271,36 @@ void Rove::GltfLoader::LoadIndices(simdjson::dom::element& document, simdjson::d
 	model->CreateIndexBuffer(indices);
 }
 
+void Rove::GltfLoader::LoadDiffuseTexture(simdjson::dom::element& document, simdjson::dom::element& node, Model* model)
+{
+	simdjson_result<int64_t> texture_index = node[Json::PbrMetallicRoughness][Json::BaseColorTexture][Json::Index].get_int64();
+	simdjson_result<int64_t> image_index = document[Json::Textures].at(texture_index.value())[Json::Source].get_int64();
+	simdjson_result<element> image = document[Json::Images].at(image_index.value());
+	std::string_view uri = image[Json::Uri].get_string().value();
+
+	std::filesystem::path texture_path = m_Path.parent_path();
+	texture_path.append(uri);
+
+	ComPtr<ID3D11Resource> resource = nullptr;
+	DirectX::CreateWICTextureFromFile(m_DxRenderer->GetDevice(), texture_path.wstring().c_str(), resource.ReleaseAndGetAddressOf(), model->m_DiffuseTexture.ReleaseAndGetAddressOf());
+	model->Material.diffuse_texture = true;
+}
+
+void Rove::GltfLoader::LoadNormalTexture(simdjson::dom::element& document, simdjson::dom::element& node, Model* model)
+{
+	simdjson_result<int64_t> texture_index = node[Json::NormalTexture][Json::Index].get_int64();
+	simdjson_result<int64_t> image_index = document[Json::Textures].at(texture_index.value())[Json::Source].get_int64();
+	simdjson_result<element> image = document[Json::Images].at(image_index.value());
+	std::string_view uri = image[Json::Uri].get_string().value();
+
+	std::filesystem::path texture_path = m_Path.parent_path();
+	texture_path.append(uri);
+
+	ComPtr<ID3D11Resource> resource = nullptr;
+	DirectX::CreateWICTextureFromFile(m_DxRenderer->GetDevice(), texture_path.wstring().c_str(), resource.ReleaseAndGetAddressOf(), model->m_NormalTexture.ReleaseAndGetAddressOf());
+	model->Material.normal_texture = true;
+}
+
 char* Rove::GltfLoader::BufferAccessor(simdjson::dom::element& document, simdjson::dom::element& accessor, ComponentDataType* componentDataType, AccessorDataType* accessorDataType, int64_t* count)
 {
 	// Accessor
@@ -272,3 +332,5 @@ char* Rove::GltfLoader::BufferAccessor(simdjson::dom::element& document, simdjso
 
 	return data;
 }
+
+

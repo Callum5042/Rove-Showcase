@@ -72,6 +72,8 @@ namespace Rove
 
 		void LoadVertices(simdjson::dom::element& document, simdjson::dom::element& attribute, Model* model);
 		void LoadIndices(simdjson::dom::element& document, simdjson::dom::element& accessor, Model* model);
+		void LoadDiffuseTexture(simdjson::dom::element& document, simdjson::dom::element& node, Model* model);
+		void LoadNormalTexture(simdjson::dom::element& document, simdjson::dom::element& node, Model* model);
 		char* BufferAccessor(simdjson::dom::element& document, simdjson::dom::element& accessor, ComponentDataType* componentDataType, AccessorDataType* accessorDataType, int64_t* count);
 	};
 }
