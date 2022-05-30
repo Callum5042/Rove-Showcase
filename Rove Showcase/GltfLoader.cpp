@@ -69,7 +69,7 @@ Rove::GltfLoader::GltfLoader(DxRenderer* renderer, DxShader* shader) : m_DxRende
 {
 }
 
-std::vector<Rove::Model*> Rove::GltfLoader::Load(const std::filesystem::path& path)
+std::vector<std::unique_ptr<Rove::Model>> Rove::GltfLoader::Load(const std::filesystem::path& path)
 {
 	m_Path = path;
 
@@ -78,10 +78,11 @@ std::vector<Rove::Model*> Rove::GltfLoader::Load(const std::filesystem::path& pa
 	simdjson_result<element> document = parser.load(m_Path.string());
 
 	// Populate models
-	std::vector<Model*> models;
+	std::vector<std::unique_ptr<Model>> models;
 	for (element node : document[Json::Nodes])
-	{ 
-		Model* model = new Model(m_DxRenderer, m_DxShader);
+	{
+		// Model* model = new Model(m_DxRenderer, m_DxShader);
+		std::unique_ptr<Model> model = std::make_unique<Model>(m_DxRenderer, m_DxShader);
 
 		// Check if node is valid
 		simdjson_result<int64_t> mesh_index = node[Json::Mesh].get_int64();
@@ -108,12 +109,12 @@ std::vector<Rove::Model*> Rove::GltfLoader::Load(const std::filesystem::path& pa
 		simdjson_result<element> attribute = primitive[Json::Attributes];
 
 		// Position vertices
-		LoadVertices(document.value(), attribute.value(), model);
+		LoadVertices(document.value(), attribute.value(), model.get());
 
 		// Indices
 		simdjson_result<int64_t> indices_index = primitive[Json::Indices].get_int64();
 		simdjson_result<element> index_accessor = document[Json::Accessors].at(indices_index.value());
-		LoadIndices(document.value(), index_accessor.value(), model);
+		LoadIndices(document.value(), index_accessor.value(), model.get());
 
 		// Material
 		simdjson_result<int64_t> material_index = primitive[Json::Material].get_int64();
@@ -126,17 +127,17 @@ std::vector<Rove::Model*> Rove::GltfLoader::Load(const std::filesystem::path& pa
 		HRESULT hr = CoInitializeEx(nullptr, COINIT_MULTITHREADED);
 
 		// Diffuse texture
-		LoadDiffuseTexture(document.value(), material.value(), model);
+		LoadDiffuseTexture(document.value(), material.value(), model.get());
 
 		// Normal texture
-		LoadNormalTexture(document.value(), material.value(), model);
+		LoadNormalTexture(document.value(), material.value(), model.get());
 
 		CoUninitialize();
 
 		// Assign model
 		model->LocalWorld = world;
 		model->Name = name.value();
-		models.push_back(model);
+		models.push_back(std::move(model));
 	}
 
 	return models;
@@ -177,80 +178,102 @@ void Rove::GltfLoader::LoadVertices(simdjson::dom::element& document, simdjson::
 	// Position
 	{
 		simdjson_result<int64_t> accessor_index = attribute[Json::Position].get_int64();
+		if (accessor_index.error() != simdjson::SUCCESS)
+		{
+			throw std::exception("Could not detect vertex position data");
+		}
+
 		simdjson_result<element> accessor = document[Json::Accessors].at(accessor_index.value());
 
 		ComponentDataType component_data_type;
 		AccessorDataType accessor_data_type;
 		int64_t count = 0;
 		char* buffer = BufferAccessor(document, accessor.value(), &component_data_type, &accessor_data_type, &count);
-		Vec3<float>* positions = reinterpret_cast<Vec3<float>*>(buffer);
+		Vec3<float>* data = reinterpret_cast<Vec3<float>*>(buffer);
 
 		vertices.resize(count);
 		for (int64_t i = 0; i < count; ++i)
 		{
-			Vec3<float> position = positions[i];
+			Vec3<float> position = data[i];
 			vertices[i].x = position.x;
 			vertices[i].y = position.y;
 			vertices[i].z = position.z;
 		}
+
+		delete[] data;
 	}
 
 	// Normal
 	{
 		simdjson_result<int64_t> accessor_index = attribute[Json::Normal].get_int64();
-		simdjson_result<element> accessor = document[Json::Accessors].at(accessor_index.value());
-
-		ComponentDataType component_data_type;
-		AccessorDataType accessor_data_type;
-		int64_t count = 0;
-		char* buffer = BufferAccessor(document, accessor.value(), &component_data_type, &accessor_data_type, &count);
-		Vec3<float>* normals = reinterpret_cast<Vec3<float>*>(buffer);
-
-		for (int64_t i = 0; i < count; ++i)
+		if (accessor_index.error() == simdjson::SUCCESS)
 		{
-			Vec3<float> normal = normals[i];
-			vertices[i].normal_x = normal.x;
-			vertices[i].normal_y = normal.y;
-			vertices[i].normal_z = normal.z;
+			simdjson_result<element> accessor = document[Json::Accessors].at(accessor_index.value());
+
+			ComponentDataType component_data_type;
+			AccessorDataType accessor_data_type;
+			int64_t count = 0;
+			char* buffer = BufferAccessor(document, accessor.value(), &component_data_type, &accessor_data_type, &count);
+			Vec3<float>* data = reinterpret_cast<Vec3<float>*>(buffer);
+
+			for (int64_t i = 0; i < count; ++i)
+			{
+				Vec3<float> normal = data[i];
+				vertices[i].normal_x = normal.x;
+				vertices[i].normal_y = normal.y;
+				vertices[i].normal_z = normal.z;
+			}
+
+			delete[] data;
 		}
 	}
 
 	// Tangent
 	{
 		simdjson_result<int64_t> accessor_index = attribute[Json::Tangent].get_int64();
-		simdjson_result<element> accessor = document[Json::Accessors].at(accessor_index.value());
-
-		ComponentDataType component_data_type;
-		AccessorDataType accessor_data_type;
-		int64_t count = 0;
-		char* buffer = BufferAccessor(document, accessor.value(), &component_data_type, &accessor_data_type, &count);
-		Vec4<float>* data = reinterpret_cast<Vec4<float>*>(buffer);
-
-		for (int64_t i = 0; i < count; ++i)
+		if (accessor_index.error() == simdjson::SUCCESS)
 		{
-			Vec4<float> tangent = data[i];
-			vertices[i].tangent_x = tangent.x;
-			vertices[i].tangent_y = tangent.y;
-			vertices[i].tangent_z = tangent.z;
+			simdjson_result<element> accessor = document[Json::Accessors].at(accessor_index.value());
+
+			ComponentDataType component_data_type;
+			AccessorDataType accessor_data_type;
+			int64_t count = 0;
+			char* buffer = BufferAccessor(document, accessor.value(), &component_data_type, &accessor_data_type, &count);
+			Vec4<float>* data = reinterpret_cast<Vec4<float>*>(buffer);
+
+			for (int64_t i = 0; i < count; ++i)
+			{
+				Vec4<float> tangent = data[i];
+				vertices[i].tangent_x = tangent.x;
+				vertices[i].tangent_y = tangent.y;
+				vertices[i].tangent_z = tangent.z;
+			}
+
+			delete[] data;
 		}
 	}
 
 	// Texcoord
 	{
 		simdjson_result<int64_t> accessor_index = attribute[Json::Texcoord0].get_int64();
-		simdjson_result<element> accessor = document[Json::Accessors].at(accessor_index.value());
-
-		ComponentDataType component_data_type;
-		AccessorDataType accessor_data_type;
-		int64_t count = 0;
-		char* buffer = BufferAccessor(document, accessor.value(), &component_data_type, &accessor_data_type, &count);
-		Vec2<float>* data = reinterpret_cast<Vec2<float>*>(buffer);
-
-		for (int64_t i = 0; i < count; ++i)
+		if (accessor_index.error() == simdjson::SUCCESS)
 		{
-			Vec2<float> texcoord = data[i];
-			vertices[i].texture_u = texcoord.x;
-			vertices[i].texture_v = texcoord.y;
+			simdjson_result<element> accessor = document[Json::Accessors].at(accessor_index.value());
+
+			ComponentDataType component_data_type;
+			AccessorDataType accessor_data_type;
+			int64_t count = 0;
+			char* buffer = BufferAccessor(document, accessor.value(), &component_data_type, &accessor_data_type, &count);
+			Vec2<float>* data = reinterpret_cast<Vec2<float>*>(buffer);
+
+			for (int64_t i = 0; i < count; ++i)
+			{
+				Vec2<float> texcoord = data[i];
+				vertices[i].texture_u = texcoord.x;
+				vertices[i].texture_v = texcoord.y;
+			}
+
+			delete[] data;
 		}
 	}
 
@@ -271,11 +294,18 @@ void Rove::GltfLoader::LoadIndices(simdjson::dom::element& document, simdjson::d
 	std::vector<UINT> indices;
 	indices.assign(indices_data1.begin(), indices_data1.end());
 	model->CreateIndexBuffer(indices);
+	delete[] indices_buffer;
 }
 
 void Rove::GltfLoader::LoadDiffuseTexture(simdjson::dom::element& document, simdjson::dom::element& node, Model* model)
 {
-	simdjson_result<int64_t> texture_index = node[Json::PbrMetallicRoughness][Json::BaseColorTexture][Json::Index].get_int64();
+	simdjson_result<int64_t> texture_index = node[Json::PbrMetallicRoughness][Json::BaseColorTexture][Json::Index].get_int64(); 
+	if (texture_index.error() != simdjson::SUCCESS)
+	{
+		// No normal map detected
+		return;
+	}
+
 	simdjson_result<int64_t> image_index = document[Json::Textures].at(texture_index.value())[Json::Source].get_int64();
 	simdjson_result<element> image = document[Json::Images].at(image_index.value());
 	std::string_view uri = image[Json::Uri].get_string().value();
@@ -291,6 +321,12 @@ void Rove::GltfLoader::LoadDiffuseTexture(simdjson::dom::element& document, simd
 void Rove::GltfLoader::LoadNormalTexture(simdjson::dom::element& document, simdjson::dom::element& node, Model* model)
 {
 	simdjson_result<int64_t> texture_index = node[Json::NormalTexture][Json::Index].get_int64();
+	if (texture_index.error() != simdjson::SUCCESS)
+	{
+		// No normal map detected
+		return;
+	}
+
 	simdjson_result<int64_t> image_index = document[Json::Textures].at(texture_index.value())[Json::Source].get_int64();
 	simdjson_result<element> image = document[Json::Images].at(image_index.value());
 	std::string_view uri = image[Json::Uri].get_string().value();
@@ -334,5 +370,3 @@ char* Rove::GltfLoader::BufferAccessor(simdjson::dom::element& document, simdjso
 
 	return data;
 }
-
-

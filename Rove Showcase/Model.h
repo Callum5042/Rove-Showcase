@@ -105,7 +105,7 @@ namespace Rove
 		std::vector<Material*> GetMaterials();
 
 		// Models
-		constexpr std::vector<Model*> GetModels() { return m_Models; }
+		const std::vector<std::unique_ptr<Model>>& GetModels() { return m_Models; }
 
 		// Object name
 		std::string Filename;
@@ -115,6 +115,6 @@ namespace Rove
 		DxShader* m_DxShader = nullptr;
 
 		// Models
-		std::vector<Model*> m_Models;
+		std::vector<std::unique_ptr<Model>> m_Models;
 	};
 }

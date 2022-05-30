@@ -12,11 +12,6 @@ Rove::Object::Object(DxRenderer* renderer, DxShader* shader) : m_DxRenderer(rend
 void Rove::Object::LoadFile(const std::filesystem::path& path)
 {
 	// Clear old data
-	for (Model* model : m_Models)
-	{
-		delete model;
-	}
-
 	m_Models.clear();
 
 	// Load new data
@@ -113,7 +108,7 @@ void Rove::Model::CreateIndexBuffer(const std::vector<UINT>& indices)
 	// Create index buffer
 	D3D11_BUFFER_DESC index_buffer_desc = {};
 	index_buffer_desc.Usage = D3D11_USAGE_DEFAULT;
-	index_buffer_desc.ByteWidth = static_cast<UINT>(sizeof(UINT) * indices.size());
+	index_buffer_desc.ByteWidth = static_cast<UINT>(sizeof(indices[0]) * indices.size());
 	index_buffer_desc.BindFlags = D3D11_BIND_INDEX_BUFFER;
 
 	D3D11_SUBRESOURCE_DATA index_subdata = {};

@@ -2,6 +2,7 @@
 
 #include "Pch.h"
 #include "simdjson\simdjson.h"
+#include "Model.h"
 
 namespace Rove
 {
@@ -63,7 +64,7 @@ namespace Rove
 		GltfLoader(DxRenderer* renderer, DxShader* shader);
 		virtual ~GltfLoader() = default;
 
-		std::vector<Model*> Load(const std::filesystem::path& path);
+		std::vector<std::unique_ptr<Rove::Model>> Load(const std::filesystem::path& path);
 
 	private:
 		std::filesystem::path m_Path;
