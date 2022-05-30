@@ -23,6 +23,13 @@ namespace
 
 		return Rove::AccessorDataType::UNKNOWN;
 	}
+
+	template <typename TDataType>
+	std::vector<TDataType> ReinterpretBuffer(std::vector<char> buffer, int64_t count)
+	{
+		TDataType* data = reinterpret_cast<TDataType*>(buffer.data());
+		return std::vector<TDataType>(data, data + count);
+	}
 }
 
 namespace Json
@@ -185,11 +192,9 @@ void Rove::GltfLoader::LoadVertices(simdjson::dom::element& document, simdjson::
 
 		simdjson_result<element> accessor = document[Json::Accessors].at(accessor_index.value());
 
-		ComponentDataType component_data_type;
-		AccessorDataType accessor_data_type;
 		int64_t count = 0;
-		char* buffer = BufferAccessor(document, accessor.value(), &component_data_type, &accessor_data_type, &count);
-		Vec3<float>* data = reinterpret_cast<Vec3<float>*>(buffer);
+		std::vector<char> buffer = BufferAccessor_New(document, accessor.value(), nullptr, nullptr, &count);
+		std::vector<Vec3<float>> data = ReinterpretBuffer<Vec3<float>>(buffer, count);
 
 		vertices.resize(count);
 		for (int64_t i = 0; i < count; ++i)
@@ -199,8 +204,6 @@ void Rove::GltfLoader::LoadVertices(simdjson::dom::element& document, simdjson::
 			vertices[i].y = position.y;
 			vertices[i].z = position.z;
 		}
-
-		delete[] data;
 	}
 
 	// Normal
@@ -210,11 +213,9 @@ void Rove::GltfLoader::LoadVertices(simdjson::dom::element& document, simdjson::
 		{
 			simdjson_result<element> accessor = document[Json::Accessors].at(accessor_index.value());
 
-			ComponentDataType component_data_type;
-			AccessorDataType accessor_data_type;
 			int64_t count = 0;
-			char* buffer = BufferAccessor(document, accessor.value(), &component_data_type, &accessor_data_type, &count);
-			Vec3<float>* data = reinterpret_cast<Vec3<float>*>(buffer);
+			std::vector<char> buffer = BufferAccessor_New(document, accessor.value(), nullptr, nullptr, &count);
+			std::vector<Vec3<float>> data = ReinterpretBuffer<Vec3<float>>(buffer, count);
 
 			for (int64_t i = 0; i < count; ++i)
 			{
@@ -223,8 +224,6 @@ void Rove::GltfLoader::LoadVertices(simdjson::dom::element& document, simdjson::
 				vertices[i].normal_y = normal.y;
 				vertices[i].normal_z = normal.z;
 			}
-
-			delete[] data;
 		}
 	}
 
@@ -235,11 +234,9 @@ void Rove::GltfLoader::LoadVertices(simdjson::dom::element& document, simdjson::
 		{
 			simdjson_result<element> accessor = document[Json::Accessors].at(accessor_index.value());
 
-			ComponentDataType component_data_type;
-			AccessorDataType accessor_data_type;
 			int64_t count = 0;
-			char* buffer = BufferAccessor(document, accessor.value(), &component_data_type, &accessor_data_type, &count);
-			Vec4<float>* data = reinterpret_cast<Vec4<float>*>(buffer);
+			std::vector<char> buffer = BufferAccessor_New(document, accessor.value(), nullptr, nullptr, &count);
+			std::vector<Vec4<float>> data = ReinterpretBuffer<Vec4<float>>(buffer, count);
 
 			for (int64_t i = 0; i < count; ++i)
 			{
@@ -248,8 +245,6 @@ void Rove::GltfLoader::LoadVertices(simdjson::dom::element& document, simdjson::
 				vertices[i].tangent_y = tangent.y;
 				vertices[i].tangent_z = tangent.z;
 			}
-
-			delete[] data;
 		}
 	}
 
@@ -260,11 +255,9 @@ void Rove::GltfLoader::LoadVertices(simdjson::dom::element& document, simdjson::
 		{
 			simdjson_result<element> accessor = document[Json::Accessors].at(accessor_index.value());
 
-			ComponentDataType component_data_type;
-			AccessorDataType accessor_data_type;
 			int64_t count = 0;
-			char* buffer = BufferAccessor(document, accessor.value(), &component_data_type, &accessor_data_type, &count);
-			Vec2<float>* data = reinterpret_cast<Vec2<float>*>(buffer);
+			std::vector<char> buffer = BufferAccessor_New(document, accessor.value(), nullptr, nullptr, &count);
+			std::vector<Vec2<float>> data = ReinterpretBuffer<Vec2<float>>(buffer, count);
 
 			for (int64_t i = 0; i < count; ++i)
 			{
@@ -272,8 +265,6 @@ void Rove::GltfLoader::LoadVertices(simdjson::dom::element& document, simdjson::
 				vertices[i].texture_u = texcoord.x;
 				vertices[i].texture_v = texcoord.y;
 			}
-
-			delete[] data;
 		}
 	}
 
@@ -367,6 +358,47 @@ char* Rove::GltfLoader::BufferAccessor(simdjson::dom::element& document, simdjso
 
 	char* data = new char[byte_length];
 	file.read(data, byte_length);
+
+	return data;
+}
+
+std::vector<char> Rove::GltfLoader::BufferAccessor_New(simdjson::dom::element& document, simdjson::dom::element& accessor, ComponentDataType* componentDataType, AccessorDataType* accessorDataType, int64_t* count)
+{
+	// Accessor
+	*count = accessor[Json::Count].get_int64();
+	if (componentDataType != nullptr)
+	{
+		*componentDataType = static_cast<ComponentDataType>(accessor[Json::ComponentType].get_int64().value());
+	}
+
+	if (accessorDataType != nullptr)
+	{
+		*accessorDataType = GetAccessorType(accessor[Json::Type].get_string());
+	}
+
+	int64_t buffer_view_index = accessor[Json::BufferView].get_int64();
+
+	// View
+	simdjson_result<element> view_buffer = document[Json::BufferViews].at(buffer_view_index);
+	int64_t buffer_index = view_buffer[Json::Buffer].get_int64().value();
+	int64_t byte_length = view_buffer[Json::ByteLength].get_int64().value();
+	int64_t byte_offset = view_buffer[Json::ByteOffset].get_int64().value();
+
+	// Buffer
+	simdjson_result<element> buffer = document[Json::Buffers].at(buffer_index);
+	int64_t buffer_byte_length = buffer[Json::ByteLength].get_int64().value();
+	std::string_view buffer_uri = buffer[Json::Uri].get_string();
+
+	// Load buffer
+	std::filesystem::path binary_path = m_Path.parent_path();
+	binary_path.append(buffer_uri);
+
+	std::ifstream file(binary_path.string(), std::fstream::in | std::fstream::binary);
+	file.seekg(byte_offset);
+
+	std::vector<char> data;
+	data.resize(byte_length);
+	file.read(&data[0], byte_length);
 
 	return data;
 }
