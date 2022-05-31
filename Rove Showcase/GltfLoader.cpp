@@ -193,7 +193,7 @@ void Rove::GltfLoader::LoadVertices(simdjson::dom::element& document, simdjson::
 		simdjson_result<element> accessor = document[Json::Accessors].at(accessor_index.value());
 
 		int64_t count = 0;
-		std::vector<char> buffer = BufferAccessor_New(document, accessor.value(), nullptr, nullptr, &count);
+		std::vector<char> buffer = BufferAccessor(document, accessor.value(), nullptr, nullptr, &count);
 		std::vector<Vec3<float>> data = ReinterpretBuffer<Vec3<float>>(buffer, count);
 
 		vertices.resize(count);
@@ -214,7 +214,7 @@ void Rove::GltfLoader::LoadVertices(simdjson::dom::element& document, simdjson::
 			simdjson_result<element> accessor = document[Json::Accessors].at(accessor_index.value());
 
 			int64_t count = 0;
-			std::vector<char> buffer = BufferAccessor_New(document, accessor.value(), nullptr, nullptr, &count);
+			std::vector<char> buffer = BufferAccessor(document, accessor.value(), nullptr, nullptr, &count);
 			std::vector<Vec3<float>> data = ReinterpretBuffer<Vec3<float>>(buffer, count);
 
 			for (int64_t i = 0; i < count; ++i)
@@ -235,7 +235,7 @@ void Rove::GltfLoader::LoadVertices(simdjson::dom::element& document, simdjson::
 			simdjson_result<element> accessor = document[Json::Accessors].at(accessor_index.value());
 
 			int64_t count = 0;
-			std::vector<char> buffer = BufferAccessor_New(document, accessor.value(), nullptr, nullptr, &count);
+			std::vector<char> buffer = BufferAccessor(document, accessor.value(), nullptr, nullptr, &count);
 			std::vector<Vec4<float>> data = ReinterpretBuffer<Vec4<float>>(buffer, count);
 
 			for (int64_t i = 0; i < count; ++i)
@@ -256,7 +256,7 @@ void Rove::GltfLoader::LoadVertices(simdjson::dom::element& document, simdjson::
 			simdjson_result<element> accessor = document[Json::Accessors].at(accessor_index.value());
 
 			int64_t count = 0;
-			std::vector<char> buffer = BufferAccessor_New(document, accessor.value(), nullptr, nullptr, &count);
+			std::vector<char> buffer = BufferAccessor(document, accessor.value(), nullptr, nullptr, &count);
 			std::vector<Vec2<float>> data = ReinterpretBuffer<Vec2<float>>(buffer, count);
 
 			for (int64_t i = 0; i < count; ++i)
@@ -276,16 +276,12 @@ void Rove::GltfLoader::LoadIndices(simdjson::dom::element& document, simdjson::d
 	ComponentDataType component_data_type;
 	AccessorDataType accessor_data_type;
 	int64_t count = 0;
-	char* indices_buffer = BufferAccessor(document, accessor, &component_data_type, &accessor_data_type, &count);
-
-	std::vector<short> indices_data1;
-	short* indices_data = reinterpret_cast<short*>(indices_buffer);
-	indices_data1.assign(indices_data, indices_data + count);
+	std::vector<char> indices_buffer = BufferAccessor(document, accessor, &component_data_type, &accessor_data_type, &count);
+	std::vector<short> data = ReinterpretBuffer<short>(indices_buffer, count);
 
 	std::vector<UINT> indices;
-	indices.assign(indices_data1.begin(), indices_data1.end());
+	indices.assign(data.begin(), data.end());
 	model->CreateIndexBuffer(indices);
-	delete[] indices_buffer;
 }
 
 void Rove::GltfLoader::LoadDiffuseTexture(simdjson::dom::element& document, simdjson::dom::element& node, Model* model)
@@ -330,39 +326,7 @@ void Rove::GltfLoader::LoadNormalTexture(simdjson::dom::element& document, simdj
 	model->Material.normal_texture = true;
 }
 
-char* Rove::GltfLoader::BufferAccessor(simdjson::dom::element& document, simdjson::dom::element& accessor, ComponentDataType* componentDataType, AccessorDataType* accessorDataType, int64_t* count)
-{
-	// Accessor
-	*count = accessor[Json::Count].get_int64();
-	*componentDataType = static_cast<ComponentDataType>(accessor[Json::ComponentType].get_int64().value());
-	*accessorDataType = GetAccessorType(accessor[Json::Type].get_string());
-	int64_t buffer_view_index = accessor[Json::BufferView].get_int64();
-
-	// View
-	simdjson_result<element> view_buffer = document[Json::BufferViews].at(buffer_view_index);
-	int64_t buffer_index = view_buffer[Json::Buffer].get_int64().value();
-	int64_t byte_length = view_buffer[Json::ByteLength].get_int64().value();
-	int64_t byte_offset = view_buffer[Json::ByteOffset].get_int64().value();
-
-	// Buffer
-	simdjson_result<element> buffer = document[Json::Buffers].at(buffer_index);
-	int64_t buffer_byte_length = buffer[Json::ByteLength].get_int64().value();
-	std::string_view buffer_uri = buffer[Json::Uri].get_string();
-
-	// Load buffer
-	std::filesystem::path binary_path = m_Path.parent_path();
-	binary_path.append(buffer_uri);
-
-	std::ifstream file(binary_path.string(), std::fstream::in | std::fstream::binary);
-	file.seekg(byte_offset);
-
-	char* data = new char[byte_length];
-	file.read(data, byte_length);
-
-	return data;
-}
-
-std::vector<char> Rove::GltfLoader::BufferAccessor_New(simdjson::dom::element& document, simdjson::dom::element& accessor, ComponentDataType* componentDataType, AccessorDataType* accessorDataType, int64_t* count)
+std::vector<char> Rove::GltfLoader::BufferAccessor(simdjson::dom::element& document, simdjson::dom::element& accessor, ComponentDataType* componentDataType, AccessorDataType* accessorDataType, int64_t* count)
 {
 	// Accessor
 	*count = accessor[Json::Count].get_int64();

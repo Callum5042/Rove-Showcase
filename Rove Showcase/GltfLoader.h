@@ -75,7 +75,6 @@ namespace Rove
 		void LoadIndices(simdjson::dom::element& document, simdjson::dom::element& accessor, Model* model);
 		void LoadDiffuseTexture(simdjson::dom::element& document, simdjson::dom::element& node, Model* model);
 		void LoadNormalTexture(simdjson::dom::element& document, simdjson::dom::element& node, Model* model);
-		char* BufferAccessor(simdjson::dom::element& document, simdjson::dom::element& accessor, ComponentDataType* componentDataType, AccessorDataType* accessorDataType, int64_t* count);
-		std::vector<char> BufferAccessor_New(simdjson::dom::element& document, simdjson::dom::element& accessor, ComponentDataType* componentDataType, AccessorDataType* accessorDataType, int64_t* count);
+		std::vector<char> BufferAccessor(simdjson::dom::element& document, simdjson::dom::element& accessor, ComponentDataType* componentDataType, AccessorDataType* accessorDataType, int64_t* count);
 	};
 }
