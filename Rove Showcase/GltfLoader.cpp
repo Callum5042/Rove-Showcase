@@ -16,12 +16,12 @@ namespace
 		dataTypes["VEC3"] = Rove::AccessorDataType::VEC3;
 		dataTypes["VEC4"] = Rove::AccessorDataType::VEC4;
 
-		if (dataTypes.find(type) != dataTypes.end())
+		if (dataTypes.find(type) == dataTypes.end())
 		{
-			return dataTypes[type];
+			return Rove::AccessorDataType::UNKNOWN;
 		}
 
-		return Rove::AccessorDataType::UNKNOWN;
+		return dataTypes[type];
 	}
 
 	template <typename TDataType>
@@ -273,15 +273,20 @@ void Rove::GltfLoader::LoadVertices(simdjson::dom::element& document, simdjson::
 
 void Rove::GltfLoader::LoadIndices(simdjson::dom::element& document, simdjson::dom::element& accessor, Model* model)
 {
-	ComponentDataType component_data_type;
-	AccessorDataType accessor_data_type;
 	int64_t count = 0;
-	std::vector<char> indices_buffer = BufferAccessor(document, accessor, &component_data_type, &accessor_data_type, &count);
-	std::vector<short> data = ReinterpretBuffer<short>(indices_buffer, count);
+	ComponentDataType component_data_type = ComponentDataType::UNKNOWN;
+	std::vector<char> indices_buffer = BufferAccessor(document, accessor, &component_data_type, nullptr, &count);
 
-	std::vector<UINT> indices;
-	indices.assign(data.begin(), data.end());
-	model->CreateIndexBuffer(indices);
+	if (component_data_type == ComponentDataType::UNSIGNED_SHORT)
+	{
+		USHORT* data = reinterpret_cast<USHORT*>(indices_buffer.data());
+		model->CreateIndexBuffer(data, static_cast<UINT>(count), sizeof(USHORT), DXGI_FORMAT_R16_UINT);
+	}
+	else if (component_data_type == ComponentDataType::UNSIGNED_INT)
+	{
+		UINT* data = reinterpret_cast<UINT*>(indices_buffer.data());
+		model->CreateIndexBuffer(data, static_cast<UINT>(count), sizeof(UINT), DXGI_FORMAT_R32_UINT);
+	}
 }
 
 void Rove::GltfLoader::LoadDiffuseTexture(simdjson::dom::element& document, simdjson::dom::element& node, Model* model)
@@ -289,7 +294,7 @@ void Rove::GltfLoader::LoadDiffuseTexture(simdjson::dom::element& document, simd
 	simdjson_result<int64_t> texture_index = node[Json::PbrMetallicRoughness][Json::BaseColorTexture][Json::Index].get_int64(); 
 	if (texture_index.error() != simdjson::SUCCESS)
 	{
-		// No normal map detected
+		// No diffuse texture detected
 		return;
 	}
 
@@ -310,7 +315,7 @@ void Rove::GltfLoader::LoadNormalTexture(simdjson::dom::element& document, simdj
 	simdjson_result<int64_t> texture_index = node[Json::NormalTexture][Json::Index].get_int64();
 	if (texture_index.error() != simdjson::SUCCESS)
 	{
-		// No normal map detected
+		// No normal texture detected
 		return;
 	}
 
@@ -362,7 +367,7 @@ std::vector<char> Rove::GltfLoader::BufferAccessor(simdjson::dom::element& docum
 
 	std::vector<char> data;
 	data.resize(byte_length);
-	file.read(&data[0], byte_length);
+	file.read(data.data(), byte_length);
 
 	return data;
 }

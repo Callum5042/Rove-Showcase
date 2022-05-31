@@ -12,6 +12,7 @@ namespace Rove
 
 	enum class ComponentDataType
 	{
+		UNKNOWN = 0,
 		SIGNED_BYTE = 5120,
 		UNSIGNED_BYTE = 5121,
 		SIGNED_SHORT = 5122,

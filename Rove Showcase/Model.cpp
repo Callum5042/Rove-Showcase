@@ -57,7 +57,7 @@ void Rove::Model::Render()
 	d3dDeviceContext->IASetVertexBuffers(0, 1, m_VertexBuffer.GetAddressOf(), &vertex_stride, &vertex_offset);
 
 	// Bind the index buffer to the pipeline's Input Assembler stage
-	d3dDeviceContext->IASetIndexBuffer(m_IndexBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
+	d3dDeviceContext->IASetIndexBuffer(m_IndexBuffer.Get(), m_IndexBufferFormat, 0);
 
 	// Bind the geometry topology to the pipeline's Input Assembler stage
 	d3dDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -99,20 +99,22 @@ void Rove::Model::CreateVertexBuffer(const std::vector<Vertex>& vertices)
 	DX::Check(d3dDevice->CreateBuffer(&vertex_buffer_desc, &vertex_subdata, m_VertexBuffer.ReleaseAndGetAddressOf()));
 }
 
-void Rove::Model::CreateIndexBuffer(const std::vector<UINT>& indices)
+void Rove::Model::CreateIndexBuffer(void* indices, UINT count, int64_t size, DXGI_FORMAT format)
 {
-	auto d3dDevice = m_DxRenderer->GetDevice();
+	// Set number of vertices
+	m_IndexCount = count;
 
-	m_IndexCount = static_cast<UINT>(indices.size());
+	// Set data type format
+	m_IndexBufferFormat = format;
 
 	// Create index buffer
 	D3D11_BUFFER_DESC index_buffer_desc = {};
 	index_buffer_desc.Usage = D3D11_USAGE_DEFAULT;
-	index_buffer_desc.ByteWidth = static_cast<UINT>(sizeof(indices[0]) * indices.size());
+	index_buffer_desc.ByteWidth = static_cast<UINT>(size * count);
 	index_buffer_desc.BindFlags = D3D11_BIND_INDEX_BUFFER;
 
 	D3D11_SUBRESOURCE_DATA index_subdata = {};
-	index_subdata.pSysMem = indices.data();
+	index_subdata.pSysMem = indices;
 
-	DX::Check(d3dDevice->CreateBuffer(&index_buffer_desc, &index_subdata, m_IndexBuffer.ReleaseAndGetAddressOf()));
+	DX::Check(m_DxRenderer->GetDevice()->CreateBuffer(&index_buffer_desc, &index_subdata, m_IndexBuffer.ReleaseAndGetAddressOf()));
 }
