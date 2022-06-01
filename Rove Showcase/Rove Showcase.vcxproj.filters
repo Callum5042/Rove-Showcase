@@ -54,6 +54,7 @@
     <ClCompile Include="..\External\TextureLoader\WICTextureLoader.cpp">
       <Filter>External\TextureLoader</Filter>
     </ClCompile>
+    <ClCompile Include="GltfLoader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Pch.h" />
@@ -109,6 +110,7 @@
     <ClInclude Include="..\External\TextureLoader\WICTextureLoader.h">
       <Filter>External\TextureLoader</Filter>
     </ClInclude>
+    <ClInclude Include="GltfLoader.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="External">
