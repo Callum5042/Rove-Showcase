@@ -153,6 +153,9 @@
     <FxCompile>
       <ShaderModel>5.0</ShaderModel>
     </FxCompile>
+    <ResourceCompile>
+      <Culture>0x0809</Culture>
+    </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -232,6 +235,7 @@
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Model.h" />
     <ClInclude Include="PointLight.h" />
+    <ClInclude Include="resource.h" />
     <ClInclude Include="Timer.h" />
     <ClInclude Include="ViewportComponent.h" />
     <ClInclude Include="Window.h" />
@@ -246,6 +250,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="ShaderData.hlsli" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Rove Showcase.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\logo.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

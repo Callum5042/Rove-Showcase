@@ -111,6 +111,7 @@
       <Filter>External\TextureLoader</Filter>
     </ClInclude>
     <ClInclude Include="GltfLoader.h" />
+    <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="External">
@@ -128,6 +129,9 @@
     <Filter Include="External\TextureLoader">
       <UniqueIdentifier>{d7576ea3-c921-42e2-820e-8e3419985585}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resources">
+      <UniqueIdentifier>{9b090210-6958-47bd-b9f2-d18e8b1e8798}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="PixelShader.hlsl">
@@ -141,5 +145,11 @@
     <None Include="ShaderData.hlsli">
       <Filter>Shaders</Filter>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Rove Showcase.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\logo.ico" />
   </ItemGroup>
 </Project>

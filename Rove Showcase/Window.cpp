@@ -1,6 +1,7 @@
 #include "Pch.h"
 #include "Window.h"
 #include "Application.h"
+#include "resource.h"
 
 // Forward declare message handler from imgui_impl_win32.cpp
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
@@ -62,6 +63,8 @@ void Rove::Window::Create(std::wstring&& title)
 	wndClass.hInstance = hInstance;
 	wndClass.lpszClassName = L"RoveShowcase";
 	wndClass.hCursor = LoadCursor(NULL, IDC_ARROW);
+	wndClass.hIcon = static_cast<HICON>(LoadImage(hInstance, MAKEINTRESOURCE(IDI_APPICON), IMAGE_ICON, GetSystemMetrics(SM_CXICON), GetSystemMetrics(SM_CYICON), 0));
+	wndClass.hIconSm = static_cast<HICON>(LoadImage(hInstance, MAKEINTRESOURCE(IDI_APPICON), IMAGE_ICON, GetSystemMetrics(SM_CXSMICON), GetSystemMetrics(SM_CYSMICON), 0));
 
 	if (!RegisterClassEx(&wndClass))
 	{
