@@ -51,10 +51,15 @@ void Rove::Model::Render()
 
 	// We need the stride and offset for the vertex
 	UINT vertex_stride = sizeof(Vertex);
-	auto vertex_offset = 0u;
+	UINT vertex_offset = 0u;
 
 	// Bind the vertex buffer to the pipeline's Input Assembler stage
 	d3dDeviceContext->IASetVertexBuffers(0, 1, m_VertexBuffer.GetAddressOf(), &vertex_stride, &vertex_offset);
+
+	/*UINT vertex_normal_stride = sizeof(Vec3<float>);
+	UINT vertex_normal_offset = 0u;
+	ID3D11Buffer* buffer = m_VertexNormalBuffer.Get();
+	d3dDeviceContext->IASetVertexBuffers(1, 1, &buffer, &vertex_normal_stride, &vertex_normal_offset);*/
 
 	// Bind the index buffer to the pipeline's Input Assembler stage
 	d3dDeviceContext->IASetIndexBuffer(m_IndexBuffer.Get(), m_IndexBufferFormat, 0);
@@ -109,7 +114,7 @@ void Rove::Model::CreateIndexBuffer(void* indices, UINT count, int64_t size, DXG
 
 	// Create index buffer
 	D3D11_BUFFER_DESC index_buffer_desc = {};
-	index_buffer_desc.Usage = D3D11_USAGE_DEFAULT;
+	index_buffer_desc.Usage = D3D11_USAGE_IMMUTABLE;
 	index_buffer_desc.ByteWidth = static_cast<UINT>(size * count);
 	index_buffer_desc.BindFlags = D3D11_BIND_INDEX_BUFFER;
 

@@ -72,6 +72,8 @@ namespace Rove
 		ComPtr<ID3D11Buffer> m_VertexBuffer = nullptr;
 		void CreateVertexBuffer(const std::vector<Vertex>& vertices);
 
+		ComPtr<ID3D11Buffer> m_VertexNormalBuffer = nullptr;
+
 		// Index buffer
 		ComPtr<ID3D11Buffer> m_IndexBuffer = nullptr;
 		void CreateIndexBuffer(void* indices, UINT count, int64_t size, DXGI_FORMAT format);
