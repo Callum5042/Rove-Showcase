@@ -200,7 +200,6 @@ void Rove::GltfLoader::LoadVertices(simdjson::dom::element& document, simdjson::
 		std::vector<Vec3<float>> data = ReinterpretBuffer<Vec3<float>>(buffer, count);
 		vertices.resize(count);
 
-		//vertices.resize(count);
 		for (int64_t i = 0; i < count; ++i)
 		{
 			Vec3<float> position = data[i];
@@ -216,41 +215,17 @@ void Rove::GltfLoader::LoadVertices(simdjson::dom::element& document, simdjson::
 		if (accessor_index.error() == simdjson::SUCCESS)
 		{
 			simdjson_result<element> accessor = document[Json::Accessors].at(accessor_index.value());
+			int64_t count = 0;
+			std::vector<char> buffer = BufferAccessor(document, accessor.value(), nullptr, nullptr, &count);
+			std::vector<Vec3<float>> data = ReinterpretBuffer<Vec3<float>>(buffer, count);
 
-			// Old buffer
+			for (int64_t i = 0; i < count; ++i)
 			{
-				int64_t count = 0;
-				std::vector<char> buffer = BufferAccessor(document, accessor.value(), nullptr, nullptr, &count);
-				std::vector<Vec3<float>> data = ReinterpretBuffer<Vec3<float>>(buffer, count);
-
-				for (int64_t i = 0; i < count; ++i)
-				{
-					Vec3<float> normal = data[i];
-					vertices[i].normal_x = normal.x;
-					vertices[i].normal_y = normal.y;
-					vertices[i].normal_z = normal.z;
-				}
+				Vec3<float> normal = data[i];
+				vertices[i].normal_x = normal.x;
+				vertices[i].normal_y = normal.y;
+				vertices[i].normal_z = normal.z;
 			}
-
-			// New slot
-			//{
-			//	int64_t count = 0;
-			//	ComponentDataType component_data_type = ComponentDataType::UNKNOWN;
-			//	AccessorDataType accessor_data_type = AccessorDataType::UNKNOWN;
-			//	std::vector<char> buffer = BufferAccessor(document, accessor.value(), &component_data_type, &accessor_data_type, &count);
-			//	Vec3<float>* data = reinterpret_cast<Vec3<float>*>(buffer.data());
-
-			//	// Create vertex buffer
-			//	D3D11_BUFFER_DESC vertex_buffer_desc = {};
-			//	vertex_buffer_desc.Usage = D3D11_USAGE_DEFAULT;
-			//	vertex_buffer_desc.ByteWidth = static_cast<UINT>(sizeof(Vec3<float>) * count);
-			//	vertex_buffer_desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-
-			//	D3D11_SUBRESOURCE_DATA vertex_subdata = {};
-			//	vertex_subdata.pSysMem = data;
-
-			//	DX::Check(m_DxRenderer->GetDevice()->CreateBuffer(&vertex_buffer_desc, &vertex_subdata, model->m_VertexNormalBuffer.ReleaseAndGetAddressOf()));
-			//}
 		}
 	}
 

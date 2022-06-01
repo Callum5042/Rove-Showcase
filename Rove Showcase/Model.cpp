@@ -56,11 +56,6 @@ void Rove::Model::Render()
 	// Bind the vertex buffer to the pipeline's Input Assembler stage
 	d3dDeviceContext->IASetVertexBuffers(0, 1, m_VertexBuffer.GetAddressOf(), &vertex_stride, &vertex_offset);
 
-	/*UINT vertex_normal_stride = sizeof(Vec3<float>);
-	UINT vertex_normal_offset = 0u;
-	ID3D11Buffer* buffer = m_VertexNormalBuffer.Get();
-	d3dDeviceContext->IASetVertexBuffers(1, 1, &buffer, &vertex_normal_stride, &vertex_normal_offset);*/
-
 	// Bind the index buffer to the pipeline's Input Assembler stage
 	d3dDeviceContext->IASetIndexBuffer(m_IndexBuffer.Get(), m_IndexBufferFormat, 0);
 
