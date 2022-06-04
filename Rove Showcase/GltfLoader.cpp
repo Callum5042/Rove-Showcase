@@ -307,7 +307,7 @@ void Rove::GltfLoader::LoadDiffuseTexture(simdjson::dom::element& document, simd
 	texture_path.append(uri);
 
 	ComPtr<ID3D11Resource> resource = nullptr;
-	DX::Check(DirectX::CreateWICTextureFromFile(m_DxRenderer->GetDevice(), texture_path.wstring().c_str(), resource.ReleaseAndGetAddressOf(), model->m_DiffuseTexture.ReleaseAndGetAddressOf()));
+	DX::Check(DirectX::CreateWICTextureFromFile(m_DxRenderer->GetDevice(), m_DxRenderer->GetDeviceContext(), texture_path.wstring().c_str(), resource.ReleaseAndGetAddressOf(), model->m_DiffuseTexture.ReleaseAndGetAddressOf()));
 	model->Material.diffuse_texture = true;
 }
 
@@ -328,7 +328,7 @@ void Rove::GltfLoader::LoadNormalTexture(simdjson::dom::element& document, simdj
 	texture_path.append(uri);
 
 	ComPtr<ID3D11Resource> resource = nullptr;
-	DX::Check(DirectX::CreateWICTextureFromFile(m_DxRenderer->GetDevice(), texture_path.wstring().c_str(), resource.ReleaseAndGetAddressOf(), model->m_NormalTexture.ReleaseAndGetAddressOf()));
+	DX::Check(DirectX::CreateWICTextureFromFile(m_DxRenderer->GetDevice(), m_DxRenderer->GetDeviceContext(), texture_path.wstring().c_str(), resource.ReleaseAndGetAddressOf(), model->m_NormalTexture.ReleaseAndGetAddressOf()));
 	model->Material.normal_texture = true;
 }
 
