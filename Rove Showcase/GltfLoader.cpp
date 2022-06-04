@@ -143,7 +143,7 @@ std::vector<std::unique_ptr<Rove::Model>> Rove::GltfLoader::Load(const std::file
 		}
 
 		// Assign model
-		model->LocalWorld = world;
+		model->World = world;
 		model->Name = name.value();
 		models.push_back(std::move(model));
 	}

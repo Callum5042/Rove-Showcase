@@ -26,7 +26,7 @@ void Rove::Object::Render()
 {
 	for (auto& model : m_Models)
 	{
-		model->Render();
+		model->Render(Position, Rotation);
 	}
 }
 
@@ -45,7 +45,7 @@ Rove::Model::Model(DxRenderer* renderer, DxShader* shader) : m_DxRenderer(render
 {
 }
 
-void Rove::Model::Render()
+void Rove::Model::Render(const DirectX::XMFLOAT3& position, const DirectX::XMFLOAT3& rotation)
 {
 	auto d3dDeviceContext = m_DxRenderer->GetDeviceContext();
 
@@ -67,9 +67,14 @@ void Rove::Model::Render()
 	m_DxRenderer->GetDeviceContext()->PSSetShaderResources(1, 1, m_NormalTexture.GetAddressOf());
 
 	// Apply local transformations
-	Rove::LocalWorldBuffer world_buffer = {};
-	world_buffer.world = DirectX::XMMatrixTranspose(LocalWorld);
-	m_DxShader->UpdateLocalWorldConstantBuffer(world_buffer);
+	DirectX::XMMATRIX world = World;
+	world *= DirectX::XMMatrixRotationRollPitchYaw(rotation.x, rotation.y, rotation.z);
+	world *= DirectX::XMMatrixTranslation(position.x, position.y, position.z);
+
+	Rove::WorldBuffer world_buffer = {};
+	world_buffer.world = DirectX::XMMatrixTranspose(world);
+	world_buffer.worldInverse = DirectX::XMMatrixInverse(nullptr, world);
+	m_DxShader->UpdateWorldConstantBuffer(world_buffer);
 
 	// Apply materials
 	Rove::MaterialBuffer material_buffer = {};
