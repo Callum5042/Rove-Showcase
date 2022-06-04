@@ -414,6 +414,7 @@ void Rove::Application::RenderGui()
 			ImGui::Text(m_Object->Filename.c_str());
 			ImGui::DragFloat3("Position", reinterpret_cast<float*>(&m_Object->Position), 0.1f);
 			ImGui::DragFloat3("Rotation", reinterpret_cast<float*>(&m_Object->Rotation), 0.1f);
+			ImGui::DragFloat3("Scale", reinterpret_cast<float*>(&m_Object->Scale), 0.1f);
 
 			// Model details
 			for (auto& model : m_Object->GetModels())

@@ -26,7 +26,7 @@ void Rove::Object::Render()
 {
 	for (auto& model : m_Models)
 	{
-		model->Render(Position, Rotation);
+		model->Render(Position, Rotation, Scale);
 	}
 }
 
@@ -45,7 +45,7 @@ Rove::Model::Model(DxRenderer* renderer, DxShader* shader) : m_DxRenderer(render
 {
 }
 
-void Rove::Model::Render(const DirectX::XMFLOAT3& position, const DirectX::XMFLOAT3& rotation)
+void Rove::Model::Render(const DirectX::XMFLOAT3& position, const DirectX::XMFLOAT3& rotation, const DirectX::XMFLOAT3& scale)
 {
 	auto d3dDeviceContext = m_DxRenderer->GetDeviceContext();
 
@@ -68,6 +68,7 @@ void Rove::Model::Render(const DirectX::XMFLOAT3& position, const DirectX::XMFLO
 
 	// Apply local transformations
 	DirectX::XMMATRIX world = World;
+	world *= DirectX::XMMatrixScaling(scale.x, scale.y, scale.z);
 	world *= DirectX::XMMatrixRotationRollPitchYaw(rotation.x, rotation.y, rotation.z);
 	world *= DirectX::XMMatrixTranslation(position.x, position.y, position.z);
 

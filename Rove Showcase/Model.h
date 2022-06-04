@@ -57,7 +57,7 @@ namespace Rove
 		Model(DxRenderer* renderer, DxShader* shader);
 		virtual ~Model() = default;
 
-		void Render(const DirectX::XMFLOAT3& position, const DirectX::XMFLOAT3& rotation);
+		void Render(const DirectX::XMFLOAT3& position, const DirectX::XMFLOAT3& rotation, const DirectX::XMFLOAT3& scale);
 
 		// World transformation
 		DirectX::XMMATRIX World = DirectX::XMMatrixIdentity();
@@ -106,6 +106,7 @@ namespace Rove
 		// World 
 		DirectX::XMFLOAT3 Position;
 		DirectX::XMFLOAT3 Rotation;
+		DirectX::XMFLOAT3 Scale = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
 
 		// Materials
 		std::vector<Material*> GetMaterials();
