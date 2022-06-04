@@ -116,7 +116,7 @@ int Rove::Application::Run()
 	m_Timer = std::make_unique<Rove::Timer>();
 	m_Timer->Start();
 
-	m_Object->LoadFile("D:\\GLTF Models\\material_cube.gltf");
+	m_Object->LoadFile("D:\\GLTF Models\\double_crate.gltf");
 
 	// Main loop
 	MSG msg = {};

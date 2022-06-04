@@ -78,6 +78,8 @@ Rove::GltfLoader::GltfLoader(DxRenderer* renderer, DxShader* shader) : m_DxRende
 
 std::vector<std::unique_ptr<Rove::Model>> Rove::GltfLoader::Load(const std::filesystem::path& path)
 {
+	HRESULT hr = CoInitializeEx(nullptr, COINIT_MULTITHREADED);
+
 	m_Path = path;
 
 	// Load file
@@ -133,15 +135,11 @@ std::vector<std::unique_ptr<Rove::Model>> Rove::GltfLoader::Load(const std::file
 			model->Material.metallicFactor = static_cast<float>(material[Json::PbrMetallicRoughness][Json::MetallicFactor].get_double());
 			model->Material.roughnessFactor = static_cast<float>(material[Json::PbrMetallicRoughness][Json::RoughnessFactor].get_double());
 
-			HRESULT hr = CoInitializeEx(nullptr, COINIT_MULTITHREADED);
-
 			// Diffuse texture
 			LoadDiffuseTexture(document.value(), material.value(), model.get());
 
 			// Normal texture
 			LoadNormalTexture(document.value(), material.value(), model.get());
-
-			CoUninitialize();
 		}
 
 		// Assign model
@@ -150,6 +148,7 @@ std::vector<std::unique_ptr<Rove::Model>> Rove::GltfLoader::Load(const std::file
 		models.push_back(std::move(model));
 	}
 
+	CoUninitialize();
 	return models;
 }
 
