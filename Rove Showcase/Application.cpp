@@ -116,7 +116,7 @@ int Rove::Application::Run()
 	m_Timer = std::make_unique<Rove::Timer>();
 	m_Timer->Start();
 
-	m_Object->LoadFile("D:\\GLTF Models\\material_cube.gltf");
+	m_Object->LoadFile("D:\\GLTF Models\\double_crate.gltf");
 
 	// Main loop
 	MSG msg = {};
@@ -258,12 +258,6 @@ void Rove::Application::UpdateCamera()
 	camera_buffer.projection = DirectX::XMMatrixTranspose(m_Camera->GetProjection());
 	camera_buffer.cameraPosition = m_Camera->GetPosition();
 	m_DxShader->UpdateCameraBuffer(camera_buffer);
-
-	// Update world buffer
-	Rove::WorldBuffer world_buffer = {};
-	world_buffer.world = DirectX::XMMatrixTranspose(m_Object->World);
-	world_buffer.worldInverse = DirectX::XMMatrixInverse(nullptr, m_Object->World);
-	m_DxShader->UpdateWorldConstantBuffer(world_buffer);
 }
 
 void Rove::Application::Create()
@@ -418,6 +412,9 @@ void Rove::Application::RenderGui()
 		if (ImGui::Begin("Model", &m_ShowModelDetails, ImGuiWindowFlags_AlwaysAutoResize))
 		{
 			ImGui::Text(m_Object->Filename.c_str());
+			ImGui::DragFloat3("Position", reinterpret_cast<float*>(&m_Object->Position), 0.1f);
+			ImGui::DragFloat3("Rotation", reinterpret_cast<float*>(&m_Object->Rotation), 0.1f);
+			ImGui::DragFloat3("Scale", reinterpret_cast<float*>(&m_Object->Scale), 0.1f);
 
 			// Model details
 			for (auto& model : m_Object->GetModels())
@@ -426,19 +423,6 @@ void Rove::Application::RenderGui()
 				ImGui::Text(model->Name.c_str());
 			}
 		}
-
-		// Show materials
-		/*std::vector<Rove::Material*> materials = m_Object->GetMaterials();
-		for (size_t i = 0; i < materials.size(); ++i)
-		{
-			ImGui::Separator();
-
-			std::string name = "Materials: " + std::to_string(i);
-			ImGui::Text(name.c_str());
-
-			std::string roughness_label = "Roughness## " + std::to_string(i);
-			ImGui::SliderFloat(roughness_label.c_str(), &materials[i]->roughnessFactor, 0.0f, 1.0f);
-		}*/
 
 		ImGui::End();
 	}

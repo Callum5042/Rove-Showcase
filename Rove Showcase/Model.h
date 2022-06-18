@@ -50,14 +50,17 @@ namespace Rove
 	// Rendering Model
 	class Model
 	{
+		DxRenderer* m_DxRenderer = nullptr;
+		DxShader* m_DxShader = nullptr;
+
 	public: 
 		Model(DxRenderer* renderer, DxShader* shader);
 		virtual ~Model() = default;
 
-		void Render();
+		void Render(const DirectX::XMFLOAT3& position, const DirectX::XMFLOAT3& rotation, const DirectX::XMFLOAT3& scale);
 
 		// World transformation
-		DirectX::XMMATRIX LocalWorld = DirectX::XMMatrixIdentity();
+		DirectX::XMMATRIX World = DirectX::XMMatrixIdentity();
 
 		// Model name
 		std::string Name;
@@ -81,15 +84,15 @@ namespace Rove
 		ComPtr<ID3D11ShaderResourceView> m_NormalTexture = nullptr;
 
 	private:
-		DxRenderer* m_DxRenderer = nullptr;
-		DxShader* m_DxShader = nullptr;
-
 		DXGI_FORMAT m_IndexBufferFormat;
 	};
 
 	// Object
 	class Object
 	{
+		DxRenderer* m_DxRenderer = nullptr;
+		DxShader* m_DxShader = nullptr;
+
 	public:
 		Object(DxRenderer* renderer, DxShader* shader);
 		virtual ~Object() = default;
@@ -101,7 +104,9 @@ namespace Rove
 		void Render();
 
 		// World 
-		DirectX::XMMATRIX World = DirectX::XMMatrixIdentity();
+		DirectX::XMFLOAT3 Position;
+		DirectX::XMFLOAT3 Rotation;
+		DirectX::XMFLOAT3 Scale = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
 
 		// Materials
 		std::vector<Material*> GetMaterials();
@@ -112,10 +117,8 @@ namespace Rove
 		// Object name
 		std::string Filename;
 
-	private:
-		DxRenderer* m_DxRenderer = nullptr;
-		DxShader* m_DxShader = nullptr;
 
+	private:
 		// Models
 		std::vector<std::unique_ptr<Model>> m_Models;
 	};

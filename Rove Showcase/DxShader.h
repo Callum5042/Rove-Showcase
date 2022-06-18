@@ -18,11 +18,6 @@ namespace Rove
 		DirectX::XMMATRIX worldInverse;
 	};
 
-	struct LocalWorldBuffer
-	{
-		DirectX::XMMATRIX world;
-	};
-
 	struct PointLightStruct
 	{
 		DirectX::XMFLOAT3 position;
@@ -70,9 +65,6 @@ namespace Rove
 		// Set world constant buffer from camera
 		void UpdateWorldConstantBuffer(const WorldBuffer& worldBuffer);
 
-		// Set local world constant buffer from camera
-		void UpdateLocalWorldConstantBuffer(const LocalWorldBuffer& worldBuffer);
-
 		// Update camera buffer
 		void UpdatePointLightBuffer(const PointLightBuffer& buffer);
 
@@ -104,10 +96,6 @@ namespace Rove
 		// Point light constant buffer
 		ComPtr<ID3D11Buffer> m_PointLightConstantBuffer = nullptr;
 		void CreatePointLightConstantBuffer();
-
-		// Local world buffer
-		ComPtr<ID3D11Buffer> m_LocalWorldConstantBuffer = nullptr;
-		void CreateLocalWorldConstantBuffer();
 
 		// Material buffer
 		ComPtr<ID3D11Buffer> m_MaterialConstantBuffer = nullptr;
